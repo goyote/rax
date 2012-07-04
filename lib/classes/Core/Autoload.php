@@ -1,5 +1,8 @@
 <?php
 
+/**
+ *
+ */
 class Core_Autoload
 {
     /**
@@ -46,8 +49,8 @@ class Core_Autoload
      */
     public function setBundles(array $bundles)
     {
-        foreach ($bundles as $name => $path) {
-            $bundles[$name] = rtrim($path, '/').'/';
+        foreach ($bundles as $name => $dir) {
+            $bundles[$name] = rtrim($dir, '/').'/';
         }
 
         $this->bundles = $bundles;
@@ -71,7 +74,11 @@ class Core_Autoload
      */
     public function setIncludePath($includePath)
     {
-        $this->includePath = (array) $includePath;
+        foreach ((array) $includePath as $key => $dir) {
+            $includePath[$key] = rtrim($dir, '/').'/';
+        }
+
+        $this->includePath = $includePath;
 
         return $this;
     }
@@ -87,18 +94,18 @@ class Core_Autoload
     }
 
     /**
-     * @param array $directories
+     * @param array $dirs
      * @return Autoload
      */
-    public function setCascadingFilesystem(array $directories)
+    public function setCascadingFilesystem(array $dirs)
     {
         $cascadingFilesystem = array();
 
-        foreach ($directories as $directory) {
-            if (is_array($directory)) {
-                $cascadingFilesystem = array_merge($cascadingFilesystem, $directory);
+        foreach ($dirs as $dir) {
+            if (is_array($dir)) {
+                $cascadingFilesystem = array_merge($cascadingFilesystem, array_values($dir));
             } else {
-                $cascadingFilesystem[] = $directory;
+                $cascadingFilesystem[] = rtrim($dir, '/').'/';
             }
         }
 
@@ -150,7 +157,7 @@ class Core_Autoload
      * @param string $ext
      * @return bool|string
      */
-    public function findFile($baseDir = '', $class, $ext = 'php')
+    public function findFile($baseDir, $class, $ext = 'php')
     {
         if ('\\' === $class[0]) {
             $class = substr($class, 1);
@@ -160,7 +167,8 @@ class Core_Autoload
             $class = str_replace('\\', '/', $class);
         }
 
-        $class = '/'.str_replace('_', '/', $class).'.'.$ext;
+        $class   = str_replace('_', '/', $class).'.'.$ext;
+        $baseDir = trim($baseDir, '/').'/';
 
         foreach ($this->cascadingFilesystem as $absoluteDir) {
             if (file_exists($absoluteDir.$baseDir.$class)) {
