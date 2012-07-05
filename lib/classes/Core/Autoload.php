@@ -141,12 +141,15 @@ class Core_Autoload
      *     Autoload::getSingleton()->loadClass('FooClass');
      *
      * @param string $class
+     * @return Autoload
      */
     public function loadClass($class)
     {
         if ($file = $this->findFile('classes', $class)) {
             require $file;
         }
+
+        return $this;
     }
 
     /**
