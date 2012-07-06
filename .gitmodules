@@ -1,0 +1,27 @@
+[submodule "bin/vagrant/cookbooks/apt"]
+	path = bin/vagrant/cookbooks/apt
+	url = git://github.com/opscode-cookbooks/apt.git
+[submodule "bin/vagrant/cookbooks/ntp"]
+	path = bin/vagrant/cookbooks/ntp
+	url = git://github.com/opscode-cookbooks/ntp.git
+[submodule "bin/vagrant/cookbooks/mysql"]
+	path = bin/vagrant/cookbooks/mysql
+	url = git://github.com/opscode-cookbooks/mysql.git
+[submodule "bin/vagrant/cookbooks/memcached"]
+	path = bin/vagrant/cookbooks/memcached
+	url = git://github.com/opscode-cookbooks/memcached.git
+[submodule "bin/vagrant/cookbooks/git"]
+	path = bin/vagrant/cookbooks/git
+	url = git://github.com/opscode-cookbooks/git.git
+[submodule "bin/vagrant/cookbooks/varnish"]
+	path = bin/vagrant/cookbooks/varnish
+	url = git://github.com/opscode-cookbooks/varnish.git
+[submodule "bin/vagrant/cookbooks/vim"]
+	path = bin/vagrant/cookbooks/vim
+	url = git://github.com/opscode-cookbooks/vim.git
+[submodule "bin/vagrant/cookbooks/apache2"]
+	path = bin/vagrant/cookbooks/apache2
+	url = git://github.com/opscode-cookbooks/apache2.git
+[submodule "bin/vagrant/cookbooks/php"]
+	path = bin/vagrant/cookbooks/php
+	url = git://github.com/opscode-cookbooks/php.git

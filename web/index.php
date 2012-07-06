@@ -45,6 +45,6 @@ if (isset($_SERVER['APP_ENV'])) {
 
 $config = Config::get('kernel');
 
-echo $config->foo;
+echo 2;
 
 unset($autoload, $config);
