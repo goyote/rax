@@ -6,11 +6,6 @@
 class Core_Config
 {
     /**
-     * @var string
-     */
-    protected static $delimiter = '.';
-
-    /**
      * @var array
      */
     protected static $loadedFiles = array();
@@ -23,13 +18,13 @@ class Core_Config
      */
     public static function get($key, $default = null)
     {
-        $filename = current(explode(static::$delimiter, $key));
+        $filename = current(explode(Arr::delimiter(), $key));
 
         if (!static::isLoaded($filename)) {
             static::load($filename);
         }
 
-        return Arr::path(static::$loadedFiles, $key, $default);
+        return Arr::getFromPath(static::$loadedFiles, $key, $default);
     }
 
     /**
@@ -50,21 +45,5 @@ class Core_Config
     public static function load($filename)
     {
         return static::$loadedFiles[$filename] = new ArrayObject(include APP_DIR.'config/'.$filename.'.php', ArrayObject::ARRAY_AS_PROPS);
-    }
-
-    /**
-     * @static
-     *
-     * @param null $delimiter
-     *
-     * @return string
-     */
-    public static function delimiter($delimiter = null)
-    {
-        if (null === $delimiter) {
-            return static::$delimiter;
-        }
-
-        return static::$delimiter = $delimiter;
     }
 }

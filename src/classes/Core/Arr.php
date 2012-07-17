@@ -14,27 +14,27 @@ class Core_Arr
 
     /**
      * @static
-     * @param string $delimiter
+     *
+     * @param null $delimiter
+     *
+     * @return string|null
      */
-    public static function setDelimiter($delimiter)
+    public static function delimiter($delimiter = null)
     {
-        static::$delimiter = (string) $delimiter;
+        if (is_null($delimiter)) {
+            return static::$delimiter;
+        }
+
+        static::$delimiter = $delimiter;
     }
 
     /**
      * @static
-     * @return string
-     */
-    public static function getDelimiter()
-    {
-        return static::$delimiter;
-    }
-
-    /**
-     * @static
-     * @param array $array
+     *
+     * @param array  $array
      * @param string $key
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public static function get(array $array, $key, $default = null)
@@ -44,16 +44,18 @@ class Core_Arr
 
     /**
      * @static
-     * @param array $array
+     *
+     * @param array  $array
      * @param string $key
-     * @param mixed $default
+     * @param mixed  $default
      * @param string $delimiter
+     *
      * @return mixed
      */
-    public static function path(array $array, $key, $default = null, $delimiter = null)
+    public static function getFromPath(array $array, $key, $default = null, $delimiter = null)
     {
-        if (null === $delimiter) {
-            $delimiter = static::getDelimiter();
+        if (is_null($delimiter)) {
+            $delimiter = static::delimiter();
         }
 
         $keys = explode($delimiter, $key);
