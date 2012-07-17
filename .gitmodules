@@ -22,3 +22,6 @@
 [submodule "bin/vagrant/cookbooks/php"]
 	path = bin/vagrant/cookbooks/php
 	url = git://github.com/opscode-cookbooks/php.git
+[submodule "bin/vagrant/cookbooks/apt"]
+	path = bin/vagrant/cookbooks/apt
+	url = git://github.com/opscode-cookbooks/apt.git
