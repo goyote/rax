@@ -1,3 +1,5 @@
 <?php
 
-class Autoload extends Core_Autoload {}
+class Autoload extends Core_Autoload
+{
+}

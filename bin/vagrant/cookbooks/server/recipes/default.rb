@@ -20,8 +20,8 @@ node.set["apache"]["user"]  = "vagrant"
 node.set["apache"]["group"] = "vagrant"
 
 web_app "rax" do
-  server_name    "rax.lcl"
-  server_aliases "*.rax.lcl"
+  server_name    "dev.rax.com"
+  server_aliases "*.dev.rax.com"
   docroot        "/home/vagrant/rax/web"
   app_env        "development"
 end
