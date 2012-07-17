@@ -8,13 +8,13 @@ Vagrant::Config.run do |config|
   config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
 
   # Assign the guest a static IP
-  config.vm.network :hostonly, "33.33.33.10"
+  config.vm.network :hostonly, "77.77.77.10"
 
   # Forward port 8080 on the host to port 80 on the guest
-  config.vm.forward_port "web", 80, 8080
+  config.vm.forward_port 80, 8080
 
   # Mount the project root folder inside the guest
-  config.vm.share_folder "dev.rax.com", "/home/vagrant/rax", "../../", :extra => 'dmode=755,fmode=644'
+  config.vm.share_folder "dev.rax.com", "/home/vagrant/rax", "../../", :extra => "dmode=755,fmode=644"
 
   config.vm.provision :chef_solo do |chef|
     # Execute our custom recipe
