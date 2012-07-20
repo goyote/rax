@@ -24,7 +24,7 @@ class Core_Config
             static::load($filename);
         }
 
-        return Arr::getFromPath(static::$loadedFiles, $key, $default);
+        return Arr::get(static::$loadedFiles, $key, $default);
     }
 
     /**

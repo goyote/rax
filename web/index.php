@@ -15,7 +15,7 @@ ini_set('display_errors', 1);
 /**
  * Capture the current time and memory usage.
  *
- * We'll use this with the final numbers to benchmark the framework.
+ * We'll use this in conjunction with the final numbers to benchmark the framework.
  */
 define('RAX_START_TIME',   microtime(true));
 define('RAX_START_MEMORY', memory_get_peak_usage(true));
