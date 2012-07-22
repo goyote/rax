@@ -28,7 +28,7 @@ class Core_Debug
             return $dump;
         }
 
-        echo '<pre>'.implode('<br />', $dump).'</pre>';
+        echo '<pre>'.implode("\n\n", $dump).'</pre>';
         exit();
     }
 }

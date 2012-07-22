@@ -6,42 +6,15 @@
 class Core_Arr
 {
     /**
-     * The path separator.
-     *
-     * @var string
-     */
-    protected static $delimiter = '.';
-
-    /**
      * @static
      *
-     * @param string $delimiter
-     *
-     * @return null|string
-     */
-    public static function delimiter($delimiter = null)
-    {
-        if (is_null($delimiter)) {
-            return static::$delimiter;
-        }
-
-        static::$delimiter = $delimiter;
-    }
-
-    /**
-     * @static
-     *
-     * @param array|ArrayObject $array
+     * @param array|ArrayAccess $array
      *
      * @return bool
      */
     public static function isArray($array)
     {
-        if (is_array($array)) {
-            return true;
-        }
-
-        return ($array instanceof ArrayObject);
+        return (is_array($array) || $array instanceof ArrayAccess);
     }
 
     /**
@@ -53,54 +26,89 @@ class Core_Arr
      */
     public static function isAssociative($array)
     {
+        if ($array instanceof ArrayObject) {
+            $array = $array->getArrayCopy();
+        }
+
         if (!is_array($array)) {
             return false;
         }
 
         $keys = array_keys($array);
 
-        return $keys !== array_keys($keys);
-    }
-
-    public static function set(&$array, $key, $value, $delimiter = null)
-    {
-        if (is_null($delimiter)) {
-            $delimiter = static::delimiter();
-        }
-
-        $keys = explode($delimiter, $key);
-
-
+        return ($keys !== array_keys($keys));
     }
 
     /**
      * @static
      *
-     * @param array|ArrayObject $array
+     * @param array|ArrayAccess $array
      * @param string            $key
+     * @param mixed             $value
+     * @param string            $delimiter
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function set(&$array, $key, $value, $delimiter = '.')
+    {
+        if (!static::isArray($array)) {
+            throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
+        }
+
+        if (is_array($key)) {
+            foreach ($key as $k => $v) {
+                static::set($array, $k, $v, $delimiter);
+            }
+
+            return;
+        }
+
+        $keys = explode($delimiter, $key);
+
+        while (count($keys) > 1) {
+            $key = array_shift($keys);
+
+            if (!array_key_exists($key, $array) || !static::isArray($array[$key])) {
+                $array[$key] = array();
+            }
+
+            $array =& $array[$key];
+        }
+
+        $array[array_shift($keys)] = $value;
+    }
+
+    /**
+     * @static
+     *
+     * @param array|ArrayAccess $array
+     * @param array|string      $key
      * @param mixed             $default
      * @param string            $delimiter
      *
+     * @throws InvalidArgumentException
      * @return mixed
      */
-    public static function get($array, $key, $default = null, $delimiter = null)
+    public static function get($array, $key, $default = null, $delimiter = '.')
     {
-        if (array_key_exists($key, $array)) {
-            return $array[$key];
+        if (!static::isArray($array)) {
+            throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
         }
 
-        if (is_null($delimiter)) {
-            $delimiter = static::delimiter();
-        }
+        if (static::isArray($key)) {
+            $return = array();
 
-        if (false === strpos($key, $delimiter)) {
-            return $default;
+            foreach ($key as $k) {
+                $return[$k] = static::get($array, $k, $default, $delimiter);
+            }
+
+            return $return;
         }
 
         $keys = explode($delimiter, $key);
 
         foreach ($keys as $key) {
-            if (array_key_exists($key, $array)) {
+            if (static::isArray($array) && array_key_exists($key, $array)) {
                 $array = $array[$key];
             } else {
                 return $default;
@@ -113,30 +121,33 @@ class Core_Arr
     /**
      * @static
      *
-     * @param array|ArrayObject  $array
-     * @param string             $key
-     * @param string             $delimiter
+     * @param array|ArrayAccess $array
+     * @param array|string      $key
+     * @param string            $delimiter
      *
+     * @throws InvalidArgumentException
      * @return bool
      */
-    public static function has($array, $key, $delimiter = null)
+    public static function has($array, $key, $delimiter = '.')
     {
-        if (array_key_exists($key, $array)) {
+        if (!static::isArray($array)) {
+            throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
+        }
+
+        if (static::isArray($key)) {
+            foreach ($key as $k) {
+                if (!static::has($array, $k, $delimiter)) {
+                    return false;
+                }
+            }
+
             return true;
-        }
-
-        if (is_null($delimiter)) {
-            $delimiter = static::delimiter();
-        }
-
-        if (false === strpos($key, $delimiter)) {
-            return false;
         }
 
         $keys = explode($delimiter, $key);
 
         foreach ($keys as $key) {
-            if (array_key_exists($key, $array)) {
+            if (static::isArray($array) && array_key_exists($key, $array)) {
                 $array = $array[$key];
             } else {
                 return false;
@@ -146,10 +157,53 @@ class Core_Arr
         return true;
     }
 
-    public static function delete()
+    /**
+     * @static
+     *
+     * @param array|ArrayAccess $array
+     * @param array|string      $key
+     * @param string            $delimiter
+     *
+     * @throws InvalidArgumentException
+     * @return array|bool
+     */
+    public static function delete(&$array, $key, $delimiter = '.')
     {
+        if (is_array($key)) {
+            $return = array();
+
+            foreach ($key as $k) {
+                $return[$k] = static::delete($array, $k, $delimiter);
+            }
+
+            return $return;
+        }
+
+        $keys       = explode($delimiter, $key);
+        $currentKey = array_shift($keys);
+
+        if (!static::isArray($array) || !array_key_exists($currentKey, $array)) {
+            return false;
+        }
+
+        if (!empty($keys)) {
+            $key = implode($delimiter, $keys);
+
+            return static::delete($array[$currentKey], $key, $delimiter);
+        } else {
+            unset($array[$currentKey]);
+        }
+
+        return true;
     }
 
+    /**
+     * @static
+     *
+     * @param array $array
+     *
+     * @return array
+     */
     public static function flatten(array $array)
     {
         $flat = array();

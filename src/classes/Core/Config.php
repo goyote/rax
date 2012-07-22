@@ -12,19 +12,22 @@ class Core_Config
 
     /**
      * @static
+     *
      * @param string $key
-     * @param mixed $default
+     * @param mixed  $default
+     * @param string $delimiter
+     *
      * @return mixed
      */
-    public static function get($key, $default = null)
+    public static function get($key, $default = null, $delimiter = '.')
     {
-        $filename = current(explode(Arr::delimiter(), $key));
+        $filename = array_shift(explode($delimiter, $key));
 
         if (!static::isLoaded($filename)) {
             static::load($filename);
         }
 
-        return Arr::get(static::$loadedFiles, $key, $default);
+        return Arr::get(static::$loadedFiles, $key, $default, $delimiter);
     }
 
     /**

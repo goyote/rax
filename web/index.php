@@ -53,6 +53,13 @@ if (isset($_SERVER['APP_ENV'])) {
     throw new Exception('Could not determine the server environment');
 }
 
-$config = Config::get('kernel.foo');
+$a = array('foo', 'bar', 'lol');
+$b = array('foo' => array('bar' => null, 'two' => 6, 7 => 77), 'bar' => 'bar', 'lol' => 'lol', null => '5435');
+$c = new ArrayObject($b);
+$d = '32';
 
-Debug::dump($config);
+//echo $c[0];
+Arr::set($c, 'foo.7', 'new1');
+Debug::dump($c);
+
+//Debug::dump(Arr::get($b, 'foo.7.o'));
