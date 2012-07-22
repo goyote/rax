@@ -169,6 +169,10 @@ class Core_Arr
      */
     public static function delete(&$array, $key, $delimiter = '.')
     {
+        if (!static::isArray($array)) {
+            throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
+        }
+
         if (is_array($key)) {
             $return = array();
 
@@ -217,5 +221,21 @@ class Core_Arr
         }
 
         return $flat;
+    }
+
+    /**
+     * @static
+     *
+     * @param array  $array
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return int
+     */
+    public static function unshift(array &$array, $key, $value)
+    {
+        $array = array($key => $value) + $array;
+
+        return count($array);
     }
 }
