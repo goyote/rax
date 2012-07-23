@@ -111,7 +111,7 @@ class Core_Arr
             if (static::isArray($array) && array_key_exists($key, $array)) {
                 $array = $array[$key];
             } else {
-                return $default;
+                return Kernel::value($default);
             }
         }
 
@@ -210,17 +210,17 @@ class Core_Arr
      */
     public static function flatten(array $array)
     {
-        $flat = array();
+        $return = array();
 
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $flat += static::flatten($value);
+                $return += static::flatten($value);
             } else {
-                $flat[$key] = $value;
+                $return[$key] = $value;
             }
         }
 
-        return $flat;
+        return $return;
     }
 
     /**

@@ -3,77 +3,29 @@
 /**
  *
  */
-class Core_Config_Group extends ArrayObject
+class Core_Config_Group extends ArrObj
 {
     /**
-     * @param string $key
-     * @param mixed  $value
-     *
-     * @return Core_Config_Group
+     * @var string
      */
-    public function set($key, $value)
-    {
-        $this->offsetSet($key, $value);
+    protected $groupName;
 
-        return $this;
+    /**
+     * @param string $groupName
+     * @param array $config
+     */
+    public function __construct($groupName, $config = array())
+    {
+        $this->groupName = $groupName;
+
+        parent::__construct($config, ArrayObject::ARRAY_AS_PROPS);
     }
 
     /**
-     * Gets a value from the configuration.
-     *
-     * @param string $key
-     * @param mixed  $default
-     * @param string $delimiter
-     *
-     * @return mixed|null
+     * @return string
      */
-    public function get($key, $default = null, $delimiter = null)
+    public function groupName()
     {
-        if ($this->offsetExists($key)) {
-            return $this->offsetGet($key);
-        }
-
-        return Arr::get($this, $key, $default, $delimiter);
-    }
-
-    /**
-     * @param string $key
-     * @param string $delimiter
-     *
-     * @return bool
-     */
-    public function has($key, $delimiter = null)
-    {
-        if ($this->offsetExists($key)) {
-            return true;
-        }
-
-        return Arr::has($this, $key, $delimiter);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return Core_Config_Group
-     */
-    public function delete($key)
-    {
-        if ($this->offsetExists($key)) {
-            $this->offsetUnset($key);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Casts the object into an array and returns it.
-     *
-     * Alias for `ArrayObject::getArrayCopy()`.
-     *
-     * @return array
-     */
-    public function asArray()
-    {
-        return $this->getArrayCopy();
+        return $this->groupName;
     }
 }

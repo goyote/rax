@@ -8,7 +8,7 @@ class Core_Config
     /**
      * @var array
      */
-    protected static $loadedFiles = array();
+    protected static $loadedConfigs = array();
 
     /**
      * @static
@@ -21,32 +21,54 @@ class Core_Config
      */
     public static function get($key, $default = null, $delimiter = '.')
     {
-        $filename = array_shift(explode($delimiter, $key));
+        $configName = array_shift(explode($delimiter, $key));
 
-        if (!static::isLoaded($filename)) {
-            static::load($filename);
+        if (!static::isLoaded($configName)) {
+            static::load($configName);
         }
 
-        return Arr::get(static::$loadedFiles, $key, $default, $delimiter);
+        return Arr::get(static::$loadedConfigs, $key, $default, $delimiter);
     }
 
     /**
      * @static
-     * @param string $key
+     * @return array
+     */
+    public static function loadedConfigs()
+    {
+        return static::$loadedConfigs;
+    }
+
+    /**
+     * @static
+     * @return array
+     */
+    public static function loadedConfigNames()
+    {
+        return array_keys(static::$loadedConfigs);
+    }
+
+    /**
+     * @static
+     *
+     * @param string $configName
+     *
      * @return bool
      */
-    public static function isLoaded($key)
+    public static function isLoaded($configName)
     {
-        return array_key_exists($key, static::$loadedFiles);
+        return array_key_exists($configName, static::$loadedConfigs);
     }
 
     /**
      * @static
-     * @param string$filename
-     * @return ArrayObject
+     *
+     * @param string $filename
+     *
+     * @return Config_Group
      */
     public static function load($filename)
     {
-        return static::$loadedFiles[$filename] = new ArrayObject(include APP_DIR.'config/'.$filename.'.php', ArrayObject::ARRAY_AS_PROPS);
+        return static::$loadedConfigs[$filename] = new Config_Group($filename, include APP_DIR.'config/'.$filename.'.php');
     }
 }

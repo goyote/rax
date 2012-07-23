@@ -6,13 +6,6 @@
 class Core_Autoload
 {
     /**
-     * The include path used by the cascading filesystem to autoload a class.
-     *
-     * @var array
-     */
-    protected $includePath = array();
-
-    /**
      * @var array
      */
     protected $bundles = array();
@@ -21,6 +14,13 @@ class Core_Autoload
      * @var array
      */
     protected $cascadingFilesystem = array();
+
+    /**
+     * The include path used by the cascading filesystem to autoload a class.
+     *
+     * @var array
+     */
+    protected $includePath = array();
 
     /**
      * Singleton instance.
