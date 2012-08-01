@@ -49,7 +49,7 @@ class Core_Arr
      *
      * @throws InvalidArgumentException
      */
-    public static function set(&$array, $key, $value, $delimiter = '.')
+    public static function set(&$array, $key, $value, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
             throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
@@ -89,7 +89,7 @@ class Core_Arr
      * @throws InvalidArgumentException
      * @return mixed
      */
-    public static function get($array, $key, $default = null, $delimiter = '.')
+    public static function get($array, $key, $default = null, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
             throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
@@ -103,6 +103,10 @@ class Core_Arr
             }
 
             return $return;
+        }
+
+        if (null === $key) {
+            return $array;
         }
 
         $keys = explode($delimiter, $key);
@@ -128,7 +132,7 @@ class Core_Arr
      * @throws InvalidArgumentException
      * @return bool
      */
-    public static function has($array, $key, $delimiter = '.')
+    public static function has($array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
             throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
@@ -167,7 +171,7 @@ class Core_Arr
      * @throws InvalidArgumentException
      * @return array|bool
      */
-    public static function delete(&$array, $key, $delimiter = '.')
+    public static function delete(&$array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
             throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
@@ -230,12 +234,45 @@ class Core_Arr
      * @param string $key
      * @param mixed  $value
      *
-     * @return int
+     * @return array
      */
     public static function unshift(array &$array, $key, $value)
     {
         $array = array($key => $value) + $array;
 
-        return count($array);
+        return $array;
+    }
+
+    public static function merge()
+    {
+        $result = array();
+        for ($i = 0, $total = func_num_args(); $i < $total; $i++) {
+            $arr = func_get_arg($i);
+            $assoc = static::isAssociative($arr);
+
+            foreach ($arr as $key => $val) {
+                if (isset($result[$key])) {
+                    if (is_array($val) AND is_array($result[$key])) {
+                        if (static::isAssociative($val)) {
+                            $result[$key] = static::merge($result[$key], $val);
+                        } else {
+                            $diff = array_diff($val, $result[$key]);
+
+                            $result[$key] = array_merge($result[$key], $diff);
+                        }
+                    } else {
+                        if ($assoc) {
+                            $result[$key] = $val;
+                        } elseif (!in_array($val, $result, TRUE)) {
+                            $result[] = $val;
+                        }
+                    }
+                } else {
+                    $result[$key] = $val;
+                }
+            }
+        }
+
+        return $result;
     }
 }

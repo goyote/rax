@@ -8,7 +8,7 @@ class Core_Config
     /**
      * @var array
      */
-    protected static $loadedConfigs = array();
+    protected static $storage = array();
 
     /**
      * @static
@@ -16,59 +16,54 @@ class Core_Config
      * @param string $key
      * @param mixed  $default
      * @param string $delimiter
+     * @param bool   $reload
      *
      * @return mixed
      */
-    public static function get($key, $default = null, $delimiter = '.')
+    public static function get($key = null, $default = null, $delimiter = Text::PATH_DELIMITER, $reload = false)
     {
-        $configName = array_shift(explode($delimiter, $key));
-
-        if (!static::isLoaded($configName)) {
-            static::load($configName);
+        if (null === $key) {
+            return static::$storage;
         }
 
-        return Arr::get(static::$loadedConfigs, $key, $default, $delimiter);
-    }
+        $name = current(explode($delimiter, $key));
 
-    /**
-     * @static
-     * @return array
-     */
-    public static function loadedConfigs()
-    {
-        return static::$loadedConfigs;
-    }
+        if ($reload || !static::isLoaded($name)) {
+            static::load($name);
+        }
 
-    /**
-     * @static
-     * @return array
-     */
-    public static function loadedConfigNames()
-    {
-        return array_keys(static::$loadedConfigs);
+        return Arr::get(static::$storage, $key, $default, $delimiter);
     }
 
     /**
      * @static
      *
-     * @param string $configName
+     * @param string $name
      *
      * @return bool
      */
-    public static function isLoaded($configName)
+    public static function isLoaded($name)
     {
-        return array_key_exists($configName, static::$loadedConfigs);
+        return array_key_exists($name, static::$storage);
     }
 
     /**
      * @static
      *
-     * @param string $filename
+     * @param string $name
      *
-     * @return Config_Group
+     * @return ArrObj
      */
-    public static function load($filename)
+    public static function load($name)
     {
-        return static::$loadedConfigs[$filename] = new Config_Group($filename, include APP_DIR.'config/'.$filename.'.php');
+        $config = array();
+
+        if ($files = Find::singleton()->findFile('config', $name)) {
+            foreach ($files as $file) {
+                $config = Arr::merge($config, Filesystem::load($file));
+            }
+        }
+
+        return static::$storage[$name] = new ArrObj($config, ArrayObject::ARRAY_AS_PROPS);
     }
 }

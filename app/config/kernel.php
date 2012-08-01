@@ -2,7 +2,9 @@
 
 return array(
     'debug' => null,
-    'foo' => 'bar',
+    'foo' => array(
+        'bar' => 75
+    ),
 );
 
 //environment:  ~

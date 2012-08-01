@@ -51,6 +51,7 @@ class Core_Environment
      * outlined in the class DocBlock.
      *
      * @static
+     *
      * @param integer $environment
      */
     public static function set($environment)

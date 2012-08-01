@@ -12,7 +12,7 @@ class Core_ArrObj extends ArrayObject
      *
      * @return self
      */
-    public function set($key, $value, $delimiter = '.')
+    public function set($key, $value, $delimiter = Text::PATH_DELIMITER)
     {
         Arr::set($this, $key, $value, $delimiter);
 
@@ -50,11 +50,22 @@ class Core_ArrObj extends ArrayObject
      *
      * @return self
      */
-    public function delete($key, $delimiter = '.')
+    public function delete($key, $delimiter = Text::PATH_DELIMITER)
     {
         Arr::delete($this, $key, $delimiter);
 
         return $this;
+    }
+
+    /**
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return array
+     */
+    public function unshift($key, $value)
+    {
+        return $this->exchangeArray(array($key => $value) + $this->getArrayCopy());
     }
 
     /**
