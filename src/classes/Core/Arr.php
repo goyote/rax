@@ -238,9 +238,7 @@ class Core_Arr
      */
     public static function unshift(array &$array, $key, $value)
     {
-        $array = array($key => $value) + $array;
-
-        return $array;
+        return $array = array($key => $value) + $array;
     }
 
     public static function merge()

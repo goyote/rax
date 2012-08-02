@@ -40,11 +40,25 @@ class Core_Config
      *
      * @param string $name
      *
-     * @return bool
+     * @throws Exception
+     * @return ArrObj
      */
-    public static function isLoaded($name)
+    protected static function load($name)
     {
-        return array_key_exists($name, static::$storage);
+        $files = Autoload::singleton()->findFiles('config', $name);
+
+        if (empty($files)) {
+            throw new Exception(sprintf('Unable to locate a configuration file for %s', $name));
+        }
+
+        $files = array_reverse($files);
+
+        $config = array();
+        foreach ($files as $file) {
+            $config = Arr::merge($config, Filesystem::loadPhp($file));
+        }
+
+        return static::$storage[$name] = new ArrObj($config, ArrayObject::ARRAY_AS_PROPS);
     }
 
     /**
@@ -52,18 +66,10 @@ class Core_Config
      *
      * @param string $name
      *
-     * @return ArrObj
+     * @return bool
      */
-    public static function load($name)
+    public static function isLoaded($name)
     {
-        $config = array();
-
-        if ($files = Find::singleton()->findFile('config', $name)) {
-            foreach ($files as $file) {
-                $config = Arr::merge($config, Filesystem::load($file));
-            }
-        }
-
-        return static::$storage[$name] = new ArrObj($config, ArrayObject::ARRAY_AS_PROPS);
+        return array_key_exists($name, static::$storage);
     }
 }

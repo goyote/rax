@@ -166,44 +166,66 @@ class Core_Autoload
      */
     public function loadClass($class)
     {
+        if ('\\' === $class[0]) {
+            $class = substr($class, 1);
+        }
+
+        $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+        $class = str_replace('_', DIRECTORY_SEPARATOR, $class);
+
         if ($file = $this->findFile('classes', $class)) {
             require $file;
+        }
+
+        foreach ($this->includePath as $absoluteDir) {
+            if (file_exists($absoluteDir.$class.'.php')) {
+                require $absoluteDir.$class.'.php';
+
+                break;
+            }
         }
 
         return $this;
     }
 
     /**
-     * Gets the absolute file path of a class.
-     *
      * @param string $baseDir
-     * @param string $class
+     * @param string $file
      * @param string $ext
      *
      * @return bool|string
      */
-    public function findFile($baseDir, $class, $ext = 'php')
+    public function findFile($baseDir, $file, $ext = 'php')
     {
-        if ('\\' === $class[0]) {
-            $class = substr($class, 1);
-        }
-
-        $class   = str_replace('\\', '/', $class);
-        $class   = str_replace('_', '/', $class).'.'.$ext;
-        $baseDir = $baseDir.'/';
+        $file = $baseDir.DIRECTORY_SEPARATOR.$file.'.'.$ext;
 
         foreach ($this->cascadingFilesystem as $absoluteDir) {
-            if (file_exists($absoluteDir.$baseDir.$class)) {
-                return $absoluteDir.$baseDir.$class;
-            }
-        }
-
-        foreach ($this->includePath as $absoluteDir) {
-            if (file_exists($absoluteDir.$class)) {
-                return $absoluteDir.$class;
+            if (file_exists($absoluteDir.$file)) {
+                return $absoluteDir.$file;
             }
         }
 
         return false;
+    }
+
+    /**
+     * @param string $baseDir
+     * @param string $file
+     * @param string $ext
+     *
+     * @return array
+     */
+    public function findFiles($baseDir, $file, $ext = 'php')
+    {
+        $file = $baseDir.DIRECTORY_SEPARATOR.$file.'.'.$ext;
+
+        $files = array();
+        foreach ($this->cascadingFilesystem as $absoluteDir) {
+            if (file_exists($absoluteDir.$file)) {
+                $files[] = $absoluteDir.$file;
+            }
+        }
+
+        return $files;
     }
 }

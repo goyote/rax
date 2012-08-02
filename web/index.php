@@ -53,4 +53,4 @@ if (isset($_SERVER['APP_ENV'])) {
     throw new Exception('Could not determine the server environment');
 }
 
-Debug::dump(Config::get('kernel.foo'));
+Debug::dump(Config::get('kernel.foo.lol'));

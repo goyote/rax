@@ -12,7 +12,7 @@ class Core_Filesystem
      *
      * @return mixed
      */
-    public static function load($file)
+    public static function loadPhp($file)
     {
         return include $file;
     }
