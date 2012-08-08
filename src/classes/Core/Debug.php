@@ -80,23 +80,34 @@ class Core_Debug
 
     /**
      * @param string $file
+     * @param bool   $html
      *
      * @return string
      */
-    public static function filePath($file)
+    public static function filePath($file, $html = false)
     {
-        if (strpos($file, APP_DIR) === 0) {
-            $file = 'APP_DIR'.DIRECTORY_SEPARATOR.substr($file, strlen(APP_DIR));
-        } elseif (strpos($file, BUNDLES_DIR) === 0) {
-            $file = 'BUNDLES_DIR'.DIRECTORY_SEPARATOR.substr($file, strlen(BUNDLES_DIR));
-        } elseif (strpos($file, SRC_DIR) === 0) {
-            $file = 'SRC_DIR'.DIRECTORY_SEPARATOR.substr($file, strlen(SRC_DIR));
-        } elseif (strpos($file, VENDOR_DIR) === 0) {
-            $file = 'VENDOR_DIR'.DIRECTORY_SEPARATOR.substr($file, strlen(VENDOR_DIR));
-        } elseif (strpos($file, WEB_DIR) === 0) {
-            $file = 'WEB_DIR'.DIRECTORY_SEPARATOR.substr($file, strlen(WEB_DIR));
-        } elseif (strpos($file, ROOT_DIR) === 0) {
-            $file = 'ROOT_DIR'.DIRECTORY_SEPARATOR.substr($file, strlen(ROOT_DIR));
+        if (0 === strpos($file, APP_DIR)) {
+            $dir = 'APP_DIR';
+        } elseif (0 === strpos($file, BUNDLES_DIR)) {
+            $dir = 'BUNDLES_DIR';
+        } elseif (0 === strpos($file, SRC_DIR)) {
+            $dir = 'SRC_DIR';
+        } elseif (0 === strpos($file, VENDOR_DIR)) {
+            $dir = 'VENDOR_DIR';
+        } elseif (0 === strpos($file, WEB_DIR)) {
+            $dir = 'WEB_DIR';
+        } elseif (0 === strpos($file, ROOT_DIR)) {
+            $dir = 'ROOT_DIR';
+        }
+
+        if (isset($dir)) {
+            $file = DIRECTORY_SEPARATOR.substr($file, strlen(constant($dir)));
+
+            if ($html) {
+                $dir = '<span class="dir-const">'.$dir.'</span>';
+            }
+
+            return $dir.$file;
         }
 
         return $file;
