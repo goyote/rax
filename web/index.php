@@ -9,9 +9,6 @@
  * that was distributed with this source code.
  */
 
-error_reporting(E_ALL | E_STRICT);
-ini_set('display_errors', 1);
-
 /**
  * Capture the current time and memory usage.
  *
@@ -50,7 +47,30 @@ set_include_path(VENDOR_DIR.PATH_SEPARATOR.get_include_path());
 if (isset($_SERVER['APP_ENV'])) {
     Environment::set(constant('Environment::'.strtoupper($_SERVER['APP_ENV'])));
 } else {
-    throw new Exception('Could not determine the server environment');
+    throw new Error('Could not determine the server environment');
 }
 
-Debug::dump(Config::get('kernel.foo.lol'));
+/**
+ * Reports all current and future errors.
+ *
+ * Don't suppress errors, fix them.
+ */
+error_reporting(-1);
+
+/**
+ *
+ */
+if (Environment::isDev()) {
+    ini_set('display_errors', 1);
+    set_error_handler(array('Error', 'errorHandler'));
+    set_exception_handler(array('Error', 'exceptionHandler'));
+    register_shutdown_function(array('Error', 'shutdownHandler'));
+} else {
+    ini_set('display_errors', 0);
+}
+
+
+
+include 'i.php';
+
+echo 'yes';

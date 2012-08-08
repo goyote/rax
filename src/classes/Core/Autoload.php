@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+
  */
 class Core_Autoload
 {
@@ -55,7 +55,6 @@ class Core_Autoload
         }
 
         $dirs = array();
-
         foreach ($bundles as $name => $dir) {
             $dirs[$name] = $this->normalizeDirPath($dir);
         }
@@ -77,7 +76,6 @@ class Core_Autoload
         }
 
         $dirs = array();
-
         foreach ($cascadingFilesystem as $dir) {
             if (is_array($dir)) {
                 $dirs = array_merge($dirs, array_values($dir));
@@ -104,9 +102,9 @@ class Core_Autoload
             return $this->includePath;
         }
 
-        $dirs = array();
-
+        $dirs        = array();
         $includePath = (array) $includePath;
+
         foreach ($includePath as $dir) {
             $dirs[] = $this->normalizeDirPath($dir);
         }
@@ -119,13 +117,13 @@ class Core_Autoload
     /**
      * @param string $dir
      *
+     * @throws Error
      * @return string
-     * @throws Exception
      */
     public function normalizeDirPath($dir)
     {
         if (!is_dir($dir)) {
-            throw new Exception(sprintf('%s is not a directory', $dir));
+            throw new Error('%s is not a directory', $dir);
         }
 
         return realpath($dir).'/';

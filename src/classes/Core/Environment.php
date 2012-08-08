@@ -35,7 +35,7 @@ class Core_Environment
      * We store it as an integer to allow "greater than" logic in control
      * statements.
      *
-     * @var integer
+     * @var int
      */
     protected static $environment;
 
@@ -51,19 +51,18 @@ class Core_Environment
      * outlined in the class DocBlock.
      *
      * @static
-     *
-     * @param integer $environment
+     * @param int $environment
      */
     public static function set($environment)
     {
-        static::$environment = (integer) $environment;
+        static::$environment = (int) $environment;
     }
 
     /**
      * Get the current application environment.
      *
      * @static
-     * @return integer
+     * @return int
      */
     public static function get()
     {
@@ -74,7 +73,7 @@ class Core_Environment
      * Are we in a production environment?
      *
      * @static
-     * @return boolean
+     * @return bool
      */
     public static function isProduction()
     {
@@ -85,7 +84,7 @@ class Core_Environment
      * Are we in a staging environment?
      *
      * @static
-     * @return boolean
+     * @return bool
      */
     public static function isStaging()
     {
@@ -96,7 +95,7 @@ class Core_Environment
      * Are we in a testing environment?
      *
      * @static
-     * @return boolean
+     * @return bool
      */
     public static function isTesting()
     {
@@ -107,7 +106,7 @@ class Core_Environment
      * Are we in a development environment?
      *
      * @static
-     * @return boolean
+     * @return bool
      */
     public static function isDevelopment()
     {
@@ -118,7 +117,7 @@ class Core_Environment
      * Are we in a staging/production environment?
      *
      * @static
-     * @return boolean
+     * @return bool
      */
     public static function isProd()
     {
@@ -129,7 +128,7 @@ class Core_Environment
      * Are we in a testing/development environment?
      *
      * @static
-     * @return boolean
+     * @return bool
      */
     public static function isDev()
     {

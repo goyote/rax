@@ -45,9 +45,7 @@ class Core_Config
      */
     protected static function load($name)
     {
-        $files = Autoload::singleton()->findFiles('config', $name);
-
-        if (empty($files)) {
+        if (!$files = Autoload::singleton()->findFiles('config', $name)) {
             throw new Exception(sprintf('Unable to locate a configuration file for %s', $name));
         }
 
@@ -55,7 +53,7 @@ class Core_Config
 
         $config = array();
         foreach ($files as $file) {
-            $config = Arr::merge($config, Filesystem::loadPhp($file));
+            $config = Arr::merge($config, Php::load($file));
         }
 
         return static::$storage[$name] = new ArrObj($config, ArrayObject::ARRAY_AS_PROPS);

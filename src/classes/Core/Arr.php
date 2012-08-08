@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+
  */
 class Core_Arr
 {
@@ -47,12 +47,15 @@ class Core_Arr
      * @param mixed             $value
      * @param string            $delimiter
      *
-     * @throws InvalidArgumentException
+     * @throws Error
      */
     public static function set(&$array, $key, $value, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
+            throw new Error('%s expects parameter 1 to be an array or ArrayAccess object, %s given', array(
+                __METHOD__,
+                gettype($array)
+            ));
         }
 
         if (is_array($key)) {
@@ -86,13 +89,16 @@ class Core_Arr
      * @param mixed             $default
      * @param string            $delimiter
      *
-     * @throws InvalidArgumentException
+     * @throws Error
      * @return mixed
      */
     public static function get($array, $key, $default = null, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
+            throw new Error('%s expects parameter 1 to be an array or ArrayAccess object, %s given', array(
+                __METHOD__,
+                gettype($array)
+            ));
         }
 
         if (static::isArray($key)) {
@@ -115,7 +121,7 @@ class Core_Arr
             if (static::isArray($array) && array_key_exists($key, $array)) {
                 $array = $array[$key];
             } else {
-                return Kernel::value($default);
+                return Php::value($default);
             }
         }
 
@@ -129,13 +135,16 @@ class Core_Arr
      * @param array|string      $key
      * @param string            $delimiter
      *
-     * @throws InvalidArgumentException
+     * @throws Error
      * @return bool
      */
     public static function has($array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
+            throw new Error('%s expects parameter 1 to be an array or ArrayAccess object, %s given', array(
+                __METHOD__,
+                gettype($array)
+            ));
         }
 
         if (static::isArray($key)) {
@@ -168,18 +177,20 @@ class Core_Arr
      * @param array|string      $key
      * @param string            $delimiter
      *
-     * @throws InvalidArgumentException
+     * @throws Error
      * @return array|bool
      */
     public static function delete(&$array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new InvalidArgumentException(sprintf('%s expects parameter 1 to be an array or ArrayAccess object, %s given', __METHOD__, gettype($array)));
+            throw new Error('%s expects parameter 1 to be an array or ArrayAccess object, %s given', array(
+                __METHOD__,
+                gettype($array)
+            ));
         }
 
         if (is_array($key)) {
             $return = array();
-
             foreach ($key as $k) {
                 $return[$k] = static::delete($array, $k, $delimiter);
             }
@@ -245,7 +256,7 @@ class Core_Arr
     {
         $result = array();
         for ($i = 0, $total = func_num_args(); $i < $total; $i++) {
-            $arr = func_get_arg($i);
+            $arr   = func_get_arg($i);
             $assoc = static::isAssociative($arr);
 
             foreach ($arr as $key => $val) {
@@ -261,7 +272,7 @@ class Core_Arr
                     } else {
                         if ($assoc) {
                             $result[$key] = $val;
-                        } elseif (!in_array($val, $result, TRUE)) {
+                        } elseif (!in_array($val, $result, true)) {
                             $result[] = $val;
                         }
                     }
