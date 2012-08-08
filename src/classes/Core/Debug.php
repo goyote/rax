@@ -8,7 +8,7 @@ class Core_Debug
     /**
      * Prints information about a variable.
      *
-     * This function is meant to replace `print_r()` for debugging purposes
+     * This function is meant to replace `print_r()` for debugging purposes.
      *
      * @static
      *
@@ -19,8 +19,11 @@ class Core_Debug
      */
     public static function dump($var, $return = false)
     {
-        $dump   = array();
-        $dump[] = print_r($var, true);
+        $dump = array();
+
+        if ('' !== $var && null !== $var && !is_bool($var)) {
+            $dump[] = print_r($var, true);
+        }
 
         ob_start();
         var_dump($var);
@@ -35,70 +38,51 @@ class Core_Debug
     }
 
     /**
-     * Returns an HTML string, highlighting a specific line of a file with some
-     * number of lines padded above and below.
+     * @param string $file
+     * @param int    $line
+     * @param int    $padding
      *
-     *     // Highlights the current line of the current file
-     *     echo Debug::source(__FILE__, __LINE__);
-     *
-     * @param   string   file to open
-     * @param   integer  line number to highlight
-     * @param   integer  number of padding lines
-     *
-     * @return  string   source of file
-     * @return  FALSE    file is unreadable
+     * @return string
      */
-    public static function source($file, $currentLineNumber, $padding = 5)
+    public static function sourceCode($file, $line, $padding = 5)
     {
-        if (!$file OR !is_readable($file)) {
-            // Continuing will cause errors
+        if (!is_readable($file)) {
             return false;
         }
 
-        // Open the file and set the line position
-        $file                = fopen($file, 'r');
-        $lineNumber          = 0;
-        $highlightLineNumber = 0;
+        $resource        = fopen($file, 'r');
+        $currentLine     = 1;
+        $highlightedLine = 1;
 
-        // Set the reading range
-        $range = array(
-            'start' => $currentLineNumber - $padding,
-            'end'   => $currentLineNumber + $padding
-        );
+        $startLine = ($line > $padding) ? $line - $padding : 1;
+        $endLine   = $line + $padding;
 
-        $source = '';
-        while (($row = fgets($file)) !== false) {
-            // Increment the line number
-            if (++$lineNumber > $range['end']) {
-                break;
+        $sourceCode = '';
+        while (false !== ($row = fgets($resource))) {
+            if ($currentLine >= $startLine) {
+                $sourceCode .= htmlspecialchars($row, ENT_NOQUOTES, 'UTF-8');
             }
-
-            if ($lineNumber >= $range['start']) {
-                // Make the row safe for output
-                $row = htmlspecialchars($row, ENT_NOQUOTES, 'UTF-8');
-
-                // Trim whitespace and sanitize the row
-                $row = $row;
-
-                if ($lineNumber === $currentLineNumber) {
-                    $highlightLineNumber = $currentLineNumber;
-                    // Apply highlighting to this row
-                    $row = $row;
-                } else {
-                    $row = $row;
-                }
-
-                // Add to the captured source
-                $source .= $row;
+            if ($currentLine++ >= $endLine) {
+                break;
             }
         }
 
-        // Close the file
-        fclose($file);
+        fclose($resource);
 
-        return "<pre class=\"brush: php; first-line: {$range['start']}; highlight: [$highlightLineNumber];\">\n".$source.'</pre>';
+        return sprintf(
+            '<pre class="brush: %s; first-line: %s; highlight: [%s];">%s</pre>',
+            pathinfo($file, PATHINFO_EXTENSION),
+            $startLine,
+            $line,
+            $sourceCode
+        );
     }
 
+    /**
+     * @param string $file
+     *
+     * @return string
+     */
     public static function filePath($file)
     {
         if (strpos($file, APP_DIR) === 0) {

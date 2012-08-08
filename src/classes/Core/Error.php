@@ -1,7 +1,7 @@
 <?php
 
 /**
-
+ *
  */
 class Core_Error extends Exception
 {
@@ -10,12 +10,12 @@ class Core_Error extends Exception
      */
     public static $levels = array(
         E_ERROR             => 'Fatal Error',
-        E_STRICT            => 'Runtime Notice',
-        E_PARSE             => 'Parse Error',
-        E_WARNING           => 'Warning',
         E_NOTICE            => 'Notice',
-        E_RECOVERABLE_ERROR => 'Catchable Fatal Error',
+        E_WARNING           => 'Warning',
         E_DEPRECATED        => 'Deprecated',
+        E_PARSE             => 'Parse Error',
+        E_STRICT            => 'Runtime Notice',
+        E_RECOVERABLE_ERROR => 'Catchable Fatal Error',
         E_USER_ERROR        => 'User Error',
         E_USER_NOTICE       => 'User Notice',
         E_USER_WARNING      => 'User Warning',
@@ -56,7 +56,7 @@ class Core_Error extends Exception
      * @throws ErrorException
      * @return bool
      */
-    public static function errorHandler($code, $message, $file = null, $line = null, $context = null)
+    public static function handleError($code, $message, $file = null, $line = null, $context = null)
     {
         if (error_reporting() & $code) {
             throw new ErrorException($message, $code, 0, $file, $line);
@@ -65,22 +65,26 @@ class Core_Error extends Exception
         return false;
     }
 
-    public static function shutdownHandler()
+    /**
+     *
+     */
+    public static function handleShutdown()
     {
         if ($error = error_get_last()) {
             ob_get_level() and ob_end_clean();
 
-            static::exceptionHandler(
-                new ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line'])
-            );
+            static::handleException(new ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line']));
 
             exit(1);
         }
     }
 
-    public static function exceptionHandler(Exception $e)
+    /**
+     * @param Exception $e
+     */
+    public static function handleException(Exception $e)
     {
-        $class    = get_class($e);
+        $class   = get_class($e);
         $code    = $e->getCode();
         $message = $e->getMessage();
         $file    = $e->getFile();
@@ -95,6 +99,4 @@ class Core_Error extends Exception
 
         exit(1);
     }
-
-
 }

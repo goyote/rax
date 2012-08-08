@@ -62,14 +62,12 @@ error_reporting(-1);
  */
 if (Environment::isDev()) {
     ini_set('display_errors', 1);
-    set_error_handler(array('Error', 'errorHandler'));
-    set_exception_handler(array('Error', 'exceptionHandler'));
-    register_shutdown_function(array('Error', 'shutdownHandler'));
+    set_error_handler(array('Error', 'handleError'));
+    register_shutdown_function(array('Error', 'handleShutdown'));
+    set_exception_handler(array('Error', 'handleException'));
 } else {
     ini_set('display_errors', 0);
 }
-
-
 
 include 'i.php';
 
