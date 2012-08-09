@@ -6,6 +6,18 @@
 class Core_Debug
 {
     /**
+     * @var array
+     */
+    protected static $topLevelDirs = array(
+        'APP_DIR',
+        'BUNDLES_DIR',
+        'SRC_DIR',
+        'VENDOR_DIR',
+        'WEB_DIR',
+        'ROOT_DIR',
+    );
+
+    /**
      * Prints information about a variable.
      *
      * This function is meant to replace `print_r()` for debugging purposes.
@@ -13,11 +25,11 @@ class Core_Debug
      * @static
      *
      * @param mixed $var
-     * @param bool  $return
+     * @param bool  $exit
      *
      * @return array
      */
-    public static function dump($var, $return = false)
+    public static function dump($var, $exit = true)
     {
         $dump = array();
 
@@ -29,12 +41,11 @@ class Core_Debug
         var_dump($var);
         $dump[] = ob_get_clean();
 
-        if ($return) {
-            return $dump;
-        }
-
         echo '<pre>'.implode("\n\n", $dump).'</pre>';
-        exit();
+
+        if ($exit) {
+            exit();
+        }
     }
 
     /**
@@ -56,7 +67,7 @@ class Core_Debug
 
         $resource = fopen($file, 'r');
 
-        $sourceCode  = '';
+        $sourceCode = '';
         while (false !== ($row = fgets($resource))) {
             if ($currentLine >= $startLine) {
                 $sourceCode .= htmlspecialchars($row, ENT_NOQUOTES, 'UTF-8');
@@ -85,16 +96,7 @@ class Core_Debug
      */
     public static function filePath($file, $callback = null)
     {
-        $dirs = array(
-            'APP_DIR',
-            'BUNDLES_DIR',
-            'SRC_DIR',
-            'VENDOR_DIR',
-            'WEB_DIR',
-            'ROOT_DIR',
-        );
-
-        foreach ($dirs as $dir) {
+        foreach (static::$topLevelDirs as $dir) {
             $absoluteDir = constant($dir);
 
             if (0 === strpos($file, $absoluteDir)) {

@@ -102,9 +102,9 @@ class Core_Autoload
             return $this->includePath;
         }
 
-        $dirs        = array();
         $includePath = (array) $includePath;
 
+        $dirs = array();
         foreach ($includePath as $dir) {
             $dirs[] = $this->normalizeDirPath($dir);
         }
@@ -173,13 +173,13 @@ class Core_Autoload
 
         if ($file = $this->findFile('classes', $class)) {
             require $file;
-        }
+        } else {
+            foreach ($this->includePath as $absoluteDir) {
+                if (file_exists($absoluteDir.$class.'.php')) {
+                    require $absoluteDir.$class.'.php';
 
-        foreach ($this->includePath as $absoluteDir) {
-            if (file_exists($absoluteDir.$class.'.php')) {
-                require $absoluteDir.$class.'.php';
-
-                break;
+                    break;
+                }
             }
         }
 
