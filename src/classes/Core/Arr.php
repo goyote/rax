@@ -1,7 +1,7 @@
 <?php
 
 /**
-
+ *
  */
 class Core_Arr
 {
@@ -43,16 +43,17 @@ class Core_Arr
      * @static
      *
      * @param array|ArrayAccess $array
-     * @param string            $key
+     * @param array|string      $key
      * @param mixed             $value
      * @param string            $delimiter
      *
-     * @throws Error
+     * @throws InvalidArgumentException
      */
     public static function set(&$array, $key, $value, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new Error('%s expects parameter 1 to be an array or ArrayAccess object, %s given', array(
+            throw new InvalidArgumentException(sprintf(
+                '%s expects parameter 1 to be an array or ArrayAccess object, %s given',
                 __METHOD__,
                 gettype($array)
             ));
@@ -67,7 +68,6 @@ class Core_Arr
         }
 
         $keys = explode($delimiter, $key);
-
         while (count($keys) > 1) {
             $key = array_shift($keys);
 
@@ -89,13 +89,14 @@ class Core_Arr
      * @param mixed             $default
      * @param string            $delimiter
      *
-     * @throws Error
+     * @throws InvalidArgumentException
      * @return mixed
      */
     public static function get($array, $key, $default = null, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new Error('%s expects parameter 1 to be an array or ArrayAccess object, %s given', array(
+            throw new InvalidArgumentException(sprintf(
+                '%s expects parameter 1 to be an array or ArrayAccess object, %s given',
                 __METHOD__,
                 gettype($array)
             ));
@@ -103,7 +104,6 @@ class Core_Arr
 
         if (static::isArray($key)) {
             $return = array();
-
             foreach ($key as $k) {
                 $return[$k] = static::get($array, $k, $default, $delimiter);
             }
@@ -116,7 +116,6 @@ class Core_Arr
         }
 
         $keys = explode($delimiter, $key);
-
         foreach ($keys as $key) {
             if (static::isArray($array) && array_key_exists($key, $array)) {
                 $array = $array[$key];
@@ -135,13 +134,14 @@ class Core_Arr
      * @param array|string      $key
      * @param string            $delimiter
      *
-     * @throws Error
+     * @throws InvalidArgumentException
      * @return bool
      */
     public static function has($array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new Error('%s expects parameter 1 to be an array or ArrayAccess object, %s given', array(
+            throw new InvalidArgumentException(sprintf(
+                '%s expects parameter 1 to be an array or ArrayAccess object, %s given',
                 __METHOD__,
                 gettype($array)
             ));
@@ -158,7 +158,6 @@ class Core_Arr
         }
 
         $keys = explode($delimiter, $key);
-
         foreach ($keys as $key) {
             if (static::isArray($array) && array_key_exists($key, $array)) {
                 $array = $array[$key];
@@ -177,13 +176,14 @@ class Core_Arr
      * @param array|string      $key
      * @param string            $delimiter
      *
-     * @throws Error
+     * @throws InvalidArgumentException
      * @return array|bool
      */
     public static function delete(&$array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new Error('%s expects parameter 1 to be an array or ArrayAccess object, %s given', array(
+            throw new InvalidArgumentException(sprintf(
+                '%s expects parameter 1 to be an array or ArrayAccess object, %s given',
                 __METHOD__,
                 gettype($array)
             ));
@@ -226,7 +226,6 @@ class Core_Arr
     public static function flatten(array $array)
     {
         $return = array();
-
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $return += static::flatten($value);
@@ -252,21 +251,24 @@ class Core_Arr
         return $array = array($key => $value) + $array;
     }
 
+    /**
+     * @return array
+     */
     public static function merge()
     {
         $result = array();
+
         for ($i = 0, $total = func_num_args(); $i < $total; $i++) {
             $arr   = func_get_arg($i);
             $assoc = static::isAssociative($arr);
 
             foreach ($arr as $key => $val) {
                 if (isset($result[$key])) {
-                    if (is_array($val) AND is_array($result[$key])) {
+                    if (is_array($val) && is_array($result[$key])) {
                         if (static::isAssociative($val)) {
                             $result[$key] = static::merge($result[$key], $val);
                         } else {
-                            $diff = array_diff($val, $result[$key]);
-
+                            $diff         = array_diff($val, $result[$key]);
                             $result[$key] = array_merge($result[$key], $diff);
                         }
                     } else {

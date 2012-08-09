@@ -23,9 +23,9 @@
             <div class="introduction">
                 <?php
                 if ($e instanceof ErrorException) {
-                    echo '<strong class="highlight">'.static::$levels[$code].'</strong> Uh-oh an error was thrown:';
+                    echo '<span class="highlight">'.static::$levels[$code].'</span> Uh-oh an error was thrown:';
                 } else {
-                    echo '<strong class="highlight">'.$class.'</strong> Uh-oh an exception was thrown:';
+                    echo '<span class="highlight">'.$class.'</span> Uh-oh an exception was thrown:';
                 }
                 ?>
             </div>

@@ -1,6 +1,6 @@
 <?php
 
-Arr::get('', '');
+Arr::get('', 'foo');
 
 /**
  * - use tooltip tp show full path
