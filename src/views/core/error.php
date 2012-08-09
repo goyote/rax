@@ -11,7 +11,7 @@
             header > div:not(:last-child) { margin: 0 0 20px; }
             header .message { font-size: 20px; }
             .file-info { padding: 10px 30px; background: #810D0D; color: #fff; font-size: 12px; }
-            .file-info .dir-const { color: #ffb6c1; }
+            .highlight { color: #ffb6c1; }
         </style>
         <link rel="stylesheet" href="/shCoreSunburst.css">
         <script type="text/javascript" src="shCore.js"></script>
@@ -23,9 +23,9 @@
             <div class="introduction">
                 <?php
                 if ($e instanceof ErrorException) {
-                    echo sprintf('<strong>%s</strong> Uh-oh an error was thrown:', static::$levels[$code]);
+                    echo '<strong class="highlight">'.static::$levels[$code].'</strong> Uh-oh an error was thrown:';
                 } else {
-                    echo sprintf('<strong>%s</strong> Uh-oh an exception was thrown:', $class);
+                    echo '<strong class="highlight">'.$class.'</strong> Uh-oh an exception was thrown:';
                 }
                 ?>
             </div>
@@ -34,7 +34,10 @@
             </div>
         </header>
         <div class="file-info">
-            <code title="<?php echo $file; ?>"><?php echo Debug::filePath($file, true); ?>  [ <?php echo $line; ?> ]</code>
+            <code title="<?php echo $file; ?>">
+                <?php echo Debug::filePath($file, function($dir, $file) { return '<span class="highlight">'.$dir.'</span>'.$file; }); ?>
+                [ <span class="highlight"><?php echo $line; ?></span> ]
+            </code>
         </div>
 
 

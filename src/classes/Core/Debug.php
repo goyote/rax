@@ -79,35 +79,35 @@ class Core_Debug
     }
 
     /**
-     * @param string $file
-     * @param bool   $html
+     * @param string   $file
+     * @param callable $callback
      *
      * @return string
      */
-    public static function filePath($file, $html = false)
+    public static function filePath($file, $callback = null)
     {
-        if (0 === strpos($file, APP_DIR)) {
-            $dir = 'APP_DIR';
-        } elseif (0 === strpos($file, BUNDLES_DIR)) {
-            $dir = 'BUNDLES_DIR';
-        } elseif (0 === strpos($file, SRC_DIR)) {
-            $dir = 'SRC_DIR';
-        } elseif (0 === strpos($file, VENDOR_DIR)) {
-            $dir = 'VENDOR_DIR';
-        } elseif (0 === strpos($file, WEB_DIR)) {
-            $dir = 'WEB_DIR';
-        } elseif (0 === strpos($file, ROOT_DIR)) {
-            $dir = 'ROOT_DIR';
-        }
+        $dirs = array(
+            'APP_DIR',
+            'BUNDLES_DIR',
+            'SRC_DIR',
+            'VENDOR_DIR',
+            'WEB_DIR',
+            'ROOT_DIR',
+        );
 
-        if (isset($dir)) {
-            $file = DIRECTORY_SEPARATOR.substr($file, strlen(constant($dir)));
+        foreach ($dirs as $dir) {
+            $absoluteDir = constant($dir);
 
-            if ($html) {
-                $dir = '<span class="dir-const">'.$dir.'</span>';
+            if (0 === strpos($file, $absoluteDir)) {
+                $file = DIRECTORY_SEPARATOR.substr($file, strlen($absoluteDir));
+
+                if (null !== $callback && is_callable($callback)) {
+                    return $callback($dir, $file);
+                }
+
+                $file = $dir.$file;
+                break;
             }
-
-            return $dir.$file;
         }
 
         return $file;
