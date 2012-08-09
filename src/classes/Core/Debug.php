@@ -50,14 +50,13 @@ class Core_Debug
             return false;
         }
 
-        $resource        = fopen($file, 'r');
-        $currentLine     = 1;
-        $highlightedLine = 1;
+        $currentLine = 1;
+        $startLine   = ($line > $padding) ? $line - $padding : 1;
+        $endLine     = $line + $padding;
 
-        $startLine = ($line > $padding) ? $line - $padding : 1;
-        $endLine   = $line + $padding;
+        $resource = fopen($file, 'r');
 
-        $sourceCode = '';
+        $sourceCode  = '';
         while (false !== ($row = fgets($resource))) {
             if ($currentLine >= $startLine) {
                 $sourceCode .= htmlspecialchars($row, ENT_NOQUOTES, 'UTF-8');
