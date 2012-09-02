@@ -1,10 +1,7 @@
 <?php
 
-Arr::get('', 'foo');
+Arr::get('aabbccddeeff', array('foo', 'bar'), Autoload::getSingleton());
 
 /**
  * - use tooltip tp show full path
- * - colorize pink "APP_DIR" const
- * - fix line numbers
- * - try meslo font
  */

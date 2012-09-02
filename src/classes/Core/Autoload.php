@@ -1,7 +1,7 @@
 <?php
 
 /**
-
+ *
  */
 class Core_Autoload
 {
@@ -34,7 +34,7 @@ class Core_Autoload
      *
      * @return self
      */
-    public static function singleton()
+    public static function getSingleton()
     {
         if (null === static::$singleton) {
             static::$singleton = new static();
@@ -44,16 +44,20 @@ class Core_Autoload
     }
 
     /**
+     * @return array
+     */
+    public function getBundles()
+    {
+        return $this->bundles;
+    }
+
+    /**
      * @param array $bundles
      *
-     * @return array|self
+     * @return self
      */
-    public function bundles(array $bundles = null)
+    public function setBundles(array $bundles)
     {
-        if (null === $bundles) {
-            return $this->bundles;
-        }
-
         $dirs = array();
         foreach ($bundles as $name => $dir) {
             $dirs[$name] = $this->normalizeDirPath($dir);
@@ -65,16 +69,20 @@ class Core_Autoload
     }
 
     /**
+     * @return array
+     */
+    public function getCascadingFilesystem()
+    {
+        return $this->cascadingFilesystem;
+    }
+
+    /**
      * @param array $cascadingFilesystem
      *
      * @return self
      */
-    public function cascadingFilesystem(array $cascadingFilesystem)
+    public function setCascadingFilesystem(array $cascadingFilesystem)
     {
-        if (null === $cascadingFilesystem) {
-            return $this->cascadingFilesystem;
-        }
-
         $dirs = array();
         foreach ($cascadingFilesystem as $dir) {
             if (is_array($dir)) {
@@ -90,18 +98,22 @@ class Core_Autoload
     }
 
     /**
-     * Sets the include path from which PSR-0 compliant classes will be loaded.
+     * @return array
+     */
+    public function getIncludePath()
+    {
+        return $this->includePath;
+    }
+
+    /**
+     * Sets the include path to atuoload PSR-0 compliant classes.
      *
-     * @param string|array $includePath
+     * @param array|string $includePath
      *
      * @return self
      */
-    public function includePath($includePath)
+    public function setIncludePath($includePath)
     {
-        if (null === $includePath) {
-            return $this->includePath;
-        }
-
         $includePath = (array) $includePath;
 
         $dirs = array();
@@ -115,9 +127,10 @@ class Core_Autoload
     }
 
     /**
+     * @throws Error
+     *
      * @param string $dir
      *
-     * @throws Error
      * @return string
      */
     public function normalizeDirPath($dir)
@@ -172,10 +185,12 @@ class Core_Autoload
         $class = str_replace('_', DIRECTORY_SEPARATOR, $class);
 
         if ($file = $this->findFile('classes', $class)) {
+            /** @noinspection PhpIncludeInspection */
             require $file;
         } else {
             foreach ($this->includePath as $absoluteDir) {
                 if (file_exists($absoluteDir.$class.'.php')) {
+                    /** @noinspection PhpIncludeInspection */
                     require $absoluteDir.$class.'.php';
 
                     break;

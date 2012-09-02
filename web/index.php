@@ -30,16 +30,16 @@ define('WEB_DIR',     ROOT_DIR.'web/');
 require SRC_DIR.'classes/core/autoload.php';
 require APP_DIR.'classes/Autoload.php';
 
-Autoload::singleton()
-    ->bundles(array(
+Autoload::getSingleton()
+    ->setBundles(array(
         'Auth' => BUNDLES_DIR.'auth',
     ))
-    ->cascadingFilesystem(array(
+    ->setCascadingFilesystem(array(
         APP_DIR,
-        Autoload::singleton()->bundles(),
+        Autoload::getSingleton()->getBundles(),
         SRC_DIR,
     ))
-    ->includePath(VENDOR_DIR)
+    ->setIncludePath(VENDOR_DIR)
     ->register();
 
 set_include_path(VENDOR_DIR.PATH_SEPARATOR.get_include_path());

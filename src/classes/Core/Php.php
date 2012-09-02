@@ -1,5 +1,8 @@
 <?php
 
+/**
+ *
+ */
 class Core_Php
 {
     /**
@@ -11,6 +14,7 @@ class Core_Php
      */
     public static function load($file)
     {
+        /** @noinspection PhpIncludeInspection */
         return include $file;
     }
 

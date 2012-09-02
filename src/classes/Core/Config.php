@@ -45,7 +45,7 @@ class Core_Config
      */
     protected static function load($name)
     {
-        if (!$files = Autoload::singleton()->findFiles('config', $name)) {
+        if (!$files = Autoload::getSingleton()->findFiles('config', $name)) {
             throw new Exception(sprintf('Unable to locate a configuration file for %s', $name));
         }
 

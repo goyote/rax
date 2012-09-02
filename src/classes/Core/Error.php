@@ -89,11 +89,13 @@ class Core_Error extends Exception
         $message = $e->getMessage();
         $file    = $e->getFile();
         $line    = $e->getLine();
-        $trace   = $e->getTrace();
+        $trace   = Debug::trace($e->getTrace());
+
+//                Debug::dump($trace);
 
         ob_start();
 
-        include Autoload::singleton()->findFile('views', 'core/error');
+        include Autoload::getSingleton()->findFile('views', 'core/error');
 
         echo ob_get_clean();
 
