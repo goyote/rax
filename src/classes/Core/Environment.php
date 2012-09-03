@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Rax framework.
+ * This file is part of the Rax PHP framework.
  *
  * (c) Gregorio Ramirez <goyocode@gmail.com>
  *
@@ -12,7 +12,7 @@
 /**
  * Environment class.
  *
- * The application environment can be defined in several ways:
+ * The application environment can be defined at the server level:
  *
  * - Apache: SetEnv APP_ENV development
  * - Nginx:  fastcgi_param APP_ENV development
@@ -30,7 +30,7 @@ class Core_Environment
     const DEVELOPMENT = 100;
 
     /**
-     * The application environment.
+     * Application environment.
      *
      * We store it as an integer to allow "greater than" logic in control
      * statements.
@@ -40,28 +40,40 @@ class Core_Environment
     protected static $environment;
 
     /**
-     * Set the application environment.
+     * Sets the application environment.
      *
      * Feel free to use the defined constants or create your own:
      *
      *     Environment::set(Environment::DEVELOPMENT);
      *
      * This value will be set automatically by the framework, provided you have
-     * defined the "APP_ENV" environment variable in one of the many ways
-     * outlined in the class DocBlock.
+     * defined the "APP_ENV" environment variable at the server level.
      *
      * @static
+     * @throws InvalidArgumentException
+     *
      * @param int $environment
      */
     public static function set($environment)
     {
-        static::$environment = (int) $environment;
+        if (is_int($environment)) {
+            static::$environment = $environment;
+        } elseif (is_string($environment)) {
+            static::$environment = constant('Environment::'.strtoupper($environment));
+        } else {
+            throw new InvalidArgumentException(sprintf(
+                '%s expects parameter 1 to be an integer or string, %s given',
+                __METHOD__,
+                gettype($environment)
+            ));
+        }
     }
 
     /**
-     * Get the current application environment.
+     * Gets the application environment.
      *
      * @static
+     *
      * @return int
      */
     public static function get()
@@ -70,9 +82,10 @@ class Core_Environment
     }
 
     /**
-     * Are we in a production environment?
+     * Checks if the current environment is production.
      *
      * @static
+     *
      * @return bool
      */
     public static function isProduction()
@@ -81,9 +94,10 @@ class Core_Environment
     }
 
     /**
-     * Are we in a staging environment?
+     * Checks if the current environment is staging.
      *
      * @static
+     *
      * @return bool
      */
     public static function isStaging()
@@ -92,9 +106,10 @@ class Core_Environment
     }
 
     /**
-     * Are we in a testing environment?
+     * Checks if the current environment is testing.
      *
      * @static
+     *
      * @return bool
      */
     public static function isTesting()
@@ -103,9 +118,10 @@ class Core_Environment
     }
 
     /**
-     * Are we in a development environment?
+     * Checks if the current environment is development.
      *
      * @static
+     *
      * @return bool
      */
     public static function isDevelopment()
@@ -114,24 +130,32 @@ class Core_Environment
     }
 
     /**
-     * Are we in a staging/production environment?
+     * Checks if the current environment is staging or production.
      *
      * @static
+     *
      * @return bool
      */
     public static function isProd()
     {
-        return (static::$environment >= static::STAGING);
+        return (
+            static::$environment <= static::PRODUCTION &&
+            static::$environment > static::TESTING
+        );
     }
 
     /**
-     * Are we in a testing/development environment?
+     * Checks if the current environment is testing or development.
      *
      * @static
+     *
      * @return bool
      */
     public static function isDev()
     {
-        return (static::$environment <= static::TESTING);
+        return (
+            static::$environment <= static::TESTING &&
+            static::$environment >= 0
+        );
     }
 }

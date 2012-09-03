@@ -91,8 +91,6 @@ class Core_Error extends Exception
         $line    = $e->getLine();
         $trace   = Debug::trace($e->getTrace());
 
-//                Debug::dump($trace);
-
         ob_start();
 
         include Autoload::getSingleton()->findFile('views', 'core/error');

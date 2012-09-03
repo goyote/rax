@@ -1,18 +1,23 @@
 <?php
 
 return array(
-    'debug' => null,
-    'foo' => array(
-        'bar' => 75
-    ),
+    /**
+     * Default time zone.
+     *
+     * @link http://www.php.net/manual/timezones
+     */
+    'timezone' => 'UTC',
+
+    /**
+     * Sets the default locale.
+     *
+     * @link http://www.php.net/manual/function.setlocale
+     */
+    'locale' => 'en_US.utf-8',
 );
 
-//environment:  ~
-//debug:        ~
 //caching:      ~
 //cacheDir:     ~
 //baseUrl:      "/"
 //indexFile:    ~
 //charset:      "utf-8"
-//timezone:     "UTC"
-//locale:       "en_US.utf-8"

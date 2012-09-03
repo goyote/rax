@@ -20,13 +20,6 @@ class Core_Kernel
     const VERSION = '0.1';
 
     /**
-     * Debug mode.
-     *
-     * @var boolean
-     */
-    protected $debug;
-
-    /**
      * @var string
      */
     protected $charset;
@@ -34,22 +27,22 @@ class Core_Kernel
     /**
      * Singleton instance.
      *
-     * @var Kernel
+     * @var self
      */
-    protected static $instance;
+    protected static $singleton;
 
     /**
      * Gets a singleton instance.
      *
-     * @return Kernel
+     * @return self
      */
-    public static function getInstance()
+    public static function getSingleton()
     {
-        if (null === static::$instance) {
-            static::$instance = new static();
+        if (null === static::$singleton) {
+            static::$singleton = new static();
         }
 
-        return static::$instance;
+        return static::$singleton;
     }
 
     /**
@@ -63,33 +56,7 @@ class Core_Kernel
      */
     protected function __construct()
     {
-        // TODO use Config::get('Database');
-        $config    = Yaml::parse(APP_DIR.'Config/App.yml');
-        $appConfig = $config['app'];
 
-
-        if (null === $appConfig['debug']) {
-            $this->debug = $this->isTestingOrDevelopment();
-        } else {
-            $this->debug = (boolean) $appConfig['debug'];
-        }
-
-        if ($this->isDebug()) {
-            error_reporting(E_ALL | E_STRICT);
-            ini_set('display_errors', 1);
-        } else {
-            error_reporting(E_ALL & ~E_DEPRECATED);
-            ini_set('display_errors', 0);
-        }
-
-        date_default_timezone_set($appConfig['timezone']);
-        setlocale(LC_ALL, $appConfig['locale']);
-
-        $this->setCharset(strtolower($appConfig['charset']));
-
-        if (function_exists('mb_internal_encoding')) {
-            mb_internal_encoding($this->getCharset());
-        }
     }
 
     public function handleRequest()

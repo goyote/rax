@@ -42,23 +42,32 @@ Autoload::getSingleton()
     ->setIncludePath(VENDOR_DIR)
     ->register();
 
+/**
+ * Adds the vendor directory to the include path for easy require()s.
+ */
 set_include_path(VENDOR_DIR.PATH_SEPARATOR.get_include_path());
 
-if (isset($_SERVER['APP_ENV'])) {
-    Environment::set(constant('Environment::'.strtoupper($_SERVER['APP_ENV'])));
-} else {
-    throw new Error('Could not determine the server environment');
-}
+/**
+ * Sets the application environment.
+ *
+ * The application environment can be defined at the server level:
+ *
+ * - Apache: SetEnv APP_ENV development
+ * - Nginx:  fastcgi_param APP_ENV development
+ * - Shell:  export APP_ENV=development
+ */
+Environment::set($_SERVER['APP_ENV']);
 
 /**
- * Reports all current and future errors.
+ * "-1" reports all current and future errors.
  *
- * Don't suppress errors, fix them.
+ * Generally speaking, it's a bad idea to suppress errors. Ideally they should
+ * be shown in development and hidden and logged in production.
  */
 error_reporting(-1);
 
 /**
- *
+ * All errors will be handled and displayed in development.
  */
 if (Environment::isDev()) {
     ini_set('display_errors', 1);
@@ -69,6 +78,24 @@ if (Environment::isDev()) {
     ini_set('display_errors', 0);
 }
 
-include 'i.php';
+/**
+ * Sets the default time zone.
+ *
+ * @link http://www.php.net/manual/timezones
+ */
+date_default_timezone_set(Config::get('kernel.timezone'));
 
-echo 'yes';
+/**
+ * Sets the default locale.
+ *
+ * @link http://www.php.net/manual/function.setlocale
+ */
+setlocale(LC_ALL, Config::get('kernel.locale'));
+
+/**
+ * Sets the MB extension encoding.
+ */
+mb_internal_encoding(Config::get('kernel.charset'));
+
+Kernel::getSingleton()
+    ->setCharset(Config::get('kernel.charset'));

@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700">
         <link rel="stylesheet" href="/assets/fonts/meslo/stylesheet.css">
         <link rel="stylesheet" href="/assets/js/vendor/syntaxhighlighter/shCoreSunburst.css">
+        <link rel="stylesheet" href="/assets/js/vendor/bootstrap/css/bootstrap.css">
 
         <style type="text/css">
             * { margin: 0; }
@@ -42,92 +43,9 @@
 
             .footer { margin: 20px 100px; color: #8ECCFF; font-size: 11px; }
 
-            .tooltip {
-                position: absolute;
-                z-index: 1020;
-                display: block;
-                padding: 5px;
-                font-size: 11px;
-                opacity: 0;
-                filter: alpha(opacity=0);
-                visibility: visible;
-            }
-
-            .tooltip.in {
-                opacity: 0.8;
-                filter: alpha(opacity=80);
-            }
-
-            .tooltip.top {
-                margin-top: -2px;
-            }
-
-            .tooltip.right {
-                margin-left: 2px;
-            }
-
-            .tooltip.bottom {
-                margin-top: 2px;
-            }
-
-            .tooltip.left {
-                margin-left: -2px;
-            }
-
-            .tooltip.top .tooltip-arrow {
-                bottom: 0;
-                left: 50%;
-                margin-left: -5px;
-                border-top: 5px solid #000000;
-                border-right: 5px solid transparent;
-                border-left: 5px solid transparent;
-            }
-
-            .tooltip.left .tooltip-arrow {
-                top: 50%;
-                right: 0;
-                margin-top: -5px;
-                border-top: 5px solid transparent;
-                border-bottom: 5px solid transparent;
-                border-left: 5px solid #000000;
-            }
-
-            .tooltip.bottom .tooltip-arrow {
-                top: 0;
-                left: 50%;
-                margin-left: -5px;
-                border-right: 5px solid transparent;
-                border-bottom: 5px solid #000000;
-                border-left: 5px solid transparent;
-            }
-
-            .tooltip.right .tooltip-arrow {
-                top: 50%;
-                left: 0;
-                margin-top: -5px;
-                border-top: 5px solid transparent;
-                border-right: 5px solid #000000;
-                border-bottom: 5px solid transparent;
-            }
-
-            .tooltip-inner {
-                /*max-width: 200px;*/
-                padding: 4px 8px;
-                color: #ffffff;
-                text-align: center;
-                text-decoration: none;
-                background-color: #000000;
-                -webkit-border-radius: 4px;
-                -moz-border-radius: 4px;
-                border-radius: 4px;
-            }
-            .tooltip-arrow { position: absolute; width: 0; height: 0; }
             #header-top { border-top: #f00 1px solid; font-size: 11px; }
             .clear-left { clear: left; }
-
-            /*@media screen and (max-width: 800px) {*/
-                /*body > .container { margin-left: 50px; margin-right: 50px; }*/
-                /*}*/
+            [rel=tooltip] { display: inline-block; }
         </style>
     </head>
     <body>
@@ -214,7 +132,7 @@ if (Debug::isLanguageConstruct($step['function'])) {
                     </table>
                 </div>
                 <div class="file-info">
-                    <code data-plugin="tooltip" title="<?php echo $step['file']; ?>">
+                    <code rel="tooltip" title="<?php echo $step['file']; ?>" class="clearfix">
                         <?php echo Debug::filePath($step['file'], function($dir, $file) { return '<span class="constant">'.$dir.'</span>'.$file; }); ?>
                         [ <span class="constant"><?php echo $step['line']; ?></span> ]
                     </code>
@@ -228,18 +146,14 @@ if (Debug::isLanguageConstruct($step['function'])) {
     </div>
 
         <script src="/assets/js/vendor/jquery-1.8.0.js"></script>
-        <script src="/assets/js/plugins/jquery.tooltip.js"></script>
         <script src="/assets/js/vendor/syntaxhighlighter/shCore.js"></script>
         <script src="/assets/js/vendor/syntaxhighlighter/shBrushPhp.js"></script>
+        <script src="/assets/js/vendor/bootstrap/js/bootstrap.min.js"></script>
         <script>
             $(function() {
                 SyntaxHighlighter.all();
 
-                $('body')
-                    .tooltip({
-                        selector: '[data-plugin=tooltip]',
-                        events  : ['hover', 'click']
-                    });
+                $('body').tooltip({selector: '[rel=tooltip]'});
             });
         </script>
     </body>
