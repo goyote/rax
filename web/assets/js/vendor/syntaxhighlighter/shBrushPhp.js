@@ -54,7 +54,9 @@
 						'str_word_count strcasecmp strchr strcmp strcoll strcspn strftime strip_tags stripcslashes '+
 						'stripos stripslashes stristr strlen strnatcasecmp strnatcmp strncasecmp strncmp strpbrk '+
 						'strpos strptime strrchr strrev strripos strrpos strspn strstr strtok strtolower strtotime '+
-						'strtoupper strtr strval substr substr_compare';
+						'strtoupper strtr strval substr substr_compare ';
+
+        funcs += 'http_get_request_headers mb_internal_encoding ';
 
 		var keywords =	'abstract and array as break case catch cfunction class clone const continue declare default die do ' +
 						'else elseif enddeclare endfor endforeach endif endswitch endwhile extends final for foreach ' +

@@ -85,17 +85,12 @@ if (Environment::isDev()) {
  */
 date_default_timezone_set(Config::get('kernel.timezone'));
 
-/**
- * Sets the default locale.
- *
- * @link http://www.php.net/manual/function.setlocale
- */
-setlocale(LC_ALL, Config::get('kernel.locale'));
+include 'i.php';
 
-/**
- * Sets the MB extension encoding.
- */
-mb_internal_encoding(Config::get('kernel.charset'));
 
-Kernel::getSingleton()
-    ->setCharset(Config::get('kernel.charset'));
+Debug::dump($_SERVER);
+
+//$kernel = new Kernel();
+//$request = new Request($_GET, $_POST, $_SERVER, array(), Config::get('request'));
+//$response = $kernel->handle($request);
+//$response->send();

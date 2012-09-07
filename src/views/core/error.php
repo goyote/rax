@@ -46,6 +46,7 @@
             #header-top { border-top: #f00 1px solid; font-size: 11px; }
             .clear-left { clear: left; }
             [rel=tooltip] { display: inline-block; }
+            .quote { color: #ddd; }
         </style>
     </head>
     <body>
@@ -55,14 +56,14 @@
                 <?php
                 $a = array();
                 if ($e instanceof ErrorException) {
-                    echo '<span class="highlight">'.static::$levels[$code].'</span> Uh-oh an error was thrown:';
+                    echo '<span class="highlight">'.static::$levels[$code].'</span> Uh-oh an error occurred:';
                 } else {
                     echo '<span class="highlight">'.$class.'</span> Uh-oh an exception was thrown:';
                 }
                 ?>
             </div>
             <div class="message clear-left">
-                &ldquo;<?php echo $message; ?>&rdquo;
+                <span class="quote">&ldquo;</span><?php echo Debug::highlightFunctions($message); ?><span class="quote">&rdquo;</span>
             </div>
         </div>
         <div class="file-info" style="border-top: 1px solid #670101;">

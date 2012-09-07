@@ -1,7 +1,9 @@
 <?php
 
 /**
+ * Autoload class.
  *
+ * @author Gregorio Ramirez <goyocode@gmail.com>
  */
 class Core_Autoload
 {
@@ -36,7 +38,7 @@ class Core_Autoload
      */
     public static function getSingleton()
     {
-        if (null === static::$singleton) {
+        if (static::$singleton === null) {
             static::$singleton = new static();
         }
 
@@ -58,12 +60,11 @@ class Core_Autoload
      */
     public function setBundles(array $bundles)
     {
-        $dirs = array();
-        foreach ($bundles as $name => $dir) {
-            $dirs[$name] = $this->normalizeDirPath($dir);
+        foreach ($bundles as $key => $value) {
+            $bundles[$key] = $this->normalizeDirPath($value);
         }
 
-        $this->bundles = $dirs;
+        $this->bundles = $bundles;
 
         return $this;
     }
@@ -115,19 +116,17 @@ class Core_Autoload
     public function setIncludePath($includePath)
     {
         $includePath = (array) $includePath;
-
-        $dirs = array();
-        foreach ($includePath as $dir) {
-            $dirs[] = $this->normalizeDirPath($dir);
+        foreach ($includePath as $key => $dir) {
+            $includePath[$key] = $this->normalizeDirPath($dir);
         }
 
-        $this->includePath = $dirs;
+        $this->includePath = $includePath;
 
         return $this;
     }
 
     /**
-     * @throws Error
+     * @throws RuntimeException
      *
      * @param string $dir
      *
@@ -136,10 +135,10 @@ class Core_Autoload
     public function normalizeDirPath($dir)
     {
         if (!is_dir($dir)) {
-            throw new Error('%s is not a directory', $dir);
+            throw new RuntimeException(sprintf('%s is not a directory', $dir));
         }
 
-        return realpath($dir).'/';
+        return realpath($dir).DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -165,11 +164,13 @@ class Core_Autoload
     }
 
     /**
-     * Loads a file from in the cascading filesystem.
+     * Loads a class file from the cascading filesystem.
      *
-     * In theory you should never have to call this method directly.
+     * This method is PSR-0 compliant. The class is loaded on first come first
+     * serve basis.
      *
-     *     Autoload::getSingleton()->loadClass('FooClass');
+     *     // Load the Foo class from the CFS
+     *     Autoload::getSingleton()->loadClass('Foo');
      *
      * @param string $class
      *
@@ -177,7 +178,7 @@ class Core_Autoload
      */
     public function loadClass($class)
     {
-        if ('\\' === $class[0]) {
+        if ($class[0] === '\\') {
             $class = substr($class, 1);
         }
 

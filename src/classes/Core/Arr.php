@@ -1,5 +1,7 @@
 <?php
 
+namespace Rax\Helper;
+
 /**
  *
  */
@@ -53,7 +55,7 @@ class Core_Arr
     {
         if (!static::isArray($array)) {
             throw new InvalidArgumentException(sprintf(
-                '%s expects parameter 1 to be an array or ArrayAccess object, %s given',
+                '%s() expects parameter 1 to be an array or ArrayAccess object, %s given',
                 __METHOD__,
                 gettype($array)
             ));
@@ -83,20 +85,20 @@ class Core_Arr
 
     /**
      * @static
+     * @throws InvalidArgumentException
      *
      * @param array|ArrayAccess $array
      * @param array|string      $key
      * @param mixed             $default
      * @param string            $delimiter
      *
-     * @throws InvalidArgumentException
-     * @return mixed
+     * @return ArrayObject|array|mixed
      */
-    public static function get($array, $key, $default = null, $delimiter = Text::PATH_DELIMITER)
+    public static function get($array, $key = null, $default = null, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
             throw new InvalidArgumentException(sprintf(
-                '%s expects parameter 1 to be an array or ArrayAccess object, %s given',
+                '%s() expects parameter 1 to be an array or ArrayAccess object, %s given',
                 __METHOD__,
                 gettype($array)
             ));
@@ -111,7 +113,7 @@ class Core_Arr
             return $return;
         }
 
-        if (null === $key) {
+        if ($key === null) {
             return $array;
         }
 
@@ -141,7 +143,7 @@ class Core_Arr
     {
         if (!static::isArray($array)) {
             throw new InvalidArgumentException(sprintf(
-                '%s expects parameter 1 to be an array or ArrayAccess object, %s given',
+                '%s() expects parameter 1 to be an array or ArrayAccess object, %s given',
                 __METHOD__,
                 gettype($array)
             ));
@@ -183,7 +185,7 @@ class Core_Arr
     {
         if (!static::isArray($array)) {
             throw new InvalidArgumentException(sprintf(
-                '%s expects parameter 1 to be an array or ArrayAccess object, %s given',
+                '%s() expects parameter 1 to be an array or ArrayAccess object, %s given',
                 __METHOD__,
                 gettype($array)
             ));

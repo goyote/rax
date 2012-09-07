@@ -14,10 +14,6 @@ return array(
      * @link http://www.php.net/manual/function.setlocale
      */
     'locale' => 'en_US.utf-8',
-);
 
-//caching:      ~
-//cacheDir:     ~
-//baseUrl:      "/"
-//indexFile:    ~
-//charset:      "utf-8"
+    'charset' => 'utf-8',
+);

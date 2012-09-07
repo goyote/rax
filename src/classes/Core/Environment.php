@@ -9,6 +9,8 @@
  * that was distributed with this source code.
  */
 
+namespace Rax;
+
 /**
  * Environment class.
  *
@@ -21,9 +23,9 @@
  * @package Rax
  * @author  Gregorio Ramirez <goyocode@gmail.com>
  */
-class Core_Environment
+class Environment
 {
-    // List of the most common environments
+    // Common application environments
     const PRODUCTION  = 400;
     const STAGING     = 300;
     const TESTING     = 200;
@@ -62,7 +64,7 @@ class Core_Environment
             static::$environment = constant('Environment::'.strtoupper($environment));
         } else {
             throw new InvalidArgumentException(sprintf(
-                '%s expects parameter 1 to be an integer or string, %s given',
+                '%s() expects parameter 1 to be an integer or string, %s given',
                 __METHOD__,
                 gettype($environment)
             ));
@@ -84,6 +86,8 @@ class Core_Environment
     /**
      * Checks if the current environment is production.
      *
+     *     if (Environment::isProduction()) {
+     *
      * @static
      *
      * @return bool
@@ -95,6 +99,8 @@ class Core_Environment
 
     /**
      * Checks if the current environment is staging.
+     *
+     *     if (Environment::isStaging()) {
      *
      * @static
      *
@@ -108,6 +114,8 @@ class Core_Environment
     /**
      * Checks if the current environment is testing.
      *
+     *     if (Environment::isTesting()) {
+     *
      * @static
      *
      * @return bool
@@ -120,6 +128,8 @@ class Core_Environment
     /**
      * Checks if the current environment is development.
      *
+     *     if (Environment::isDevelopment()) {
+     *
      * @static
      *
      * @return bool
@@ -131,6 +141,8 @@ class Core_Environment
 
     /**
      * Checks if the current environment is staging or production.
+     *
+     *     if (Environment::isProd()) {
      *
      * @static
      *
@@ -146,6 +158,8 @@ class Core_Environment
 
     /**
      * Checks if the current environment is testing or development.
+     *
+     *     if (Environment::isDev()) {
      *
      * @static
      *

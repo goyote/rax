@@ -401,4 +401,14 @@ class Core_Debug
             return '<small>'.gettype($var).'</small> '.htmlspecialchars(print_r($var, true), ENT_NOQUOTES, 'UTF-8');
         }
     }
+
+    /**
+     * @param string $text
+     *
+     * @return string
+     */
+    public static function highlightFunctions($text)
+    {
+        return preg_replace('/((?:[^\s\b]+)\(\))/', '<span class="highlight">$1</span>', $text);
+    }
 }
