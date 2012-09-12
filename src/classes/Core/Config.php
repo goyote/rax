@@ -18,11 +18,11 @@ class Core_Config
      * @param string $delimiter
      * @param bool   $reload
      *
-     * @return mixed
+     * @return ArrObj|mixed
      */
-    public static function get($key = null, $default = null, $delimiter = Text::PATH_DELIMITER, $reload = false)
+    public static function get($key = null, $default = null, $delimiter = null, $reload = false)
     {
-        if (null === $key) {
+        if ($key === null) {
             return static::$storage;
         }
 
@@ -37,16 +37,16 @@ class Core_Config
 
     /**
      * @static
+     * @throws RuntimeException
      *
      * @param string $name
      *
-     * @throws Exception
      * @return ArrObj
      */
-    protected static function load($name)
+    public static function load($name)
     {
         if (!$files = Autoload::getSingleton()->findFiles('config', $name)) {
-            throw new Exception(sprintf('Unable to locate a configuration file for %s', $name));
+            throw new RuntimeException(sprintf('Unable to locate configuration files for %s', $name));
         }
 
         $files = array_reverse($files);

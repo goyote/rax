@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+ * ArrObj class.
  */
 class Core_ArrObj extends ArrayObject
 {

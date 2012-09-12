@@ -31,6 +31,16 @@ class Core_Request
     protected $server;
 
     /**
+     * @var array
+     */
+    protected $attributes;
+
+    /**
+     * @var array
+     */
+    protected $headers;
+
+    /**
      * @var string
      */
     protected $method;
@@ -40,14 +50,14 @@ class Core_Request
      *
      * @var bool
      */
-    protected static $trustProxyData;
+    protected $trustProxyData;
 
     /**
      * Whitelist of trusted proxy server IPs.
      *
      * @var array
      */
-    protected static $trustedProxies;
+    protected $trustedProxies;
 
     /**
      * Singleton instance.
@@ -67,51 +77,20 @@ class Core_Request
     }
 
     /**
-     * @param array $query
-     * @param array $post
-     * @param array $server
-     * @param array $attributes
-     * @param array $config
+     * @param array  $query
+     * @param array  $post
+     * @param array  $server
+     * @param array  $attributes
+     * @param ArrObj $config
      */
-    public function __construct(array $query = array(), array $post = array(), array $server = array(), $attributes = array(), array $config = array())
+    public function __construct(array $query = array(), array $post = array(), array $server = array(), $attributes = array(), ArrObj $config)
     {
         $this->query       = $query;
         $this->post        = $post;
         $this->server      = $server;
         $this->attributes  = $attributes;
         $this->config      = $config;
-        $this->headers     = $this->parseHeaders($server);
-        $this->method      = $this->getServer('REQUEST_METHOD', static::GET);
         static::$singleton = $this;
-    }
-
-    /**
-     * @param array $server
-     *
-     * @return array
-     */
-    public function parseHeaders(array $server)
-    {
-        $headers = array();
-        foreach ($server as $key => $value) {
-            if (strpos($key, 'HTTP_') === 0) {
-                $headers[$this->normalizeHeaderName(substr($key, 5))] = $value;
-            } elseif (in_array($key, array('CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'))) {
-                $headers[$this->normalizeHeaderName($key)] = $value;
-            }
-        }
-
-        return $headers;
-    }
-
-    /**
-     * @param string $header
-     *
-     * @return string
-     */
-    public function normalizeHeaderName($header)
-    {
-        return str_replace('_', '-', strtolower($header));
     }
 
     /**
@@ -161,14 +140,6 @@ class Core_Request
     }
 
     /**
-     * @return bool
-     */
-    public function isPost()
-    {
-        return ($this->method === static::POST);
-    }
-
-    /**
      * @param array|string $key
      * @param mixed        $default
      * @param string       $delimiter
@@ -198,8 +169,35 @@ class Core_Request
      *
      * @return array|mixed
      */
+    public function getAttribute($key = null, $default = null, $delimiter = null)
+    {
+        return Arr::get($this->attributes, $key, $default, $delimiter);
+    }
+
+    /**
+     * @param array|string $key
+     * @param string       $delimiter
+     *
+     * @return bool
+     */
+    public function hasAttribute($key, $delimiter = null)
+    {
+        return Arr::has($this->attributes, $key, $delimiter);
+    }
+
+    /**
+     * @param array|string $key
+     * @param mixed        $default
+     * @param string       $delimiter
+     *
+     * @return array|mixed
+     */
     public function getHeader($key = null, $default = null, $delimiter = null)
     {
+        if ($this->headers === null) {
+            $this->headers = $this->parseHeaders($this->server);
+        }
+
         if ($key !== null) {
             $key = $this->normalizeHeaderName($key);
         }
@@ -215,6 +213,10 @@ class Core_Request
      */
     public function hasHeader($key, $delimiter = null)
     {
+        if ($this->headers === null) {
+            $this->headers = $this->parseHeaders($this->server);
+        }
+
         if ($key !== null) {
             $key = $this->normalizeHeaderName($key);
         }
@@ -223,10 +225,51 @@ class Core_Request
     }
 
     /**
+     * @param array $server
+     *
+     * @return array
+     */
+    public function parseHeaders(array $server)
+    {
+        $headers = array();
+        foreach ($server as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                $headers[$this->normalizeHeaderName(substr($key, 5))] = $value;
+            } elseif (in_array($key, array('CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'))) {
+                $headers[$this->normalizeHeaderName($key)] = $value;
+            }
+        }
+
+        return $headers;
+    }
+
+    /**
+     * @param string $header
+     *
+     * @return string
+     */
+    public function normalizeHeaderName($header)
+    {
+        return str_replace('_', '-', strtolower($header));
+    }
+
+    /**
+     * @param string $method
+     */
+    public function setMethod($method)
+    {
+        $this->method = strtoupper($method);
+    }
+
+    /**
      * @return string
      */
     public function getMethod()
     {
+        if ($this->method === null) {
+            $this->setMethod($this->getServer('REQUEST_METHOD', static::GET));
+        }
+
         return $this->method;
     }
 
@@ -237,7 +280,15 @@ class Core_Request
      */
     public function isMethod($method)
     {
-        return ($this->method === strtoupper($method));
+        return ($this->getMethod() === strtoupper($method));
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPost()
+    {
+        return ($this->getMethod() === static::POST);
     }
 
     /**
@@ -256,13 +307,32 @@ class Core_Request
      */
     public function isAjax()
     {
-        return ($this->getHeader('X-Requested-With') === 'XMLHttpRequest');
+        return ($this->getServer('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest');
     }
 
-
+    /**
+     * Returns the client's IP address.
+     *
+     * If the server is behind a reverse proxy, you will need to set the
+     * "trustProxyData" config value to "true" and add the reverse proxy's IP
+     * to the list of "trustedProxies". Lastly, make sure you forward the client
+     * IP through "X-Forwarded-For" or "Client-IP".
+     *
+     * @throws RuntimeException
+     *
+     * @return string
+     */
     public function getClientIp()
     {
+        if ($this->isProxyDataTrusted() && in_array($this->getServer('REMOTE_ADDR'), $this->getTrustedProxies())) {
+            if (!$clientIp = $this->getServer('HTTP_X_FORWARDED_FOR', $this->getServer('HTTP_CLIENT_IP'))) {
+                throw new RuntimeException('The client IP was not forwarded by the reverse proxy');
+            }
 
+            return trim(current(explode(',', $clientIp)));
+        }
+
+        return $this->getServer('REMOTE_ADDR');
     }
 
     /**
@@ -285,42 +355,50 @@ class Core_Request
     }
 
     /**
+     * @param bool $trustProxyData
+     *
+     * @return self
+     */
+    public function trustProxyData($trustProxyData = true)
+    {
+        $this->trustProxyData = (bool) $trustProxyData;
+
+        return $this;
+    }
+
+    /**
      * @return bool
      */
-    public static function isProxyDataTrusted()
+    public function isProxyDataTrusted()
     {
-        return static::$trustProxyData;
+        if ($this->trustProxyData === null) {
+            $this->trustProxyData($this->config->get('trustProxyData', false));
+        }
+
+        return $this->trustProxyData;
     }
 
     /**
+     * @param array|string $trustedProxies
      *
+     * @return self
      */
-    public static function trustProxyData()
+    public function setTrustedProxies($trustedProxies)
     {
-        static::$trustProxyData = true;
-    }
+        $this->trustedProxies = (array) $trustedProxies;
 
-    /**
-     *
-     */
-    public static function untrustProxyData()
-    {
-        static::$trustProxyData = false;
+        return $this;
     }
 
     /**
      * @return array
      */
-    public static function getTrustedProxies()
+    public function getTrustedProxies()
     {
-        return self::$trustedProxies;
-    }
+        if ($this->trustedProxies === null) {
+            $this->setTrustedProxies($this->config->get('trustedProxies', array('127.0.0.1')));
+        }
 
-    /**
-     * @param array|string $trustedProxies
-     */
-    public static function setTrustedProxies($trustedProxies)
-    {
-        self::$trustedProxies = (array) $trustedProxies;
+        return $this->trustedProxies;
     }
 }

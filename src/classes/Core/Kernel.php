@@ -38,7 +38,7 @@ class Core_Kernel
      */
     public static function getSingleton()
     {
-        if (null === static::$singleton) {
+        if (static::$singleton === null) {
             static::$singleton = new static();
         }
 
@@ -59,9 +59,21 @@ class Core_Kernel
 
     }
 
-    public function handleRequest()
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * @param Request $request
+     *
+     * @return self
+     */
+    public function handleRequest(Request $request)
     {
-        echo 'request';
+        $this->request = $request;
+
+        return $this;
     }
 
     public function sendResponse()
@@ -80,18 +92,10 @@ class Core_Kernel
     }
 
     /**
-     * @param string $charset
-     */
-    public function setCharset($charset)
-    {
-        $this->charset = $charset;
-    }
-
-    /**
      * @return string
      */
     public function getCharset()
     {
-        return $this->charset;
+        return 'UTF-8';
     }
 }

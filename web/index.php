@@ -87,10 +87,9 @@ date_default_timezone_set(Config::get('kernel.timezone'));
 
 include 'i.php';
 
-
 Debug::dump($_SERVER);
 
-//$kernel = new Kernel();
-//$request = new Request($_GET, $_POST, $_SERVER, array(), Config::get('request'));
-//$response = $kernel->handle($request);
-//$response->send();
+Kernel::getSingleton()
+    ->handleRequest(new Request($_GET, $_POST, $_SERVER, array(), Config::get('request')))
+    ->sendResponse();
+

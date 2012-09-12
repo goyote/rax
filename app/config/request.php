@@ -9,7 +9,7 @@ return array(
     'trustProxyData' => false,
 
     /**
-     * Whitelist of trusted proxy server IPs.
+     * Whitelist of trusted reverse proxy IPs.
      *
      * @var array
      */
