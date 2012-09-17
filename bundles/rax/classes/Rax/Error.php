@@ -23,9 +23,9 @@ class Rax_Error extends Exception
     );
 
     /**
-     * @param string        $message
-     * @param string|array  $values
-     * @param int           $code
+     * @param string       $message
+     * @param string|array $values
+     * @param int          $code
      * @param Exception    $previous
      */
     public function __construct($message = '', $values = null, $code = 0, Exception $previous = null)
@@ -46,19 +46,19 @@ class Rax_Error extends Exception
 
     /**
      * @static
+     * @throws ErrorException
      *
      * @param int    $code
      * @param string $message
      * @param string $file
      * @param int    $line
      *
-     * @throws \ErrorException
      * @return bool
      */
     public static function handleError($code, $message, $file = null, $line = null)
     {
         if (error_reporting() & $code) {
-            throw new \ErrorException($message, $code, 0, $file, $line);
+            throw new ErrorException($message, $code, 0, $file, $line);
         }
 
         return false;
@@ -73,7 +73,7 @@ class Rax_Error extends Exception
         if ($error = error_get_last()) {
             ob_get_level() and ob_end_clean();
 
-            static::handleException(new \ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line']));
+            static::handleException(new ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line']));
 
             exit(1);
         }

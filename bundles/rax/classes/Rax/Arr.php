@@ -43,9 +43,9 @@ class Rax_Arr
      * @static
      *
      * @param array|ArrayAccess $array
-     * @param array|string       $key
-     * @param mixed              $value
-     * @param string             $delimiter
+     * @param array|string      $key
+     * @param mixed             $value
+     * @param string            $delimiter
      *
      * @throws InvalidArgumentException
      */
@@ -86,9 +86,9 @@ class Rax_Arr
      * @throws InvalidArgumentException
      *
      * @param array|ArrayAccess $array
-     * @param array|string       $key
-     * @param mixed              $default
-     * @param string             $delimiter
+     * @param array|string      $key
+     * @param mixed             $default
+     * @param string            $delimiter
      *
      * @return ArrayObject|array|mixed
      */
@@ -131,8 +131,8 @@ class Rax_Arr
      * @static
      *
      * @param array|ArrayAccess $array
-     * @param array|string       $key
-     * @param string             $delimiter
+     * @param array|string      $key
+     * @param string            $delimiter
      *
      * @throws InvalidArgumentException
      * @return bool
@@ -173,8 +173,8 @@ class Rax_Arr
      * @static
      *
      * @param array|ArrayAccess $array
-     * @param array|string       $key
-     * @param string             $delimiter
+     * @param array|string      $key
+     * @param string            $delimiter
      *
      * @throws InvalidArgumentException
      * @return array|bool
