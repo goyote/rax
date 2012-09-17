@@ -21,29 +21,23 @@ define('RAX_START_MEMORY', memory_get_peak_usage(true));
  *
  */
 define('ROOT_DIR',    realpath('..').'/');
-define('APP_DIR',     ROOT_DIR.'app/');
 define('BUNDLES_DIR', ROOT_DIR.'bundles/');
-define('SRC_DIR',     ROOT_DIR.'src/');
 define('VENDOR_DIR',  ROOT_DIR.'vendor/');
 define('WEB_DIR',     ROOT_DIR.'web/');
 
-require SRC_DIR.'classes/core/autoload.php';
-require APP_DIR.'classes/Autoload.php';
+require BUNDLES_DIR.'rax/classes/Rax/Autoload.php';
+require BUNDLES_DIR.'app/classes/Autoload.php';
 
 Autoload::getSingleton()
     ->setBundles(array(
-        'Auth' => BUNDLES_DIR.'auth',
-    ))
-    ->setCascadingFilesystem(array(
-        APP_DIR,
-        Autoload::getSingleton()->getBundles(),
-        SRC_DIR,
+        'App' => BUNDLES_DIR.'app',
+        'Rax' => BUNDLES_DIR.'rax',
     ))
     ->setIncludePath(VENDOR_DIR)
     ->register();
 
 /**
- * Adds the vendor directory to the include path for easy require()s.
+ * Prepends the vendor directory to the include path for easy require()s.
  */
 set_include_path(VENDOR_DIR.PATH_SEPARATOR.get_include_path());
 
@@ -56,7 +50,11 @@ set_include_path(VENDOR_DIR.PATH_SEPARATOR.get_include_path());
  * - Nginx:  fastcgi_param APP_ENV development
  * - Shell:  export APP_ENV=development
  */
-Environment::set($_SERVER['APP_ENV']);
+if (isset($_SERVER['APP_ENV'])) {
+    Environment::set($_SERVER['APP_ENV']);
+} else {
+    throw new RuntimeException('Could not determine the application environment');
+}
 
 /**
  * "-1" reports all current and future errors.
@@ -92,4 +90,3 @@ Debug::dump($_SERVER);
 Kernel::getSingleton()
     ->handleRequest(new Request($_GET, $_POST, $_SERVER, array(), Config::get('request')))
     ->sendResponse();
-
