@@ -1,9 +1,8 @@
 <?php
 
 /**
- * Autoload class.
- *
- * @author Gregorio Ramirez <goyocode@gmail.com>
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
  */
 class Rax_Autoload
 {
@@ -13,27 +12,25 @@ class Rax_Autoload
     protected $bundles = array();
 
     /**
-     * The include path used by the cascading filesystem to autoload a class.
-     *
      * @var array
      */
     protected $includePath = array();
 
     /**
-     * Singleton instance.
-     *
-     * @var self
+     * @var Autoload
      */
     protected static $singleton;
 
     /**
-     * Gets a singleton instance.
+     * Returns an Autoload singleton instance.
      *
-     * @return self
+     *     $autoload = Autoload::getSingleton();
+     *
+     * @return Autoload
      */
     public static function getSingleton()
     {
-        if (static::$singleton === null) {
+        if (null === static::$singleton) {
             static::$singleton = new static();
         }
 
@@ -41,22 +38,33 @@ class Rax_Autoload
     }
 
     /**
-     * @param array $bundles
+     * Sets the bundles.
      *
-     * @return self
+     *     Autoload::getSingleton()
+     *         ->setBundles(array(
+     *             'App' => BUNDLES_DIR.'app',
+     *             ...
+     *         ));
+     *
+     * @param array $dirs
+     *
+     * @return Autoload
      */
-    public function setBundles(array $bundles)
+    public function setBundles(array $dirs)
     {
-        foreach ($bundles as $key => $value) {
-            $bundles[$key] = $this->normalizeDirPath($value);
+        foreach ($dirs as $name => $path) {
+            $dirs[$name] = static::normalizeDirPath($path);
         }
-
-        $this->bundles = $bundles;
+        $this->bundles = $dirs;
 
         return $this;
     }
 
     /**
+     * Returns the bundles.
+     *
+     *     $bundles = Autoload::getSingleton()->getBundles();
+     *
      * @return array
      */
     public function getBundles()
@@ -65,26 +73,34 @@ class Rax_Autoload
     }
 
     /**
-     * Sets the include path to atuoload PSR-0 compliant classes.
+     * Sets the include path.
      *
-     * @param array|string $includePath
+     * If a class cannot be found in the CFS, the autoloader will look into this
+     * array of dirs for a match. The file is loaded on a first-come first-serve
+     * basis. This lookup is PSR-0 compliant :)
      *
-     * @return self
+     *     Autoload::getSingleton()->setIncludePath(VENDOR_DIR);
+     *
+     * @param array|string $dirs
+     *
+     * @return Autoload
      */
-    public function setIncludePath($includePath)
+    public function setIncludePath($dirs)
     {
-        $includePath = (array) $includePath;
-
-        foreach ($includePath as $key => $dir) {
-            $includePath[$key] = $this->normalizeDirPath($dir);
+        $dirs = (array) $dirs;
+        foreach ($dirs as $key => $path) {
+            $dirs[$key] = static::normalizeDirPath($path);
         }
-
-        $this->includePath = $includePath;
+        $this->includePath = $dirs;
 
         return $this;
     }
 
     /**
+     * Returns the include path.
+     *
+     *     $includePath = Autoload::getSingleton()->getIncludePath();
+     *
      * @return array
      */
     public function getIncludePath()
@@ -93,25 +109,34 @@ class Rax_Autoload
     }
 
     /**
+     * Makes sure the directory path always ends with a slash.
+     *
+     *     // Returns "/tmp/"
+     *     $dir = Autoload::normalizeDirPath('/tmp');
+     *
      * @throws RuntimeException
      *
      * @param string $dir
      *
      * @return string
      */
-    public function normalizeDirPath($dir)
+    public static function normalizeDirPath($dir)
     {
-        if (!is_dir($dir)) {
-            throw new RuntimeException(sprintf('%s is not a directory', $dir));
+        if (is_dir($dir)) {
+            return realpath($dir).DS;
         }
 
-        return realpath($dir).DIRECTORY_SEPARATOR;
+        throw new RuntimeException(sprintf('%s is not a directory', $dir));
     }
 
     /**
+     * Registers the class autoloader.
+     *
+     *     Autoload::getSingleton()->register();
+     *
      * @param bool $prepend
      *
-     * @return self
+     * @return Autoload
      */
     public function register($prepend = false)
     {
@@ -121,7 +146,11 @@ class Rax_Autoload
     }
 
     /**
-     * @return self
+     * Unregisters the class autoloader.
+     *
+     *     Autoload::getSingleton()->unregister();
+     *
+     * @return Autoload
      */
     public function unregister()
     {
@@ -131,36 +160,33 @@ class Rax_Autoload
     }
 
     /**
-     * Loads a class file from the cascading filesystem.
+     * Loads a class file from the cascading filesystem (CFS.)
      *
-     * This method is PSR-0 compliant. The class is loaded on first come first
-     * serve basis.
+     * This method is PSR-0 compliant. The class is loaded on first-come
+     * first-serve basis.
      *
-     *     // Load the Foo class from the CFS
-     *     Autoload::getSingleton()->loadClass('Foo');
+     *     Autoload::getSingleton()->loadClass('BarClass');
      *
      * @param string $class
      *
-     * @return self
+     * @return Autoload
      */
     public function loadClass($class)
     {
-        if ($class[0] === '\\') {
+        if ('\\' === $class[0]) {
             $class = substr($class, 1);
         }
-
-        $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
-        $class = str_replace('_',  DIRECTORY_SEPARATOR, $class);
+        $class = str_replace(array('\\', '_'), DS, $class);
 
         /** @noinspection PhpAssignmentInConditionInspection */
         if ($file = $this->findFile('classes', $class)) {
             /** @noinspection PhpIncludeInspection */
             require $file;
         } else {
-            foreach ($this->includePath as $absoluteDir) {
-                if (file_exists($absoluteDir.$class.'.php')) {
+            foreach ($this->includePath as $dir) {
+                if (file_exists($dir.$class.'.php')) {
                     /** @noinspection PhpIncludeInspection */
-                    require $absoluteDir.$class.'.php';
+                    require $dir.$class.'.php';
 
                     break;
                 }
@@ -171,6 +197,11 @@ class Rax_Autoload
     }
 
     /**
+     * Returns the full file path to the first occurrence of the file in
+     * the CFS, false otherwise.
+     *
+     *      $filePath = Autoload::getSingleton()->findFile('classes', 'BarClass');
+     *
      * @param string $baseDir
      * @param string $file
      * @param string $ext
@@ -179,11 +210,10 @@ class Rax_Autoload
      */
     public function findFile($baseDir, $file, $ext = 'php')
     {
-        $file = $baseDir.DIRECTORY_SEPARATOR.$file.'.'.$ext;
-
-        foreach ($this->bundles as $absoluteDir) {
-            if (file_exists($absoluteDir.$file)) {
-                return $absoluteDir.$file;
+        $file = $baseDir.DS.$file.'.'.$ext;
+        foreach ($this->bundles as $dir) {
+            if (file_exists($dir.$file)) {
+                return $dir.$file;
             }
         }
 
@@ -191,6 +221,10 @@ class Rax_Autoload
     }
 
     /**
+     * Returns all the file paths found in the CFS for a given partial file name.
+     *
+     *     $filePaths = Autoload::getSingleton()->findFiles('classes', 'BarClass');
+     *
      * @param string $baseDir
      * @param string $file
      * @param string $ext
@@ -199,12 +233,11 @@ class Rax_Autoload
      */
     public function findFiles($baseDir, $file, $ext = 'php')
     {
-        $file = $baseDir.DIRECTORY_SEPARATOR.$file.'.'.$ext;
-
+        $file = $baseDir.DS.$file.'.'.$ext;
         $files = array();
-        foreach ($this->bundles as $absoluteDir) {
-            if (file_exists($absoluteDir.$file)) {
-                $files[] = $absoluteDir.$file;
+        foreach ($this->bundles as $dir) {
+            if (file_exists($dir.$file)) {
+                $files[] = $dir.$file;
             }
         }
 
