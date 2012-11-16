@@ -1,39 +1,29 @@
 <?php
 
-/*
- * This file is part of the Rax PHP framework.
- *
- * (c) Gregorio Ramirez <goyocode@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE file
- * that was distributed with this source code.
- */
-
 /**
- * Environment class.
+ * Environment specifies the application/server environment in which current
+ * script is running.
  *
- * The application environment can be defined at the server level:
+ * Use this class to execute special logic only when the script is ran in a
+ * specific environment, e.g. turn on debugging and profiling in development
+ * mode.
  *
- * - Apache: SetEnv APP_ENV development
- * - Nginx:  fastcgi_param APP_ENV development
- * - Shell:  export APP_ENV=development
- *
- * @package Rax
- * @author  Gregorio Ramirez <goyocode@gmail.com>
+ * @package   Rax
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_Environment
 {
-    // Common application environments
+    // Most common application environments
     const PRODUCTION  = 400;
     const STAGING     = 300;
     const TESTING     = 200;
     const DEVELOPMENT = 100;
 
     /**
-     * Application environment.
-     *
-     * We store it as an integer to allow "greater than" logic in control
-     * statements.
+     * The application environment, stored as an integer to allow "greater than"
+     * logic in control statements.
      *
      * @var int
      */
@@ -49,7 +39,6 @@ class Rax_Environment
      * This value will be set automatically by the framework, provided you have
      * defined the "APP_ENV" environment variable at the server level.
      *
-     * @static
      * @throws InvalidArgumentException
      *
      * @param int $environment
@@ -70,9 +59,9 @@ class Rax_Environment
     }
 
     /**
-     * Gets the application environment.
+     * Returns the application environment.
      *
-     * @static
+     *     $environment = Environment::get();
      *
      * @return int
      */
@@ -86,8 +75,6 @@ class Rax_Environment
      *
      *     if (Environment::isProduction()) {
      *
-     * @static
-     *
      * @return bool
      */
     public static function isProduction()
@@ -99,8 +86,6 @@ class Rax_Environment
      * Checks if the current environment is staging.
      *
      *     if (Environment::isStaging()) {
-     *
-     * @static
      *
      * @return bool
      */
@@ -114,8 +99,6 @@ class Rax_Environment
      *
      *     if (Environment::isTesting()) {
      *
-     * @static
-     *
      * @return bool
      */
     public static function isTesting()
@@ -128,8 +111,6 @@ class Rax_Environment
      *
      *     if (Environment::isDevelopment()) {
      *
-     * @static
-     *
      * @return bool
      */
     public static function isDevelopment()
@@ -141,8 +122,6 @@ class Rax_Environment
      * Checks if the current environment is staging or production.
      *
      *     if (Environment::isProd()) {
-     *
-     * @static
      *
      * @return bool
      */
@@ -158,8 +137,6 @@ class Rax_Environment
      * Checks if the current environment is testing or development.
      *
      *     if (Environment::isDev()) {
-     *
-     * @static
      *
      * @return bool
      */

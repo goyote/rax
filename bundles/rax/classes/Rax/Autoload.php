@@ -1,8 +1,13 @@
 <?php
 
 /**
+ * Autoload is responsible for autoloading PHP classes, taking out the burden of
+ * calling include() each time you want to use a class located on a different file.
+ *
+ * @package   Rax
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_Autoload
 {
