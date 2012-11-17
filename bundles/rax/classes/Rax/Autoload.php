@@ -128,7 +128,7 @@ class Rax_Autoload
     public static function normalizeDirPath($dir)
     {
         if (is_dir($dir)) {
-            return realpath($dir).DS;
+            return realpath($dir).'/';
         }
 
         throw new RuntimeException(sprintf('%s is not a directory', $dir));
@@ -181,7 +181,7 @@ class Rax_Autoload
         if ('\\' === $class[0]) {
             $class = substr($class, 1);
         }
-        $class = str_replace(array('\\', '_'), DS, $class);
+        $class = str_replace(array('\\', '_'), '/', $class);
 
         /** @noinspection PhpAssignmentInConditionInspection */
         if ($file = $this->findFile('classes', $class)) {
@@ -215,7 +215,7 @@ class Rax_Autoload
      */
     public function findFile($baseDir, $file, $ext = 'php')
     {
-        $file = $baseDir.DS.$file.'.'.$ext;
+        $file = $baseDir.'/'.$file.'.'.$ext;
         foreach ($this->bundles as $dir) {
             if (file_exists($dir.$file)) {
                 return $dir.$file;
@@ -238,7 +238,7 @@ class Rax_Autoload
      */
     public function findFiles($baseDir, $file, $ext = 'php')
     {
-        $file = $baseDir.DS.$file.'.'.$ext;
+        $file = $baseDir.'/'.$file.'.'.$ext;
         $files = array();
         foreach ($this->bundles as $dir) {
             if (file_exists($dir.$file)) {

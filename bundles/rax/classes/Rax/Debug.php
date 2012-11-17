@@ -11,11 +11,10 @@ class Rax_Debug
      * @var array
      */
     protected static $topLevelDirs = array(
-        'APP_DIR',
         'BUNDLES_DIR',
-        'SRC_DIR',
         'VENDOR_DIR',
         'WEB_DIR',
+        'BIN_DIR',
         'ROOT_DIR',
     );
 

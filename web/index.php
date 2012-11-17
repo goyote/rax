@@ -10,21 +10,26 @@
  */
 
 /**
- * Capture the current time and memory usage.
- *
- * We'll use this in conjunction with the final numbers to benchmark the framework.
+ * Capture the current time and memory usage. We'll use this in conjunction with
+ * the final numbers to benchmark the framework.
  */
 define('RAX_START_TIME',   microtime(true));
 define('RAX_START_MEMORY', memory_get_peak_usage(true));
+define('RAX_VERSION', '0.1');
 
 /**
  *
  */
 define('ROOT_DIR',    realpath('..').'/');
+define('BIN_DIR',     ROOT_DIR.'bin/');
 define('BUNDLES_DIR', ROOT_DIR.'bundles/');
 define('VENDOR_DIR',  ROOT_DIR.'vendor/');
 define('WEB_DIR',     ROOT_DIR.'web/');
 
+/**
+ * These are the only two hardcoded requires(), from now forth the Autoload class
+ * will take care of autoloading subsequent PHP classes.
+ */
 require BUNDLES_DIR.'rax/classes/Rax/Autoload.php';
 require BUNDLES_DIR.'app/classes/Autoload.php';
 
@@ -37,35 +42,33 @@ Autoload::getSingleton()
     ->register();
 
 /**
- * Prepends the vendor directory to the include path for easy require()s.
+ * Prepends the vendor directory to the include path for easy require()s of
+ * misc classes.
  */
 set_include_path(VENDOR_DIR.PATH_SEPARATOR.get_include_path());
 
 /**
- * Sets the application environment.
- *
  * The application environment can be defined at the server level:
  *
  * - Apache: SetEnv APP_ENV development
  * - Nginx:  fastcgi_param APP_ENV development
  * - Shell:  export APP_ENV=development
  */
-if (isset($_SERVER['APP_ENV'])) {
-    Environment::set($_SERVER['APP_ENV']);
-} else {
-    throw new RuntimeException('Could not determine the application environment');
+if (empty($_SERVER['APP_ENV'])) {
+    throw new RuntimeException('Application environment was not defined');
 }
+Environment::set($_SERVER['APP_ENV']);
 
 /**
  * "-1" reports all current and future errors.
  *
- * Generally speaking, it's a bad idea to suppress errors. Ideally they should
- * be shown in development and hidden and logged in production.
+ * Ideally we show these in development and hide but log them in production.
  */
 error_reporting(-1);
 
 /**
- * All errors will be handled and displayed in development.
+ * All errors and exceptions are handled. You can set the logging threshold in
+ * the configuration.
  */
 if (Environment::isDev()) {
     ini_set('display_errors', 1);
@@ -82,10 +85,6 @@ if (Environment::isDev()) {
  * @link http://www.php.net/manual/timezones
  */
 date_default_timezone_set(Config::get('kernel.timezone'));
-
-include 'i.php';
-
-Debug::dump($_SERVER);
 
 Kernel::getSingleton()
     ->handleRequest(new Request($_GET, $_POST, $_SERVER, array(), Config::get('request')))

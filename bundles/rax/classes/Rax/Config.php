@@ -20,7 +20,7 @@ class Rax_Config
      *
      * @return ArrObj|mixed
      */
-    public static function get($key = null, $default = null, $delimiter = null, $reload = false)
+    public static function get($key = null, $default = null, $delimiter = Text::PATH_DELIMITER, $reload = false)
     {
         if ($key === null) {
             return static::$storage;

@@ -1,13 +1,14 @@
 <?php
 
 /**
- *
+ * @package   Rax
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_Arr
 {
     /**
-     * @static
-     *
      * @param array|ArrayAccess $array
      *
      * @return bool
@@ -18,8 +19,6 @@ class Rax_Arr
     }
 
     /**
-     * @static
-     *
      * @param array|ArrayObject $array
      *
      * @return bool
@@ -40,23 +39,17 @@ class Rax_Arr
     }
 
     /**
-     * @static
+     * @throws Error
      *
      * @param array|ArrayAccess $array
      * @param array|string      $key
      * @param mixed             $value
      * @param string            $delimiter
-     *
-     * @throws InvalidArgumentException
      */
     public static function set(&$array, $key, $value, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new InvalidArgumentException(sprintf(
-                '%s() expects parameter 1 to be an array or ArrayAccess object, %s given',
-                __METHOD__,
-                gettype($array)
-            ));
+            throw new Error('Arr::set() expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
         }
 
         if (is_array($key)) {
@@ -70,8 +63,7 @@ class Rax_Arr
         $keys = explode($delimiter, $key);
         while (count($keys) > 1) {
             $key = array_shift($keys);
-
-            if (!array_key_exists($key, $array) || !static::isArray($array[$key])) {
+            if (!isset($array[$key]) || !static::isArray($array[$key])) {
                 $array[$key] = array();
             }
 
@@ -82,8 +74,7 @@ class Rax_Arr
     }
 
     /**
-     * @static
-     * @throws InvalidArgumentException
+     * @throws Error
      *
      * @param array|ArrayAccess $array
      * @param array|string      $key
@@ -95,29 +86,25 @@ class Rax_Arr
     public static function get($array, $key = null, $default = null, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new InvalidArgumentException(sprintf(
-                '%s() expects parameter 1 to be an array or ArrayAccess object, %s given',
-                __METHOD__,
-                gettype($array)
-            ));
+            throw new Error('Arr::get() expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
         }
 
-        if (static::isArray($key)) {
-            $return = array();
-            foreach ($key as $k) {
-                $return[$k] = static::get($array, $k, $default, $delimiter);
+        if (is_array($key)) {
+            $temp = array();
+            foreach ($key as $tempKey) {
+                $temp[$tempKey] = static::get($array, $tempKey, $default, $delimiter);
             }
 
-            return $return;
+            return $temp;
         }
 
-        if ($key === null) {
+        if (null === $key) {
             return $array;
         }
 
         $keys = explode($delimiter, $key);
         foreach ($keys as $key) {
-            if (static::isArray($array) && array_key_exists($key, $array)) {
+            if (static::isArray($array) && isset($array[$key])) {
                 $array = $array[$key];
             } else {
                 return Php::value($default);
@@ -128,26 +115,21 @@ class Rax_Arr
     }
 
     /**
-     * @static
+     * @throws Error
      *
      * @param array|ArrayAccess $array
      * @param array|string      $key
      * @param string            $delimiter
      *
-     * @throws InvalidArgumentException
      * @return bool
      */
     public static function has($array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new InvalidArgumentException(sprintf(
-                '%s() expects parameter 1 to be an array or ArrayAccess object, %s given',
-                __METHOD__,
-                gettype($array)
-            ));
+            throw new Error('Arr::has() expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
         }
 
-        if (static::isArray($key)) {
+        if (is_array($key)) {
             foreach ($key as $k) {
                 if (!static::has($array, $k, $delimiter)) {
                     return false;
@@ -159,7 +141,7 @@ class Rax_Arr
 
         $keys = explode($delimiter, $key);
         foreach ($keys as $key) {
-            if (static::isArray($array) && array_key_exists($key, $array)) {
+            if (static::isArray($array) && isset($array[$key])) {
                 $array = $array[$key];
             } else {
                 return false;
@@ -170,23 +152,18 @@ class Rax_Arr
     }
 
     /**
-     * @static
+     * @throws Error
      *
      * @param array|ArrayAccess $array
      * @param array|string      $key
      * @param string            $delimiter
      *
-     * @throws InvalidArgumentException
      * @return array|bool
      */
     public static function delete(&$array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new InvalidArgumentException(sprintf(
-                '%s() expects parameter 1 to be an array or ArrayAccess object, %s given',
-                __METHOD__,
-                gettype($array)
-            ));
+            throw new Error('Arr::delete() expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
         }
 
         if (is_array($key)) {
@@ -217,29 +194,25 @@ class Rax_Arr
     }
 
     /**
-     * @static
-     *
      * @param array $array
      *
      * @return array
      */
     public static function flatten(array $array)
     {
-        $return = array();
+        $temp = array();
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $return += static::flatten($value);
+                $temp += static::flatten($value);
             } else {
-                $return[$key] = $value;
+                $temp[$key] = $value;
             }
         }
 
-        return $return;
+        return $temp;
     }
 
     /**
-     * @static
-     *
      * @param array  $array
      * @param string $key
      * @param mixed  $value
@@ -248,7 +221,7 @@ class Rax_Arr
      */
     public static function unshift(array &$array, $key, $value)
     {
-        return $array = array($key => $value) + $array;
+        return ($array = array($key => $value) + $array);
     }
 
     /**
