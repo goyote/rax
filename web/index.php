@@ -18,7 +18,7 @@ define('RAX_START_MEMORY', memory_get_peak_usage(true));
 define('RAX_VERSION', '0.1');
 
 /**
- *
+ * Define the paths to the top level directories.
  */
 define('ROOT_DIR',    realpath('..').'/');
 define('BIN_DIR',     ROOT_DIR.'bin/');
@@ -27,8 +27,8 @@ define('VENDOR_DIR',  ROOT_DIR.'vendor/');
 define('WEB_DIR',     ROOT_DIR.'web/');
 
 /**
- * These are the only two hardcoded requires(), from now forth the Autoload class
- * will take care of autoloading subsequent PHP classes.
+ * These are the only two hardcoded require()s, from now on the autoloader will
+ * step up and autoload subsequent PHP classes.
  */
 require BUNDLES_DIR.'rax/classes/Rax/Autoload.php';
 require BUNDLES_DIR.'app/classes/Autoload.php';

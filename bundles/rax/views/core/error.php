@@ -11,12 +11,17 @@
 
         <style type="text/css">
             * { margin: 0; }
+            .meslo { font-family: 'Meslo', monospace; }
+            code { font-family: 'Meslo', monospace; }
             body { font: 13px/1em "Droid Sans", sans-serif; background: #003663; min-width: 320px; }
             body > .container { margin: 20px auto; width: 85%; box-shadow: 0 5px 50px rgba(0, 0, 0, 0.5); }
             .header { padding: 10px 30px 20px; background: #b00; color: #fff; }
             /*.header > div:not(:last-child) { margin: 0 0 15px; }*/
             .header .message { font-size: 20px; line-height: 20px; padding: 15px 0 2px; /*border-top: 1px solid #DD1111;*/ }
             .file-info { padding: 10px 30px; background: #810D0D; color: #fff; font-size: 11px; }
+            .message code { font-family: "Droid Sans", sans-serif; }
+            .message > * { display: inline; }
+            .message code,
             .highlight { color: #ffb6c1; }
             .mono { font-family: "Droid Sans Mono", "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace !important; }
             .stack-trace { background: #ccc; padding: 25px 30px 30px; }
@@ -36,8 +41,7 @@
             .trace .syntaxhighlighter { font: 12px/16px 'Meslo' !important; padding: 5px !important; }
             .trace .syntaxhighlighter .gutter .line { border-right: 1px solid #fff !important; }
             .trace .syntaxhighlighter .gutter .line.highlighted { background: #fff !important; }
-            .meslo { font-family: 'Meslo', monospace !important; }
-            code { font-family: 'Meslo', monospace !important; }
+
             .introduction { color: #eee; background: #E60000; padding: 2px; }
             .introduction .highlight { color: #ff0; }
 
@@ -63,7 +67,7 @@
                 ?>
             </div>
             <div class="message clear-left">
-                <span class="quote">&ldquo;</span><?php echo Debug::highlightFunctions($message); ?><span class="quote">&rdquo;</span>
+                <span class="quote">&ldquo;</span><?php echo trim($message); ?><span class="quote">&rdquo;</span>
             </div>
         </div>
         <div class="file-info" style="border-top: 1px solid #670101;">
@@ -153,7 +157,6 @@ if (Debug::isLanguageConstruct($step['function'])) {
         <script>
             $(function() {
                 SyntaxHighlighter.all();
-
                 $('body').tooltip({selector: '[rel=tooltip]'});
             });
         </script>

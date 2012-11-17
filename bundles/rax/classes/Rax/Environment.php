@@ -50,11 +50,9 @@ class Rax_Environment
         } elseif (is_string($environment)) {
             static::$environment = constant('Environment::'.strtoupper($environment));
         } else {
-            throw new InvalidArgumentException(sprintf(
-                '%s() expects parameter 1 to be an integer or string, %s given',
-                __METHOD__,
-                gettype($environment)
-            ));
+            throw new InvalidArgumentException(
+                sprintf('Environment::set() expects parameter 1 to be an integer or string, %s given', gettype($environment))
+            );
         }
     }
 

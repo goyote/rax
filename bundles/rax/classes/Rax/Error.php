@@ -1,7 +1,10 @@
 <?php
 
 /**
- *
+ * @package   Rax
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_Error extends Exception
 {
@@ -23,16 +26,14 @@ class Rax_Error extends Exception
     );
 
     /**
-     * @param string       $message
-     * @param string|array $values
-     * @param int          $code
-     * @param Exception    $previous
+     * @param string      $message
+     * @param array|mixed $values
+     * @param Exception   $previous
      */
-    public function __construct($message = '', $values = null, $code = 0, Exception $previous = null)
+    public function __construct($message, $values = null, Exception $previous = null)
     {
-        $values = (array) $values;
-
-        if ($values) {
+        if (null !== $values) {
+            $values = (array) $values;
             if (Arr::isAssociative($values)) {
                 $message = strtr($message, $values);
             } else {
@@ -41,11 +42,12 @@ class Rax_Error extends Exception
             }
         }
 
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, 0, $previous);
     }
 
     /**
-     * @static
+     * Transforms notices and simple errors into an exception for better debugging.
+     *
      * @throws ErrorException
      *
      * @param int    $code
@@ -65,7 +67,7 @@ class Rax_Error extends Exception
     }
 
     /**
-     *
+     * Transforms fatal errors into exceptions for better debugging.
      */
     public static function handleShutdown()
     {
@@ -73,20 +75,25 @@ class Rax_Error extends Exception
         if ($error = error_get_last()) {
             ob_get_level() and ob_end_clean();
 
-            static::handleException(new ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line']));
-
-            exit(1);
+            static::handleException(
+                new ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line'])
+            );
         }
     }
 
     /**
+     * Handles all exceptions, logging and highlighting the problematic line
+     * for easier debugging, dies therefore after.
+     *
      * @param Exception $e
      */
     public static function handleException(Exception $e)
     {
+        require 'markdown.php';
+
         $class   = get_class($e);
         $code    = $e->getCode();
-        $message = $e->getMessage();
+        $message = Markdown($e->getMessage());
         $file    = $e->getFile();
         $line    = $e->getLine();
         $trace   = Debug::trace($e->getTrace());

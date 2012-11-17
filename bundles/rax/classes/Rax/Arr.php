@@ -49,7 +49,7 @@ class Rax_Arr
     public static function set(&$array, $key, $value, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new Error('Arr::set() expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
+            throw new Error('`Arr::set()` expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
         }
 
         if (is_array($key)) {
@@ -86,7 +86,7 @@ class Rax_Arr
     public static function get($array, $key = null, $default = null, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new Error('Arr::get() expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
+            throw new Error('`Arr::get()` expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
         }
 
         if (is_array($key)) {
@@ -126,7 +126,7 @@ class Rax_Arr
     public static function has($array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new Error('Arr::has() expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
+            throw new Error('`Arr::has()` expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
         }
 
         if (is_array($key)) {
@@ -163,7 +163,7 @@ class Rax_Arr
     public static function delete(&$array, $key, $delimiter = Text::PATH_DELIMITER)
     {
         if (!static::isArray($array)) {
-            throw new Error('Arr::delete() expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
+            throw new Error('`Arr::delete()` expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
         }
 
         if (is_array($key)) {

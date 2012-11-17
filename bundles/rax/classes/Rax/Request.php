@@ -401,4 +401,19 @@ class Rax_Request
 
         return $this->trustedProxies;
     }
+
+    /**
+     * @return bool
+     */
+    public function isSecure()
+    {
+        return (
+            filter_var($this->getServer('HTTPS'), FILTER_VALIDATE_BOOLEAN) ||
+            (
+                $this->trustProxyData() && (
+                filter_var($this->getServer('HTTP_SSL_HTTPS'), FILTER_VALIDATE_BOOLEAN) ||
+                filter_var($this->getServer('HTTP_X_FORWARDED_PROTO'), FILTER_VALIDATE_BOOLEAN)
+            ))
+        );
+    }
 }
