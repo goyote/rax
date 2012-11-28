@@ -11,7 +11,7 @@
  * - Use regular expressions to limit what a segment matches, the default regex
  *   for a segment is something similar to [^/]+ (which is pretty broad.)
  *
- *     // e.g. Force the id segment match digits only, and make it required
+ *     // e.g. Force the id segment to match digits only, and make it required
  *     'default' => array(
  *         'pattern'  => '/{controller}/{action}/{id}',
  *         'defaults' => array(
