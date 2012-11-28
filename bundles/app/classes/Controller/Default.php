@@ -1,6 +1,6 @@
 <?php
 
-class Controller_Welcome extends Controller
+class Controller_Default extends Controller
 {
     public function indexAction()
     {

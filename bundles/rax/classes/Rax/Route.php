@@ -67,7 +67,7 @@ class Rax_Route
     public function compile()
     {
         $tokens    = array();
-        $placeholders = array();
+        $segments  = array();
         $pattern   = $this->getPattern();
         $pos       = 0;
         $len       = strlen($pattern);
@@ -80,9 +80,9 @@ class Rax_Route
             }
 
             $pos = $match[0][1] + strlen($match[0][0]);
-            $placeholder = $match[1][0];
+            $segment = $match[1][0];
 
-            if ($req = $this->getRule($placeholder)) {
+            if ($req = $this->getRule($segment)) {
                 $regexp = $req;
             } else {
                 // Use the character preceding the variable as a separator
@@ -95,23 +95,18 @@ class Rax_Route
                 $regexp = sprintf('[^%s]+', preg_quote(implode('', array_unique($separators)), self::REGEX_DELIMITER));
             }
 
-            $tokens[] = array('variable', $match[0][0][0], $regexp, $placeholder);
+            $tokens[] = array('variable', $match[0][0][0], $regexp, $segment);
 
-            if (in_array($placeholder, $placeholders)) {
-                throw new LogicException(sprintf('Route pattern "%s" cannot reference variable name "%s" more than once.', $this->getPattern(), $placeholder));
+            if (in_array($segment, $segments)) {
+                throw new LogicException(sprintf('Route pattern "%s" cannot reference variable name "%s" more than once.', $this->getPattern(), $segment));
             }
 
-            $placeholders[] = $placeholder;
+            $segments[] = $segment;
         }
-
-
 
         if ($pos < $len) {
             $tokens[] = array('text', substr($pattern, $pos));
         }
-
-
-
 
         // find the first optional token
         $firstOptional = INF;
@@ -124,10 +119,6 @@ class Rax_Route
             }
         }
 
-        print_r($firstOptional);
-        print_r($tokens);
-        die;
-
         // compute the matching regexp
         $regexp = '';
         for ($i = 0, $nbToken = count($tokens); $i < $nbToken; $i++) {
@@ -139,7 +130,7 @@ class Rax_Route
             'text' === $tokens[0][0] ? $tokens[0][1] : '',
             self::REGEX_DELIMITER.'^'.$regexp.'$'.self::REGEX_DELIMITER.'s',
             array_reverse($tokens),
-            $placeholders
+            $segments
         );
     }
 
