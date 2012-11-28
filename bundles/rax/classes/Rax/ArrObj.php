@@ -6,6 +6,15 @@
 class Rax_ArrObj extends ArrayObject
 {
     /**
+     * @param array|object $input
+     * @param int          $flags
+     */
+    public function __construct($input = null, $flags = ArrayObject::ARRAY_AS_PROPS)
+    {
+        parent::__construct($input, $flags);
+    }
+
+    /**
      * @param string $key
      * @param mixed  $value
      * @param string $delimiter

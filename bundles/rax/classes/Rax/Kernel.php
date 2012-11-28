@@ -1,19 +1,10 @@
 <?php
 
-/*
- * This file is part of the Rax framework.
- *
- * (c) Gregorio Ramirez <goyocode@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE file
- * that was distributed with this source code.
- */
-
 /**
- * Kernel class.
- *
- * @package Rax
- * @author  Gregorio Ramirez <goyocode@gmail.com>
+ * @package   Rax
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_Kernel
 {
@@ -23,6 +14,13 @@ class Rax_Kernel
      * @var string
      */
     protected $charset;
+
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    protected $router;
 
     /**
      * Singleton instance.
@@ -45,44 +43,31 @@ class Rax_Kernel
         return static::$singleton;
     }
 
-    /**
-     * Constructor.
-     */
-    protected function __construct()
+    public function setRouter(Router $router)
     {
-
+        $this->router = $router;
     }
 
-    /**
-     * @var Request
-     */
-    protected $request;
+    public function getRouter()
+    {
+        $this->router;
+    }
 
-    /**
-     * @param Request $request
-     *
-     * @return self
-     */
-    public function handleRequest(Request $request)
+    public function setRequest(Request $request)
     {
         $this->request = $request;
-
-        return $this;
     }
 
-    public function sendResponse()
+    public function setConfig(ArrObj $config)
     {
-        echo 'response';
     }
 
     /**
-     * Is debugging turned on?
      *
-     * @return boolean
      */
-    public function isDebug()
+    public function processRequest()
     {
-        return $this->debug;
+        $match = $this->router->match($this->request->getUri());
     }
 
     /**
@@ -90,6 +75,6 @@ class Rax_Kernel
      */
     public function getCharset()
     {
-        return 'UTF-8';
+        return 'utf-8';
     }
 }

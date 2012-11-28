@@ -1,7 +1,10 @@
 <?php
 
 /**
- *
+ * @package   Rax
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_Request
 {
@@ -60,21 +63,16 @@ class Rax_Request
     protected $trustedProxies;
 
     /**
-     * Singleton instance.
-     *
-     * @var self
+     * @var string
      */
-    protected static $singleton;
+    protected $uri;
 
     /**
-     * Gets a singleton instance.
+     * Singleton instance.
      *
-     * @return self
+     * @var Request
      */
-    public static function getSingleton()
-    {
-        return static::$singleton;
-    }
+    protected static $singleton;
 
     /**
      * @param array  $query
@@ -85,12 +83,29 @@ class Rax_Request
      */
     public function __construct(array $query = array(), array $post = array(), array $server = array(), $attributes = array(), ArrObj $config)
     {
-        $this->query       = $query;
-        $this->post        = $post;
-        $this->server      = $server;
-        $this->attributes  = $attributes;
-        $this->config      = $config;
-        static::$singleton = $this;
+        $this->query      = $query;
+        $this->post       = $post;
+        $this->server     = $server;
+        $this->attributes = $attributes;
+        $this->config     = $config;
+    }
+
+    /**
+     * Gets a singleton instance.
+     *
+     * @return Request
+     */
+    public static function getSingleton()
+    {
+        return static::$singleton;
+    }
+
+    /**
+     * @param Request $singleton
+     */
+    public static function setSingleton(Request $singleton)
+    {
+        static::$singleton = $singleton;
     }
 
     /**
@@ -164,6 +179,20 @@ class Rax_Request
 
     /**
      * @param array|string $key
+     * @param mixed        $value
+     * @param string       $delimiter
+     *
+     * @return Request
+     */
+    public function setAttribute($key, $value = null, $delimiter = null)
+    {
+        Arr::set($this->attributes, $key, $value, $delimiter);
+
+        return $this;
+    }
+
+    /**
+     * @param array|string $key
      * @param mixed        $default
      * @param string       $delimiter
      *
@@ -194,11 +223,11 @@ class Rax_Request
      */
     public function getHeader($key = null, $default = null, $delimiter = null)
     {
-        if ($this->headers === null) {
+        if (null === $this->headers) {
             $this->headers = $this->parseHeaders($this->server);
         }
 
-        if ($key !== null) {
+        if (null !== $key) {
             $key = $this->normalizeHeaderName($key);
         }
 
@@ -217,7 +246,7 @@ class Rax_Request
             $this->headers = $this->parseHeaders($this->server);
         }
 
-        if ($key !== null) {
+        if (null !== $key) {
             $key = $this->normalizeHeaderName($key);
         }
 
@@ -233,7 +262,7 @@ class Rax_Request
     {
         $headers = array();
         foreach ($server as $key => $value) {
-            if (strpos($key, 'HTTP_') === 0) {
+            if (0 === strpos($key, 'HTTP_')) {
                 $headers[$this->normalizeHeaderName(substr($key, 5))] = $value;
             } elseif (in_array($key, array('CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'))) {
                 $headers[$this->normalizeHeaderName($key)] = $value;
@@ -266,7 +295,7 @@ class Rax_Request
      */
     public function getMethod()
     {
-        if ($this->method === null) {
+        if (null === $this->method) {
             $this->setMethod($this->getServer('REQUEST_METHOD', static::GET));
         }
 
@@ -280,7 +309,7 @@ class Rax_Request
      */
     public function isMethod($method)
     {
-        return ($this->getMethod() === strtoupper($method));
+        return (strtoupper($method) === $this->getMethod());
     }
 
     /**
@@ -288,7 +317,7 @@ class Rax_Request
      */
     public function isPost()
     {
-        return ($this->getMethod() === static::POST);
+        return (static::POST === $this->getMethod());
     }
 
     /**
@@ -307,7 +336,7 @@ class Rax_Request
      */
     public function isAjax()
     {
-        return ($this->getServer('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest');
+        return ('XMLHttpRequest' === $this->getServer('HTTP_X_REQUESTED_WITH'));
     }
 
     /**
@@ -357,7 +386,7 @@ class Rax_Request
     /**
      * @param bool $trustProxyData
      *
-     * @return self
+     * @return Request
      */
     public function trustProxyData($trustProxyData = true)
     {
@@ -371,7 +400,7 @@ class Rax_Request
      */
     public function isProxyDataTrusted()
     {
-        if ($this->trustProxyData === null) {
+        if (null === $this->trustProxyData) {
             $this->trustProxyData($this->config->get('trustProxyData', false));
         }
 
@@ -381,7 +410,7 @@ class Rax_Request
     /**
      * @param array|string $trustedProxies
      *
-     * @return self
+     * @return Request
      */
     public function setTrustedProxies($trustedProxies)
     {
@@ -395,7 +424,7 @@ class Rax_Request
      */
     public function getTrustedProxies()
     {
-        if ($this->trustedProxies === null) {
+        if (null === $this->trustedProxies) {
             $this->setTrustedProxies($this->config->get('trustedProxies', array('127.0.0.1')));
         }
 
@@ -415,5 +444,25 @@ class Rax_Request
                 filter_var($this->getServer('HTTP_X_FORWARDED_PROTO'), FILTER_VALIDATE_BOOLEAN)
             ))
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getUri()
+    {
+        if (null === $this->uri) {
+            $this->uri = $this->detectUri();
+        }
+
+        return $this->uri;
+    }
+
+    /**
+     * @return string
+     */
+    protected function detectUri()
+    {
+        return rawurldecode(parse_url($this->getServer('REQUEST_URI'), PHP_URL_PATH));
     }
 }

@@ -1,7 +1,9 @@
 <?php
 
 /**
- * @package   Rax
+ * Helpers functions for working with arrays.
+ *
+ * @package   Rax\Helper
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
@@ -9,6 +11,12 @@
 class Rax_Arr
 {
     /**
+     * Checks if the parameter is an array or array like object.
+     *
+     *     Arr::isArray(array());           // true
+     *     Arr::isArray(new ArrayObject()); // true
+     *     Arr::isArray('lol');          // false
+     *
      * @param array|ArrayAccess $array
      *
      * @return bool
@@ -19,6 +27,11 @@ class Rax_Arr
     }
 
     /**
+     * Checks if the parameter is an associative array.
+     *
+     *     Arr::isAssociative(array('foo' => 'bar')); // true
+     *     Arr::isAssociative(array('foo'));          // false
+     *
      * @param array|ArrayObject $array
      *
      * @return bool
@@ -39,30 +52,64 @@ class Rax_Arr
     }
 
     /**
-     * @throws Error
+     * Prepends an item to the beginning of an associative array.
+     *
+     *     $arr = array('one' => 'one');
+     *
+     *     Arr::unshift($arr, 'two', 'two'); // array('two' => 'two', 'one' => 'one')
+     *     array_unshift($arr, 'two');       // array(0     => 'two', 'one' => 'one')
+     *
+     * @param array  $array
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return array
+     */
+    public static function unshift(array &$array, $key, $value)
+    {
+        return ($array = array($key => $value) + $array);
+    }
+
+    /**
+     * Sets a value on an array using dot notation.
+     *
+     *     $arr = array();
+     *     Arr::set($arr, 'one.two.three', 'wut');
+     *
+     *     array(
+     *         'one' => array(
+     *             'two' => array(
+     *                 'three' => 'wut'
+     *             )
+     *         )
+     *     )
+     *
+     * @throws Barf
      *
      * @param array|ArrayAccess $array
      * @param array|string      $key
      * @param mixed             $value
      * @param string            $delimiter
      */
-    public static function set(&$array, $key, $value, $delimiter = Text::PATH_DELIMITER)
+    public static function set(&$array, $key, $value = null, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Error('`Arr::set()` expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
+            throw new Barf('First argument must be an array or array like object, %s given', Php::getType($array));
         }
 
         if (is_array($key)) {
-            foreach ($key as $k => $v) {
-                static::set($array, $k, $v, $delimiter);
+            foreach ($key as $tempKey => $tempValue) {
+                static::set($array, $tempKey, $tempValue, $delimiter);
             }
 
             return;
         }
 
         $keys = explode($delimiter, $key);
+
         while (count($keys) > 1) {
             $key = array_shift($keys);
+
             if (!isset($array[$key]) || !static::isArray($array[$key])) {
                 $array[$key] = array();
             }
@@ -74,19 +121,34 @@ class Rax_Arr
     }
 
     /**
-     * @throws Error
+     * Returns the value found at the specified index. Avoids a notice if the
+     * index does not exist. You can provide multiple indexes to retrieve.
      *
-     * @param array|ArrayAccess $array
+     *     $arr = array(
+     *         'one' => array(
+     *             'two' => 2,
+     *         ),
+     *         'three' => 3,
+     *         'four'  => 4,
+     *     );
+     *
+     *     Arr::get($arr, 'one');                  // array('two' => 2)
+     *     Arr::get($arr, 'one.two');              // 2
+     *     Arr::get($arr, array('three', 'four')); // array('three' => 3, 'four' => 4)
+     *
+     * @throws Barf
+     *
+     * @param array|ArrayObject $array
      * @param array|string      $key
      * @param mixed             $default
      * @param string            $delimiter
      *
-     * @return ArrayObject|array|mixed
+     * @return mixed
      */
-    public static function get($array, $key = null, $default = null, $delimiter = Text::PATH_DELIMITER)
+    public static function get($array, $key = null, $default = null, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Error('`Arr::get()` expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
+            throw new Barf('First argument must be an array or array like object, %s given', Php::getType($array));
         }
 
         if (is_array($key)) {
@@ -103,8 +165,12 @@ class Rax_Arr
         }
 
         $keys = explode($delimiter, $key);
+
         foreach ($keys as $key) {
-            if (static::isArray($array) && isset($array[$key])) {
+            if (
+                (is_array($array) && array_key_exists($key, $array)) ||
+                ($array instanceof ArrayAccess && $array->offsetExists($key))
+            ) {
                 $array = $array[$key];
             } else {
                 return Php::value($default);
@@ -115,44 +181,22 @@ class Rax_Arr
     }
 
     /**
-     * @throws Error
+     * Unsets an array item using dot notation.
      *
-     * @param array|ArrayAccess $array
-     * @param array|string      $key
-     * @param string            $delimiter
+     *     $arr = array(
+     *         'one' => array(
+     *             'two'   => 2,
+     *             'three' => 3,
+     *         ),
+     *     );
      *
-     * @return bool
-     */
-    public static function has($array, $key, $delimiter = Text::PATH_DELIMITER)
-    {
-        if (!static::isArray($array)) {
-            throw new Error('`Arr::has()` expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
-        }
-
-        if (is_array($key)) {
-            foreach ($key as $k) {
-                if (!static::has($array, $k, $delimiter)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        $keys = explode($delimiter, $key);
-        foreach ($keys as $key) {
-            if (static::isArray($array) && isset($array[$key])) {
-                $array = $array[$key];
-            } else {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @throws Error
+     *     Arr::delete($arr, 'one.two');
+     *
+     *     array(
+     *         'one' => array(
+     *             'three' => 3
+     *         )
+     *     )
      *
      * @param array|ArrayAccess $array
      * @param array|string      $key
@@ -160,25 +204,24 @@ class Rax_Arr
      *
      * @return array|bool
      */
-    public static function delete(&$array, $key, $delimiter = Text::PATH_DELIMITER)
+    public static function delete(&$array, $key, $delimiter = '.')
     {
-        if (!static::isArray($array)) {
-            throw new Error('`Arr::delete()` expects parameter 1 to be an array or ArrayAccess object, %s given', gettype($array));
-        }
-
         if (is_array($key)) {
-            $return = array();
-            foreach ($key as $k) {
-                $return[$k] = static::delete($array, $k, $delimiter);
+            $temp = array();
+            foreach ($key as $tempKey) {
+                $temp[$tempKey] = static::delete($array, $tempKey, $delimiter);
             }
 
-            return $return;
+            return $temp;
         }
 
         $keys       = explode($delimiter, $key);
         $currentKey = array_shift($keys);
 
-        if (!static::isArray($array) || !array_key_exists($currentKey, $array)) {
+        if (
+            (!is_array($array) || !array_key_exists($currentKey, $array)) &&
+            (!$array instanceof ArrayAccess || !$array->offsetExists($currentKey))
+        ) {
             return false;
         }
 
@@ -194,34 +237,55 @@ class Rax_Arr
     }
 
     /**
-     * @param array $array
+     * Checks if the key exists in the array (accepts dot notation.)
      *
-     * @return array
+     *     $arr = array(
+     *         'one' => array(
+     *             'two'   => 2,
+     *         ),
+     *     );
+     *
+     *     Arr::has($arr, 'one.two');   // true
+     *     Arr::has($arr, 'one.three'); // false
+     *
+     * @throws Barf
+     *
+     * @param array|ArrayAccess $array
+     * @param array|string      $key
+     * @param string            $delimiter
+     *
+     * @return bool
      */
-    public static function flatten(array $array)
+    public static function has($array, $key, $delimiter = '.')
     {
-        $temp = array();
-        foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                $temp += static::flatten($value);
+        if (!static::isArray($array)) {
+            throw new Barf('First argument must be an array or array like object, %s given', Php::getType($array));
+        }
+
+        if (is_array($key)) {
+            foreach ($key as $tempKey) {
+                if (!static::has($array, $tempKey, $delimiter)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        $keys = explode($delimiter, $key);
+
+        foreach ($keys as $key) {
+            if (
+                (is_array($array) && array_key_exists($key, $array)) ||
+                ($array instanceof ArrayAccess && $array->offsetExists($key))
+            ) {
+                $array = $array[$key];
             } else {
-                $temp[$key] = $value;
+                return false;
             }
         }
 
-        return $temp;
-    }
-
-    /**
-     * @param array  $array
-     * @param string $key
-     * @param mixed  $value
-     *
-     * @return array
-     */
-    public static function unshift(array &$array, $key, $value)
-    {
-        return ($array = array($key => $value) + $array);
+        return true;
     }
 
     /**

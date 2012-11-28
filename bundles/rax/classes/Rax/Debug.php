@@ -52,11 +52,12 @@ class Rax_Debug
         var_dump($var);
         $dump[] = ob_get_clean();
 
-        if ($return) {
+        if (!$return) {
+            echo '<pre>'.implode("\n\n", $dump).'</pre>';
             exit();
         }
 
-        echo '<pre>'.implode("\n\n", $dump).'</pre>';
+        return $dump;
     }
 
     /**

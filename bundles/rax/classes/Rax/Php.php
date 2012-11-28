@@ -28,4 +28,14 @@ class Rax_Php
     {
         return ($value instanceof Closure) ? $value() : $value;
     }
+
+    /**
+     * @param string $var
+     *
+     * @return string
+     */
+    public static function getType($var)
+    {
+        return is_object($var) ? get_class($var) : gettype($var);
+    }
 }

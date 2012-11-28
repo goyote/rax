@@ -3,10 +3,10 @@
 /**
  * Your application configuration.
  *
- *     // e.g. Given the following configuration:
+ *     // e.g. Given the following config:
  *     'foo' => array('bar' => 'tot'),
  *
- *     // Values are retrieved using dot notation
- *     Config::get('app.foo.bar');
+ *     // You can use dot notation to retrieve values:
+ *     Config::get('app.foo.bar'); // "tot"
  */
 return array();

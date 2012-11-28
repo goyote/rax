@@ -26,26 +26,6 @@ class Rax_Error extends Exception
     );
 
     /**
-     * @param string      $message
-     * @param array|mixed $values
-     * @param Exception   $previous
-     */
-    public function __construct($message, $values = null, Exception $previous = null)
-    {
-        if (null !== $values) {
-            $values = (array) $values;
-            if (Arr::isAssociative($values)) {
-                $message = strtr($message, $values);
-            } else {
-                array_unshift($values, $message);
-                $message = call_user_func_array('sprintf', $values);
-            }
-        }
-
-        parent::__construct($message, 0, $previous);
-    }
-
-    /**
      * Transforms notices and simple errors into an exception for better debugging.
      *
      * @throws ErrorException

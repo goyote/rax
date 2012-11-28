@@ -1,7 +1,10 @@
 <?php
 
 /**
- *
+ * @package   Rax
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_Config
 {
@@ -11,8 +14,6 @@ class Rax_Config
     protected static $storage = array();
 
     /**
-     * @static
-     *
      * @param string $key
      * @param mixed  $default
      * @param string $delimiter
@@ -20,9 +21,9 @@ class Rax_Config
      *
      * @return ArrObj|mixed
      */
-    public static function get($key = null, $default = null, $delimiter = Text::PATH_DELIMITER, $reload = false)
+    public static function get($key = null, $default = null, $delimiter = '.', $reload = false)
     {
-        if ($key === null) {
+        if (null === $key) {
             return static::$storage;
         }
 
@@ -36,7 +37,6 @@ class Rax_Config
     }
 
     /**
-     * @static
      * @throws RuntimeException
      *
      * @param string $name
@@ -56,12 +56,10 @@ class Rax_Config
             $config = Arr::merge($config, Php::load($file));
         }
 
-        return static::$storage[$name] = new ArrObj($config, ArrayObject::ARRAY_AS_PROPS);
+        return static::$storage[$name] = new ArrObj($config);
     }
 
     /**
-     * @static
-     *
      * @param string $name
      *
      * @return bool
