@@ -5,8 +5,23 @@
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
+ *
+ * @method Route  setName(string $name)                          Sets the route name.
+ * @method string getName()                                      Returns the route name.
+ * @method Route  setPattern(string $pattern)                    Sets the raw route pattern.
+ * @method string getPattern()                                   Returns the raw route pattern.
+ * @method Route  setDefaults(array $defaults)                   Sets the route defaults.
+ * @method array  getDefaults()                                  Returns the route defaults.
+ * @method mixed  getDefault(string $key, mixed $default = null) Returns the default value for the given segment.
+ * @method bool   hasDefault(string $key)                        Checks if the segment has a default value.
+ * @method Route  setRegex(string $regex)                        Sets the route regex.
+ * @method Route  setRules(array $rules)                         Sets the route rules.
+ * @method array  getRules()                                     Returns the route rules.
+ * @method mixed  getRule(string $key, mixed $default = null)    Returns the regex rule for the given segment.
+ * @method bool   hasRule(string $key)                           Checks if the segment has a regex rule.
+ * @method bool   getEndsInSlash()                               Checks if the pattern ends in slash.
  */
-class Rax_Route
+class Rax_Route extends Object
 {
     /**
      * @var string
@@ -53,21 +68,6 @@ class Rax_Route
         $this->defaults    = $defaults;
         $this->rules       = $rules;
         $this->endsInSlash = ('/' === substr($pattern, -1));
-    }
-
-    /**
-     * @param array|ArrayAccess $config
-     *
-     * @return array
-     */
-    public static function parse($config = array())
-    {
-        $routes = array();
-        foreach ($config as $name => $route) {
-            $routes[$name] = new static($name, $route['pattern'], $route['defaults'], Arr::get($route, 'rules', array()));
-        }
-
-        return $routes;
     }
 
     /**
@@ -142,166 +142,6 @@ class Rax_Route
     }
 
     /**
-     * Sets the route name.
-     *
-     * @param string $name
-     *
-     * @return Route
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Returns the route name.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Sets the raw route pattern.
-     *
-     * @param string $pattern
-     *
-     * @return Route
-     */
-    public function setPattern($pattern)
-    {
-        $this->pattern = $pattern;
-
-        return $this;
-    }
-
-    /**
-     * Returns the raw route pattern.
-     *
-     * @return string
-     */
-    public function getPattern()
-    {
-        return $this->pattern;
-    }
-
-    /**
-     * Sets the route defaults.
-     *
-     * @param array $defaults
-     *
-     * @return Route
-     */
-    public function setDefaults(array $defaults)
-    {
-        $this->defaults = $defaults;
-
-        return $this;
-    }
-
-    /**
-     * Returns the route defaults.
-     *
-     * @return array
-     */
-    public function getDefaults()
-    {
-        return $this->defaults;
-    }
-
-    /**
-     * Returns the default value for the given segment.
-     *
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return mixed
-     */
-    public function getDefault($key, $default = null)
-    {
-        return array_key_exists($key, $this->defaults) ? $this->defaults[$key] : $default;
-    }
-
-    /**
-     * Checks if the segment has a default value.
-     *
-     * @param string $key
-     *
-     * @return bool
-     */
-    public function hasDefault($key)
-    {
-        return array_key_exists($key, $this->defaults);
-    }
-
-    /**
-     * Sets the route rules.
-     *
-     * @param array $rules
-     *
-     * @return Route
-     */
-    public function setRules($rules)
-    {
-        $this->rules = $rules;
-
-        return $this;
-    }
-
-    /**
-     * Returns the route rules.
-     *
-     * @return array
-     */
-    public function getRules()
-    {
-        return $this->rules;
-    }
-
-    /**
-     * Returns the regex rule for the given segment.
-     *
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return mixed
-     */
-    public function getRule($key, $default = null)
-    {
-        return array_key_exists($key, $this->rules) ? $this->rules[$key] : $default;
-    }
-
-    /**
-     * Checks if the segment has a regex rule.
-     *
-     * @param string $key
-     *
-     * @return bool
-     */
-    public function hasRule($key)
-    {
-        return array_key_exists($key, $this->rules);
-    }
-
-    /**
-     * Sets the route regex.
-     *
-     * @param string $regex
-     *
-     * @return Route
-     */
-    public function setRegex($regex)
-    {
-        $this->regex = $regex;
-
-        return $this;
-    }
-
-    /**
      * Returns the compiled route regex.
      *
      * @return string
@@ -316,18 +156,31 @@ class Rax_Route
     }
 
     /**
+     * Sets whether the pattern ends slash.
+     *
      * @param bool $endsInSlash
+     *
+     * @return Route
      */
     public function setEndsInSlash($endsInSlash)
     {
         $this->endsInSlash = (bool) $endsInSlash;
+
+        return $this;
     }
 
     /**
-     * @return bool
+     * @param array|ArrayAccess $config
+     *
+     * @return array
      */
-    public function getEndsInSlash()
+    public static function parse($config = array())
     {
-        return $this->endsInSlash;
+        $routes = array();
+        foreach ($config as $name => $route) {
+            $routes[$name] = new static($name, $route['pattern'], $route['defaults'], Arr::get($route, 'rules', array()));
+        }
+
+        return $routes;
     }
 }
