@@ -20,6 +20,9 @@ class Rax_Kernel
      */
     protected $request;
 
+    /**
+     * @var Router
+     */
     protected $router;
 
     /**
@@ -43,31 +46,44 @@ class Rax_Kernel
         return static::$singleton;
     }
 
+    /**
+     * @param Router $router
+     */
     public function setRouter(Router $router)
     {
         $this->router = $router;
     }
 
+    /**
+     * @return Router
+     */
     public function getRouter()
     {
         $this->router;
     }
 
+    /**
+     * @param Request $request
+     */
     public function setRequest(Request $request)
     {
         $this->request = $request;
     }
 
+    /**
+     * @param ArrObj $config
+     */
     public function setConfig(ArrObj $config)
     {
     }
 
     /**
-     *
+     * @return Response
      */
     public function processRequest()
     {
-        $match = $this->router->match($this->request->getUri());
+        $match = $this->router->match($this->request);
+        Debug::dump($match);
     }
 
     /**

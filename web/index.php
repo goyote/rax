@@ -15,7 +15,7 @@
  */
 define('RAX_START_TIME',   microtime(true));
 define('RAX_START_MEMORY', memory_get_peak_usage(true));
-define('RAX_VERSION', '0.1');
+define('RAX_VERSION',      '0.1');
 
 /**
  * Define the paths to the top level directories.
@@ -79,6 +79,8 @@ if (Environment::isDev()) {
     ini_set('display_errors', 0);
 }
 
+//include 'i.php';
+
 /**
  * Sets the default time zone.
  *
@@ -86,6 +88,17 @@ if (Environment::isDev()) {
  */
 date_default_timezone_set(Config::get('kernel.timezone'));
 
-Kernel::getSingleton()
-    ->handleRequest(new Request($_GET, $_POST, $_SERVER, array(), Config::get('request')))
-    ->sendResponse();
+$router = new Router(Route::parse(Config::get('routes')));
+
+$request = new Request($_GET, $_POST, $_SERVER, array(), Config::get('request'));
+Request::setSingleton($request);
+
+$kernel = new Kernel();
+
+$kernel->setRouter($router);
+$kernel->setRequest($request);
+
+$response = $kernel->processRequest();
+//$response->send();
+
+

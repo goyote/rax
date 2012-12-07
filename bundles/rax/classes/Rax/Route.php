@@ -1,12 +1,13 @@
 <?php
 
 /**
- *
+ * @package   Rax
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_Route
 {
-    const REGEX_DELIMITER = '#';
-
     /**
      * @var string
      */
@@ -33,6 +34,13 @@ class Rax_Route
     protected $regex;
 
     /**
+     * @var bool
+     */
+    protected $endsInSlash;
+
+    /**
+     * Constructor.
+     *
      * @param string $name
      * @param string $pattern
      * @param array  $defaults
@@ -40,161 +48,102 @@ class Rax_Route
      */
     public function __construct($name, $pattern, array $defaults, array $rules = array())
     {
-        $this->name     = $name;
-        $this->pattern  = $pattern;
-        $this->defaults = $defaults;
-        $this->rules    = $rules;
+        $this->name        = $name;
+        $this->pattern     = $pattern;
+        $this->defaults    = $defaults;
+        $this->rules       = $rules;
+        $this->endsInSlash = ('/' === substr($pattern, -1));
     }
 
     /**
-     * @param ArrObj|array $routes
+     * @param array|ArrayAccess $config
      *
      * @return array
      */
-    public static function parse($routes = array())
+    public static function parse($config = array())
     {
-        $temp = array();
-        foreach ($routes as $name => $route) {
-            $temp[$name] = new static($name, $route['pattern'], $route['defaults'], Arr::get($route, 'rules', array()));
+        $routes = array();
+        foreach ($config as $name => $route) {
+            $routes[$name] = new static($name, $route['pattern'], $route['defaults'], Arr::get($route, 'rules', array()));
         }
 
-        return $temp;
-    }
-
-    /**
-     *
-     */
-    public function compile()
-    {
-        $tokens    = array();
-        $segments  = array();
-        $pattern   = $this->getPattern();
-        $pos       = 0;
-        $len       = strlen($pattern);
-
-        preg_match_all('#.\{(\w+)\}#', $pattern, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
-
-        foreach ($matches as $match) {
-            if ($text = substr($pattern, $pos, $match[0][1] - $pos)) {
-                $tokens[] = array('text', $text);
-            }
-
-            $pos = $match[0][1] + strlen($match[0][0]);
-            $segment = $match[1][0];
-
-            if ($req = $this->getRule($segment)) {
-                $regexp = $req;
-            } else {
-                // Use the character preceding the variable as a separator
-                $separators = array($match[0][0][0]);
-
-                if ($pos !== $len) {
-                    // Use the character following the variable as the separator when available
-                    $separators[] = $pattern[$pos];
-                }
-                $regexp = sprintf('[^%s]+', preg_quote(implode('', array_unique($separators)), self::REGEX_DELIMITER));
-            }
-
-            $tokens[] = array('variable', $match[0][0][0], $regexp, $segment);
-
-            if (in_array($segment, $segments)) {
-                throw new LogicException(sprintf('Route pattern "%s" cannot reference variable name "%s" more than once.', $this->getPattern(), $segment));
-            }
-
-            $segments[] = $segment;
-        }
-
-        if ($pos < $len) {
-            $tokens[] = array('text', substr($pattern, $pos));
-        }
-
-        // find the first optional token
-        $firstOptional = INF;
-        for ($i = count($tokens) - 1; $i >= 0; $i--) {
-            $token = $tokens[$i];
-            if ('variable' === $token[0] && $this->hasDefault($token[3])) {
-                $firstOptional = $i;
-            } else {
-                break;
-            }
-        }
-
-        // compute the matching regexp
-        $regexp = '';
-        for ($i = 0, $nbToken = count($tokens); $i < $nbToken; $i++) {
-            $regexp .= $this->computeRegex($tokens, $i, $firstOptional);
-        }
-
-        return array(
-            $this,
-            'text' === $tokens[0][0] ? $tokens[0][1] : '',
-            self::REGEX_DELIMITER.'^'.$regexp.'$'.self::REGEX_DELIMITER.'s',
-            array_reverse($tokens),
-            $segments
-        );
-    }
-
-    /**
-     * Computes the regexp used to match a specific token. It can be static text or a subpattern.
-     *
-     * @param array   $tokens        The route tokens
-     * @param integer $index         The index of the current token
-     * @param integer $firstOptional The index of the first optional token
-     *
-     * @return string The regexp pattern for a single token
-     */
-    private function computeRegex(array $tokens, $index, $firstOptional)
-    {
-        $token = $tokens[$index];
-        if ('text' === $token[0]) {
-            // Text tokens
-            return preg_quote($token[1], self::REGEX_DELIMITER);
-        } else {
-            // Variable tokens
-            if (0 === $index && 0 === $firstOptional) {
-                // When the only token is an optional variable token, the separator is required
-                return preg_quote($token[1], self::REGEX_DELIMITER).'(?<'.$token[3].'>'.$token[2].')?';
-            } else {
-                $regexp = preg_quote($token[1], self::REGEX_DELIMITER).'(?<'.$token[3].'>'.$token[2].')';
-
-                if ($index >= $firstOptional) {
-                    // Enclose each optional token in a subpattern to make it optional.
-                    // "?:" means it is non-capturing, i.e. the portion of the subject string that
-                    // matched the optional subpattern is not passed back.
-                    $regexp = "(?:$regexp";
-                    $nbTokens = count($tokens);
-                    if ($nbTokens - 1 == $index) {
-                        // Close the optional subpatterns
-                        $regexp .= str_repeat(")?", $nbTokens - $firstOptional - (0 === $firstOptional ? 1 : 0));
-                    }
-                }
-
-                return $regexp;
-            }
-        }
-    }
-
-    /**
-     * @param string $regex
-     */
-    public function setRegex($regex)
-    {
-        $this->regex = $regex;
+        return $routes;
     }
 
     /**
      * @return string
      */
-    public function getRegex()
+    public function compile()
     {
-        if (null === $this->regex) {
-            $this->regex = $this->compile();
+        $pattern = sprintf('/%s/', trim($this->getPattern(), '/'));
+
+        preg_match_all('#\<(.+?)\>.?#', $pattern, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
+
+        $lastPosition = 0;
+        $segments     = array();
+        foreach ($matches as $match) {
+            $currPosition = $match[0][1] - 1;
+            if ($lastPosition < $currPosition) {
+                $segments[] = array(
+                    'type' => 'static',
+                    'text' => substr($pattern, $lastPosition, $currPosition - $lastPosition)
+                );
+            }
+            $lastPosition = $currPosition + strlen($match[0][0]);
+
+            $name = $match[1][0];
+            $rule = $this->getRule($name, '[^'.substr($match[0][0], -1).']+');
+
+            $segments[] = array(
+                'type' => 'dynamic',
+                'name' => $name,
+                'rule' => $rule,
+                'text' => $pattern[$currPosition],
+            );
         }
 
-        return $this->regex;
+        $firstOptional = INF;
+        foreach (array_reverse($segments, true) as $i => $segment) {
+            if ('dynamic' !== $segment['type'] || !$this->hasDefault($segment['name'])) {
+                break;
+            }
+            $firstOptional = $i;
+        }
+
+        $totalSegments = count($segments);
+        $regex = '';
+        foreach ($segments as $i => $segment) {
+            $regexChunk = '';
+            switch ($segment['type']) {
+                case 'static':
+                    $regexChunk = preg_quote($segment['text'], '#');
+                    break;
+                case 'dynamic':
+                    $regexChunk = sprintf(
+                        '%s(?<%s>%s)',
+                        preg_quote($segment['text'], '#'),
+                        preg_quote($segment['name'], '#'),
+                        $segment['rule']
+                    );
+
+                    if ($i >= $firstOptional) {
+                        $regexChunk = '(?:'.$regexChunk;
+                        if (($totalSegments - 1) === $i) {
+                            $regexChunk .= str_repeat(')?', $totalSegments - $firstOptional);
+                        }
+                    }
+                    break;
+            }
+
+            $regex .= $regexChunk;
+        }
+
+        return '#^'.$regex.'/?$#';
     }
 
     /**
+     * Sets the route name.
+     *
      * @param string $name
      *
      * @return Route
@@ -207,6 +156,8 @@ class Rax_Route
     }
 
     /**
+     * Returns the route name.
+     *
      * @return string
      */
     public function getName()
@@ -215,6 +166,8 @@ class Rax_Route
     }
 
     /**
+     * Sets the raw route pattern.
+     *
      * @param string $pattern
      *
      * @return Route
@@ -227,6 +180,8 @@ class Rax_Route
     }
 
     /**
+     * Returns the raw route pattern.
+     *
      * @return string
      */
     public function getPattern()
@@ -235,6 +190,8 @@ class Rax_Route
     }
 
     /**
+     * Sets the route defaults.
+     *
      * @param array $defaults
      *
      * @return Route
@@ -247,6 +204,8 @@ class Rax_Route
     }
 
     /**
+     * Returns the route defaults.
+     *
      * @return array
      */
     public function getDefaults()
@@ -255,6 +214,21 @@ class Rax_Route
     }
 
     /**
+     * Returns the default value for the given segment.
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function getDefault($key, $default = null)
+    {
+        return array_key_exists($key, $this->defaults) ? $this->defaults[$key] : $default;
+    }
+
+    /**
+     * Checks if the segment has a default value.
+     *
      * @param string $key
      *
      * @return bool
@@ -265,26 +239,22 @@ class Rax_Route
     }
 
     /**
-     * @param string $key
+     * Sets the route rules.
      *
-     * @param mixed $default
-     *
-     * @return mixed
-     */
-    public function getDefault($key, $default = null)
-    {
-        return array_key_exists($key, $this->defaults) ? $this->defaults[$key] : $default;
-    }
-
-    /**
      * @param array $rules
+     *
+     * @return Route
      */
     public function setRules($rules)
     {
         $this->rules = $rules;
+
+        return $this;
     }
 
     /**
+     * Returns the route rules.
+     *
      * @return array
      */
     public function getRules()
@@ -293,6 +263,21 @@ class Rax_Route
     }
 
     /**
+     * Returns the regex rule for the given segment.
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function getRule($key, $default = null)
+    {
+        return array_key_exists($key, $this->rules) ? $this->rules[$key] : $default;
+    }
+
+    /**
+     * Checks if the segment has a regex rule.
+     *
      * @param string $key
      *
      * @return bool
@@ -303,14 +288,46 @@ class Rax_Route
     }
 
     /**
-     * @param string $key
+     * Sets the route regex.
      *
-     * @param mixed $default
+     * @param string $regex
      *
-     * @return mixed
+     * @return Route
      */
-    public function getRule($key, $default = null)
+    public function setRegex($regex)
     {
-        return array_key_exists($key, $this->rules) ? $this->rules[$key] : $default;
+        $this->regex = $regex;
+
+        return $this;
+    }
+
+    /**
+     * Returns the compiled route regex.
+     *
+     * @return string
+     */
+    public function getRegex()
+    {
+        if (null === $this->regex) {
+            $this->regex = $this->compile();
+        }
+
+        return $this->regex;
+    }
+
+    /**
+     * @param bool $endsInSlash
+     */
+    public function setEndsInSlash($endsInSlash)
+    {
+        $this->endsInSlash = (bool) $endsInSlash;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getEndsInSlash()
+    {
+        return $this->endsInSlash;
     }
 }

@@ -42,15 +42,14 @@ class Rax_Router
     }
 
     /**
-     * @param string $uri
+     * @param Request $request
      *
      * @return array
      */
-    public function match($uri)
+    public function match(Request $request)
     {
         foreach ($this->routes as $route) {
-            /** @noinspection PhpAssignmentInConditionInspection */
-            if ($match = $this->_match($uri, $route)) {
+            if ($match = $this->matchRoute($request, $route)) {
                 return $match;
             }
         }
@@ -59,20 +58,19 @@ class Rax_Router
     }
 
     /**
-     * @param string $uri
-     * @param Route  $route
+     * @param Request $request
+     * @param Route   $route
      *
      * @return bool
      */
-    public function _match($uri, Route $route)
+    public function matchRoute(Request $request, Route $route)
     {
-        echo '<pre>';
-        $regex = $route->getRegex();
-
-        if (!preg_match($regex[2], $uri, $matches)) {
+        if (!$this->isSpecialRulesValid($request, $route)) {
             return false;
         }
-
+        if (!preg_match($route->getRegex(), $request->getUri(), $matches)) {
+            return false;
+        }
         array_shift($matches);
 
         $params = $route->getDefaults();
@@ -82,7 +80,33 @@ class Rax_Router
             }
         }
 
-        Debug::dump($params);
-        return false;
+        return $params;
+    }
+
+    /**
+     * @param Request $request
+     * @param Route   $route
+     *
+     * @return bool
+     */
+    public function isSpecialRulesValid(Request $request, Route $route)
+    {
+        if ($route->hasRule('ajax') && $route->getRule('ajax') !== $request->isAjax()) {
+            return false;
+        }
+        if ($route->hasRule('secure') && $route->getRule('secure') !== $request->isSecure()) {
+            return false;
+        }
+        if ($route->hasRule('method') && !preg_match('#^'.$route->getRule('method').'$#i', $request->getMethod())) {
+            return false;
+        }
+        if ($route->hasRule('clientIp') && !preg_match('#^'.$route->getRule('clientIp').'$#', $request->getClientIp())) {
+            return false;
+        }
+        if ($route->hasRule('serverIp') && !preg_match('#^'.$route->getRule('serverIp').'$#', $request->getServerIp())) {
+            return false;
+        }
+
+        return true;
     }
 }

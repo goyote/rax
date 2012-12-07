@@ -115,7 +115,7 @@ class Rax_Request
      *
      * @return array|mixed
      */
-    public function getQuery($key = null, $default = null, $delimiter = null)
+    public function getQuery($key = null, $default = null, $delimiter = '.')
     {
         return Arr::get($this->query, $key, $default, $delimiter);
     }
@@ -126,7 +126,7 @@ class Rax_Request
      *
      * @return bool
      */
-    public function hasQuery($key, $delimiter = null)
+    public function hasQuery($key, $delimiter = '.')
     {
         return Arr::has($this->query, $key, $delimiter);
     }
@@ -138,7 +138,7 @@ class Rax_Request
      *
      * @return array|mixed
      */
-    public function getPost($key = null, $default = null, $delimiter = null)
+    public function getPost($key = null, $default = null, $delimiter = '.')
     {
         return Arr::get($this->post, $key, $default, $delimiter);
     }
@@ -149,7 +149,7 @@ class Rax_Request
      *
      * @return bool
      */
-    public function hasPost($key, $delimiter = null)
+    public function hasPost($key, $delimiter = '.')
     {
         return Arr::has($this->post, $key, $delimiter);
     }
@@ -161,7 +161,7 @@ class Rax_Request
      *
      * @return array|mixed
      */
-    public function getServer($key = null, $default = null, $delimiter = null)
+    public function getServer($key = null, $default = null, $delimiter = '.')
     {
         return Arr::get($this->server, $key, $default, $delimiter);
     }
@@ -172,7 +172,7 @@ class Rax_Request
      *
      * @return bool
      */
-    public function hasServer($key, $delimiter = null)
+    public function hasServer($key, $delimiter = '.')
     {
         return Arr::has($this->server, $key, $delimiter);
     }
@@ -184,7 +184,7 @@ class Rax_Request
      *
      * @return Request
      */
-    public function setAttribute($key, $value = null, $delimiter = null)
+    public function setAttribute($key, $value = null, $delimiter = '.')
     {
         Arr::set($this->attributes, $key, $value, $delimiter);
 
@@ -198,7 +198,7 @@ class Rax_Request
      *
      * @return array|mixed
      */
-    public function getAttribute($key = null, $default = null, $delimiter = null)
+    public function getAttribute($key = null, $default = null, $delimiter = '.')
     {
         return Arr::get($this->attributes, $key, $default, $delimiter);
     }
@@ -209,7 +209,7 @@ class Rax_Request
      *
      * @return bool
      */
-    public function hasAttribute($key, $delimiter = null)
+    public function hasAttribute($key, $delimiter = '.')
     {
         return Arr::has($this->attributes, $key, $delimiter);
     }
@@ -221,7 +221,7 @@ class Rax_Request
      *
      * @return array|mixed
      */
-    public function getHeader($key = null, $default = null, $delimiter = null)
+    public function getHeader($key = null, $default = null, $delimiter = '.')
     {
         if (null === $this->headers) {
             $this->headers = $this->parseHeaders($this->server);
@@ -240,7 +240,7 @@ class Rax_Request
      *
      * @return bool
      */
-    public function hasHeader($key, $delimiter = null)
+    public function hasHeader($key, $delimiter = '.')
     {
         if ($this->headers === null) {
             $this->headers = $this->parseHeaders($this->server);

@@ -15,7 +15,7 @@ class Rax_Arr
      *
      *     Arr::isArray(array());           // true
      *     Arr::isArray(new ArrayObject()); // true
-     *     Arr::isArray('lol');          // false
+     *     Arr::isArray('lol');             // false
      *
      * @param array|ArrayAccess $array
      *
