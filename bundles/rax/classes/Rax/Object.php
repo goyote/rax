@@ -26,6 +26,13 @@ class Rax_Object
         $property    = substr($method, 3);
         $property[0] = strtolower($property[0]);
 
+        if ('set' === $function) {
+            if (!array_key_exists(0, $arguments)) {
+                throw new Barf('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
+            }
+            $this->$property = $arguments[0];
+        }
+
         if ('get' === $function) {
             if (!property_exists($this, $property)) {
                 if (!property_exists($this, $property.'s')) {
@@ -42,6 +49,7 @@ class Rax_Object
 
             return $this->$property;
         }
+
         if ('has' === $function) {
             $property .= 's';
             if (!property_exists($this, $property)) {
@@ -52,12 +60,6 @@ class Rax_Object
             }
 
             return array_key_exists($arguments[0], $this->$property);
-        }
-        if ('set' === $function) {
-            if (!array_key_exists(0, $arguments)) {
-                throw new Barf('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
-            }
-            $this->$property = $arguments[0];
         }
 
         return $this;

@@ -6,7 +6,7 @@
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
-class Rax_Router
+class Rax_Router extends Object
 {
     /**
      * @var array
@@ -19,26 +19,6 @@ class Rax_Router
     public function __construct(array $routes = array())
     {
         $this->routes = $routes;
-    }
-
-    /**
-     * @param array $routes
-     *
-     * @return Router
-     */
-    public function setRoutes(array $routes)
-    {
-        $this->routes = $routes;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRoutes()
-    {
-        return $this->routes;
     }
 
     /**
