@@ -12,15 +12,16 @@
  * - Use regular expressions to limit what a segment matches, the default regex
  *   for a segment is something very similar to [^/]+ (which is pretty broad.)
  *
- *     // e.g. Add a required id segment that matches digits only
+ *     // e.g. Add a required "page" segment that matches digits only
  *     'default' => array(
- *         'pattern'  => '<controller>/<action>/<id>',
+ *         'pattern'  => 'blog/<page>',
  *         'defaults' => array(
- *             'controller' => 'default',
- *             'action'     => 'index',
+ *             'controller' => 'blog',
+ *             'action'     => 'page',
+ *             'page'       => 1,
  *         ),
  *         'rules' => array(
- *             'id' => '\d+',
+ *             'page' => '\d+',
  *         ),
  *     ),
  *

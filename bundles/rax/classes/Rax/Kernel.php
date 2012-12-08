@@ -8,12 +8,12 @@
  */
 class Rax_Kernel
 {
-    const VERSION = '0.1';
-
     /**
-     * @var string
+     * Rax version.
+     *
+     * @see http://semver.org/
      */
-    protected $charset;
+    const VERSION = '0.1.0';
 
     /**
      * @var Request
@@ -64,26 +64,50 @@ class Rax_Kernel
 
     /**
      * @param Request $request
-     */
-    public function setRequest(Request $request)
-    {
-        $this->request = $request;
-    }
-
-    /**
-     * @param ArrObj $config
-     */
-    public function setConfig(ArrObj $config)
-    {
-    }
-
-    /**
+     *
      * @return Response
      */
-    public function processRequest()
+    public function process(Request $request)
     {
-        $match = $this->router->match($this->request);
-        Debug::dump($match);
+        $params = $this->router->match($request);
+
+        $reflection = $this->createReflectionController($params);
+
+        $request
+            ->setController($params['controller'])
+            ->setAction($params['action'])
+        ;
+
+        $response = new Response();
+
+        $controller = $reflection->newInstance($request, $response);
+
+        $reflection->getMethod('before')->invoke($controller);
+        $reflection->getMethod($this->createActionName($params))->invoke($controller);
+        $reflection->getMethod('after')->invoke($controller);
+
+        return $response;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return ReflectionClass
+     */
+    public function createReflectionController(array $params)
+    {
+        $controller = $params['controller'];
+        $controller = str_replace(array('-', '.'), '_', $controller);
+        // todo check existence of route controller key
+        // todo check existence of controller
+
+        return new ReflectionClass('Controller_'.$controller);
+    }
+
+    public function createActionName(array $params)
+    {
+        $action = $params['action'];
+        return $action.'Action';
     }
 
     /**
@@ -91,6 +115,6 @@ class Rax_Kernel
      */
     public function getCharset()
     {
-        return 'utf-8';
+        return 'UTF-8';
     }
 }

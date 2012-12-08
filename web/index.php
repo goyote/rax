@@ -88,17 +88,11 @@ if (Environment::isDev()) {
  */
 date_default_timezone_set(Config::get('kernel.timezone'));
 
-$router = new Router(Route::parse(Config::get('routes')));
+$kernel = new Kernel();
+$kernel->setRouter(new Router(Route::parse(Config::get('routes'))));
 
 $request = new Request($_GET, $_POST, $_SERVER, array(), Config::get('request'));
 Request::setSingleton($request);
 
-$kernel = new Kernel();
-
-$kernel->setRouter($router);
-$kernel->setRequest($request);
-
-$response = $kernel->processRequest();
-//$response->send();
-
-
+$response = $kernel->process($request);
+$response->send();

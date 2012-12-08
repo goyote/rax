@@ -6,7 +6,7 @@
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
-class Rax_Request
+class Rax_Request extends Object
 {
     // HTTP Methods
     const GET     = 'GET';
@@ -66,6 +66,16 @@ class Rax_Request
      * @var string
      */
     protected $uri;
+
+    /**
+     * @var string
+     */
+    protected $controller;
+
+    /**
+     * @var string
+     */
+    protected $action;
 
     /**
      * Singleton instance.

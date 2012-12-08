@@ -57,7 +57,7 @@ class Rax_Environment
     }
 
     /**
-     * Returns the application environment as either an integer or string;
+     * Returns the application environment as either an integer or string.
      *
      *     Environment::set(Environment::DEVELOPMENT);
      *
@@ -94,7 +94,7 @@ class Rax_Environment
      */
     public static function is($environment)
     {
-        return (static::$environment === constant('Environment::'.strtoupper($environment)));
+        return (static::$environment === constant(get_called_class().'::'.strtoupper($environment)));
     }
 
     /**

@@ -5,6 +5,9 @@
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
+ *
+ * @method Router setRoutes(array $routes) Sets the routes.
+ * @method array  getRoutes()              Returns the loaded routes.
  */
 class Rax_Router extends Object
 {
@@ -48,9 +51,11 @@ class Rax_Router extends Object
         if (!$this->isSpecialRulesValid($request, $route)) {
             return false;
         }
+
         if (!preg_match($route->getRegex(), $request->getUri(), $matches)) {
             return false;
         }
+
         array_shift($matches);
 
         $params = $route->getDefaults();
@@ -74,18 +79,23 @@ class Rax_Router extends Object
         if ($route->hasRule('ajax') && $route->getRule('ajax') !== $request->isAjax()) {
             return false;
         }
+
         if ($route->hasRule('secure') && $route->getRule('secure') !== $request->isSecure()) {
             return false;
         }
+
         if ($route->hasRule('method') && !preg_match('#^'.$route->getRule('method').'$#i', $request->getMethod())) {
             return false;
         }
+
         if ($route->hasRule('clientIp') && !preg_match('#^'.$route->getRule('clientIp').'$#', $request->getClientIp())) {
             return false;
         }
+
         if ($route->hasRule('serverIp') && !preg_match('#^'.$route->getRule('serverIp').'$#', $request->getServerIp())) {
             return false;
         }
+
         if ($route->hasRule('environment') && !preg_match('#^'.$route->getRule('environment').'$#i', Environment::get(true))) {
             return false;
         }
