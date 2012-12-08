@@ -86,7 +86,7 @@ class Rax_Route extends Object
             if ($lastPosition < $currPosition) {
                 $segments[] = array(
                     'type' => 'static',
-                    'text' => substr($pattern, $lastPosition, $currPosition - $lastPosition)
+                    'text' => substr($pattern, $lastPosition, $currPosition - $lastPosition),
                 );
             }
             $lastPosition = $currPosition + strlen($match[0][0]);
@@ -99,6 +99,14 @@ class Rax_Route extends Object
                 'name' => $name,
                 'rule' => $rule,
                 'text' => $pattern[$currPosition],
+            );
+        }
+
+        $length = strlen($pattern) - 1;
+        if ($length > $lastPosition) {
+            $segments[] = array(
+                'type' => 'static',
+                'text' => substr($pattern, $lastPosition, $length - $lastPosition),
             );
         }
 

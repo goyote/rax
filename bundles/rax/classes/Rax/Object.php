@@ -35,16 +35,16 @@ class Rax_Object
 
         if ('get' === $function) {
             if (!property_exists($this, $property)) {
-                if (!property_exists($this, $property.'s')) {
+                $property .= 's';
+                if (!property_exists($this, $property)) {
                     throw new Barf('Undefined property: %s::%s', array(Php::getType($this), $property));
                 }
                 if (!array_key_exists(0, $arguments)) {
                     throw new Barf('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
                 }
-                $property .= 's';
                 $default = isset($arguments[1]) ? $arguments[1] : null;
 
-                return array_key_exists($arguments[0], $this->$property) ? $this->$property[$arguments[0]] : $default;
+                return array_key_exists($arguments[0], $this->$property) ? $this->{$property}[$arguments[0]] : $default;
             }
 
             return $this->$property;

@@ -86,6 +86,9 @@ class Rax_Router extends Object
         if ($route->hasRule('serverIp') && !preg_match('#^'.$route->getRule('serverIp').'$#', $request->getServerIp())) {
             return false;
         }
+        if ($route->hasRule('environment') && !preg_match('#^'.$route->getRule('environment').'$#i', Environment::get(true))) {
+            return false;
+        }
 
         return true;
     }

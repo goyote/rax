@@ -57,15 +57,44 @@ class Rax_Environment
     }
 
     /**
-     * Returns the application environment.
+     * Returns the application environment as either an integer or string;
      *
-     *     $environment = Environment::get();
+     *     Environment::set(Environment::DEVELOPMENT);
      *
-     * @return int
+     *     $environment = Environment::get();     // 100
+     *     $environment = Environment::get(true); // "development"
+     *
+     * @param bool $string
+     *
+     * @return int|string
      */
-    public static function get()
+    public static function get($string = false)
     {
+        if ($string) {
+            $reflection = new ReflectionClass(get_called_class());
+
+            foreach ($reflection->getConstants() as $name => $value) {
+                if (static::$environment === $value) {
+                    return strtolower($name);
+                }
+            }
+        }
+
         return static::$environment;
+    }
+
+    /**
+     * Checks if the supplied environment is the current environment.
+     *
+     *     if (Environment::is('development')) {
+     *
+     * @param string $environment
+     *
+     * @return bool
+     */
+    public static function is($environment)
+    {
+        return (static::$environment === constant('Environment::'.strtoupper($environment)));
     }
 
     /**

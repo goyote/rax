@@ -26,13 +26,15 @@
  *
  * - "Special segments" are made available for you to define defaults or expose
  *   them to be altered dynamically: <controller>, <action>, <format>, <locale>
- * - "Special rules": ajax, secure, method, clientIp, serverIp
+ * - "Special rules": ajax, secure, method, clientIp, serverIp, environment,
+ *   auth, acl
  *
  *     // e.g.
  *     'rules' => array(
- *         'method' => 'POST', // Route will only match POST requests
- *         'ajax'   => true,   // Route will only match Ajax requests
- *         'secure' => true,   // Route will only match https
+ *         'method'      => 'POST',        // Route will only match POST requests
+ *         'ajax'        => true,          // Route will only match Ajax requests
+ *         'environment' => 'development', // Route will only when in development
+ *         ...
  *     ),
  */
 return array(
