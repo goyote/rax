@@ -68,6 +68,11 @@ class Rax_Request extends Object
     protected $uri;
 
     /**
+     * @var MatchedRoute
+     */
+    protected $matchedRoute;
+
+    /**
      * @var string
      */
     protected $controller;
@@ -222,6 +227,18 @@ class Rax_Request extends Object
     public function hasAttribute($key, $delimiter = '.')
     {
         return Arr::has($this->attributes, $key, $delimiter);
+    }
+
+    /**
+     * @param array|string $key
+     * @param mixed        $default
+     * @param string       $delimiter
+     *
+     * @return array|mixed
+     */
+    public function getPostQuery($key, $default = null, $delimiter = '.')
+    {
+        return $this->getPost($key, $this->getQuery($key, $default, $delimiter), $delimiter);
     }
 
     /**
@@ -474,5 +491,20 @@ class Rax_Request extends Object
     protected function detectUri()
     {
         return rawurldecode(parse_url($this->getServer('REQUEST_URI'), PHP_URL_PATH));
+    }
+
+    public function setMatchedRoute(MatchedRoute $matchedRoute)
+    {
+        $this->matchedRoute = $matchedRoute;
+    }
+
+    public function getController()
+    {
+        return $this->matchedRoute->getController();
+    }
+
+    public function getAction()
+    {
+        return $this->matchedRoute->getAction();
     }
 }

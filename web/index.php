@@ -79,8 +79,6 @@ if (Environment::isDev()) {
     ini_set('display_errors', 0);
 }
 
-//include 'i.php';
-
 /**
  * Sets the default time zone.
  *

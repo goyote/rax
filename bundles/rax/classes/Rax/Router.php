@@ -27,7 +27,7 @@ class Rax_Router extends Object
     /**
      * @param Request $request
      *
-     * @return array
+     * @return MatchedRoute
      */
     public function match(Request $request)
     {
@@ -44,7 +44,7 @@ class Rax_Router extends Object
      * @param Request $request
      * @param Route   $route
      *
-     * @return bool
+     * @return MatchedRoute
      */
     public function matchRoute(Request $request, Route $route)
     {
@@ -65,7 +65,7 @@ class Rax_Router extends Object
             }
         }
 
-        return $params;
+        return new MatchedRoute($route->getName(), $params);
     }
 
     /**

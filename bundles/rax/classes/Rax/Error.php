@@ -53,7 +53,10 @@ class Rax_Error extends Exception
     {
         /** @noinspection PhpAssignmentInConditionInspection */
         if ($error = error_get_last()) {
-            ob_get_level() and ob_end_clean();
+            $level = ob_get_level();
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
 
             static::handleException(
                 new ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line'])
@@ -73,7 +76,7 @@ class Rax_Error extends Exception
 
         $class   = get_class($e);
         $code    = $e->getCode();
-        $message = Markdown($e->getMessage());
+        $message = $e->getMessage();
         $file    = $e->getFile();
         $line    = $e->getLine();
         $trace   = Debug::trace($e->getTrace());

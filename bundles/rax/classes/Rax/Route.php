@@ -77,7 +77,7 @@ class Rax_Route extends Object
     {
         $pattern = sprintf('/%s/', trim($this->getPattern(), '/'));
 
-        preg_match_all('#\<(.+?)\>.?#', $pattern, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
+        preg_match_all('#\<(\w+)\>.?#', $pattern, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
 
         $lastPosition = 0;
         $segments     = array();

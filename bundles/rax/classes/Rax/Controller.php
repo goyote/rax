@@ -6,6 +6,16 @@
 class Rax_Controller
 {
     /**
+     * @var bool
+     */
+    protected $autoRender = true;
+
+    /**
+     * @var array
+     */
+    protected $viewMap = array();
+
+    /**
      * @var Request
      */
     protected $request;
