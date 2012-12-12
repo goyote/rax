@@ -26,6 +26,11 @@ class Rax_Kernel extends Object
     protected $router;
 
     /**
+     * @var Twig_Environment
+     */
+    protected $twig;
+
+    /**
      * Singleton instance.
      *
      * @var self
@@ -53,6 +58,8 @@ class Rax_Kernel extends Object
      */
     public function process(Request $request)
     {
+        $this->request = $request;
+
         if (!$match = $this->router->match($request)) {
             // throw 404
         }
@@ -60,11 +67,11 @@ class Rax_Kernel extends Object
 
         $response = new Response();
 
-        $reflection = new ReflectionClass($match->getControllerClass());
-        $controller = $reflection->newInstance($request, $response);
+        $reflection = new ReflectionClass($match->getControllerClassName());
+        $controller = $reflection->newInstance($request, $response, $this);
 
         $reflection->getMethod('before')->invoke($controller);
-        $method = $reflection->getMethod($match->getActionMethod());
+        $method = $reflection->getMethod($match->getActionMethodName());
         $method->invokeArgs($controller, $match->getMethodArguments($method));
         $reflection->getMethod('after')->invoke($controller);
 
@@ -77,5 +84,29 @@ class Rax_Kernel extends Object
     public function getCharset()
     {
         return 'UTF-8';
+    }
+
+    /**
+     * @return Twig_Environment
+     */
+    public function getTwig()
+    {
+        if (null === $this->twig) {
+            $loader = new Twig_Loader_Filesystem(Autoload::getSingleton()->findDirs('views'));
+            $twig = new Twig_Environment($loader, array(
+                'cache'               => CACHE_DIR.'twig',
+                'charset'             => $this->getCharset(),
+                'debug'               => Environment::isDev(),
+                'auto_reload'         => Environment::isDev(),
+                'strict_variables'    => Environment::isDev(),
+                'base_template_class' => 'Twig_Template',
+                'autoescape'          => 'html',
+                'optimizations'       => -1,
+            ));
+            $twig->addGlobal('request', $this->request);
+            $this->twig = $twig;
+        }
+
+        return $this->twig;
     }
 }

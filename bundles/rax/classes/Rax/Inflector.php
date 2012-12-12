@@ -10,13 +10,17 @@ class Rax_Inflector
 {
     /**
      * @param string $str
+     * @param array  $delimiters
      *
      * @return string
      */
-    public static function ucWords($str)
+    public static function ucWords($str, $delimiters = array('-', '.', '_'))
     {
-        foreach (array('-', '.', '_') as $delimiter) {
-            $str = implode($delimiter, array_map('ucfirst', explode($delimiter, $str)));
+        $str[0] = strtoupper($str[0]);
+        foreach ($delimiters as $delimiter) {
+            if (false !== strpos($str, $delimiter)) {
+                $str = implode($delimiter, array_map('ucfirst', explode($delimiter, $str)));
+            }
         }
 
         return $str;
@@ -24,45 +28,52 @@ class Rax_Inflector
 
     /**
      * @param string $str
+     * @param bool   $firstUpper
      *
      * @return string
      */
-    public static function toCamelcase($str)
+    public static function toCamelcase($str, $firstUpper = false)
     {
-        $str = 'x'.strtolower($str);
-        $str = ucwords(preg_replace('/[-\s_.]+/', ' ', $str));
+        $str = str_replace(' ', '', ucwords(preg_replace('/[-\s_.]+/', ' ', strtolower($str))));
 
-        return substr(str_replace(' ', '', $str), 1);
+        if (!$firstUpper) {
+            $str[0] = strtolower($str[0]);
+        }
+
+        return $str;
     }
 
     /**
      * @param string $str
+     * @param array  $delimiters
      *
      * @return string
      */
-    public static function toUndercase($str)
+    public static function toUndercase($str, $delimiters = array('-', '.', ' '))
     {
-        return str_replace(array('-', '.', ' '), '_', $str);
+        return str_replace($delimiters, '_', $str);
     }
 
     /**
      * @param string $str
+     * @param array  $delimiters
      *
      * @return string
      */
-    public static function toHyphen($str)
+    public static function toHyphen($str, $delimiters = array('_', '.', ' '))
     {
-        return str_replace(array('_', '.', ' '), '-', $str);
+        return str_replace($delimiters, '-', $str);
     }
 
     /**
      * @param string $str
+     * @param array  $delimiters
      *
      * @return string
      */
-    public static function toHuman($str)
+    public static function toHuman($str, $delimiters = array('_', '.', '-'))
     {
 
-        return str_replace(array('_', '.', '-'), ' ', $str);
+        return str_replace($delimiters, ' ', $str);
     }
 }

@@ -25,6 +25,9 @@ define('BIN_DIR',     ROOT_DIR.'bin/');
 define('BUNDLES_DIR', ROOT_DIR.'bundles/');
 define('VENDOR_DIR',  ROOT_DIR.'vendor/');
 define('WEB_DIR',     ROOT_DIR.'web/');
+define('STORAGE_DIR', ROOT_DIR.'storage/');
+define('CACHE_DIR',   STORAGE_DIR.'cache/');
+define('LOG_DIR',     STORAGE_DIR.'log/');
 
 /**
  * These are the only two hardcoded require()s, from now on the autoloader will

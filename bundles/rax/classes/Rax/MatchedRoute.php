@@ -21,12 +21,22 @@ class Rax_MatchedRoute extends Object
     /**
      * @var string
      */
-    protected $controllerClass;
+    protected $controllerClassName;
 
     /**
      * @var string
      */
-    protected $actionMethod;
+    protected $viewClassName;
+
+    /**
+     * @var string
+     */
+    protected $twigTemplateName;
+
+    /**
+     * @var string
+     */
+    protected $actionMethodName;
 
     /**
      * @var array
@@ -79,25 +89,49 @@ class Rax_MatchedRoute extends Object
     /**
      * @return string
      */
-    public function getControllerClass()
+    public function getControllerClassName()
     {
-        if (null === $this->controllerClass) {
-            $this->controllerClass = 'Controller_'.Inflector::ucWords(Inflector::toUndercase($this->params['controller']));
+        if (null === $this->controllerClassName) {
+            $this->controllerClassName = 'Controller_'.Inflector::ucWords(Inflector::toUndercase($this->params['controller']));
         }
 
-        return $this->controllerClass;
+        return $this->controllerClassName;
     }
 
     /**
      * @return string
      */
-    public function getActionMethod()
+    public function getViewClassName()
     {
-        if (null === $this->actionMethod) {
-            $this->actionMethod = Inflector::toCamelcase($this->params['action']).'Action';
+        if (null === $this->viewClassName) {
+            $this->viewClassName = 'View_'.Inflector::ucWords(Inflector::toUndercase($this->params['controller'])).'_'.Inflector::toCamelcase($this->params['action'], true);
         }
 
-        return $this->actionMethod;
+        return $this->viewClassName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getActionMethodName()
+    {
+        if (null === $this->actionMethodName) {
+            $this->actionMethodName = Inflector::toCamelcase($this->params['action']).'Action';
+        }
+
+        return $this->actionMethodName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTwigTemplateName()
+    {
+        if (null === $this->twigTemplateName) {
+            $this->twigTemplateName = str_replace(array('_', '.', '-'), '/', $this->params['controller']).'/'.$this->getAction().'.twig';
+        }
+
+        return $this->twigTemplateName;
     }
 
     /**

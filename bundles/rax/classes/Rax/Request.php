@@ -5,6 +5,8 @@
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
+ *
+ * @method MatchedRoute getMatchedRoute()
  */
 class Rax_Request extends Object
 {

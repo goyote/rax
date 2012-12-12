@@ -216,6 +216,7 @@ class Rax_Autoload
     public function findFile($baseDir, $file, $ext = 'php')
     {
         $file = $baseDir.'/'.$file.'.'.$ext;
+
         foreach ($this->bundles as $dir) {
             if (file_exists($dir.$file)) {
                 return $dir.$file;
@@ -239,6 +240,7 @@ class Rax_Autoload
     public function findFiles($baseDir, $file, $ext = 'php')
     {
         $file = $baseDir.'/'.$file.'.'.$ext;
+
         $files = array();
         foreach ($this->bundles as $dir) {
             if (file_exists($dir.$file)) {
@@ -247,5 +249,22 @@ class Rax_Autoload
         }
 
         return $files;
+    }
+
+    /**
+     * @param string $dir
+     *
+     * @return array
+     */
+    public function findDirs($dir)
+    {
+        $dirs = array();
+        foreach ($this->bundles as $baseDir) {
+            if (is_dir($baseDir.$dir)) {
+                $dirs[] = $baseDir.$dir;
+            }
+        }
+
+        return $dirs;
     }
 }

@@ -72,7 +72,6 @@ class Rax_Environment
     {
         if ($string) {
             $reflection = new ReflectionClass(get_called_class());
-
             foreach ($reflection->getConstants() as $name => $value) {
                 if (static::$environment === $value) {
                     return strtolower($name);

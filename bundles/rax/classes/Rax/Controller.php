@@ -11,9 +11,9 @@ class Rax_Controller
     protected $autoRender = true;
 
     /**
-     * @var array
+     * @var View
      */
-    protected $viewMap = array();
+    protected $view;
 
     /**
      * @var Request
@@ -26,20 +26,40 @@ class Rax_Controller
     protected $response;
 
     /**
+     * @var Kernel
+     */
+    protected $kernel;
+
+    /**
      * @param Request  $request
      * @param Response $response
+     * @param Kernel   $kernel
      */
-    public function __construct(Request $request, Response $response)
+    public function __construct(Request $request, Response $response, Kernel $kernel)
     {
         $this->request  = $request;
         $this->response = $response;
+        $this->kernel   = $kernel;
     }
 
+    /**
+     *
+     */
     public function before()
     {
+        $class = $this->request->getMatchedRoute()->getViewClassName();
+        $this->view = new $class($this->request, $this->kernel);
     }
 
+    /**
+     *
+     */
     public function after()
     {
+        if (!$this->autoRender) {
+            return;
+        }
+
+        $this->response->setContent($this->view->render());
     }
 }
