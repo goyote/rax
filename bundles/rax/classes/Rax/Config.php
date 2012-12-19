@@ -11,7 +11,7 @@ class Rax_Config
     /**
      * @var string
      */
-    protected static $configDir = 'config';
+    protected static $namespace = 'config';
 
     /**
      * @var array
@@ -29,7 +29,7 @@ class Rax_Config
     public static function get($key = null, $default = null, $delimiter = '.', $reload = false)
     {
         if (null === $key) {
-            return static::$storage;
+            return Arr::get(static::$storage, static::$namespace, array());
         }
 
         $name = current(explode($delimiter, $key));
@@ -38,7 +38,7 @@ class Rax_Config
             static::load($name);
         }
 
-        return Arr::get(static::$storage, $key, $default, $delimiter);
+        return Arr::get(static::$storage, static::$namespace.'.'.$key, $default, $delimiter);
     }
 
     /**
@@ -50,8 +50,8 @@ class Rax_Config
      */
     public static function load($name)
     {
-        if (!$files = Autoload::getSingleton()->findFiles(static::$configDir, $name)) {
-            throw new RuntimeException(sprintf('Unable to locate configuration files for %s', $name));
+        if (!$files = Autoload::getSingleton()->findFiles(static::$namespace, $name)) {
+            throw new RuntimeException(sprintf('Unable to locate a file for %s', $name));
         }
 
         $files = array_reverse($files);
@@ -61,7 +61,7 @@ class Rax_Config
             $config = Arr::merge($config, Php::load($file));
         }
 
-        return static::$storage[$name] = new ArrObj($config);
+        return Arr::set(static::$storage, static::$namespace.'.'.$name, new ArrObj($config));
     }
 
     /**
@@ -71,6 +71,6 @@ class Rax_Config
      */
     public static function isLoaded($name)
     {
-        return array_key_exists($name, static::$storage);
+        return Arr::has(static::$storage, static::$namespace.'.'.$name);
     }
 }

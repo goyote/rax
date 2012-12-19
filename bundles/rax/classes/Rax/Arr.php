@@ -90,6 +90,8 @@ class Rax_Arr
      * @param array|string      $key
      * @param mixed             $value
      * @param string            $delimiter
+     *
+     * @return array|ArrayAccess
      */
     public static function set(&$array, $key, $value = null, $delimiter = '.')
     {
@@ -116,6 +118,8 @@ class Rax_Arr
 
             $array[array_shift($keys)] = $value;
         }
+
+        return $array;
     }
 
     /**
