@@ -15,10 +15,9 @@
  */
 define('RAX_START_TIME',   microtime(true));
 define('RAX_START_MEMORY', memory_get_peak_usage(true));
-define('RAX_VERSION',      '0.1');
 
 /**
- * Define the paths to the top level directories.
+ * Defines the top level directories paths.
  */
 define('ROOT_DIR',    realpath('..').'/');
 define('BIN_DIR',     ROOT_DIR.'bin/');
@@ -30,11 +29,16 @@ define('CACHE_DIR',   STORAGE_DIR.'cache/');
 define('LOG_DIR',     STORAGE_DIR.'log/');
 
 /**
- * These are the only two hardcoded require()s, from now on the autoloader will
- * step up and autoload subsequent PHP classes.
+ * These are the only two hardcoded require()s, from now forth the autoloader
+ * should kick in and load subsequent missing classes.
  */
 require BUNDLES_DIR.'rax/classes/Rax/Autoload.php';
-require BUNDLES_DIR.'app/classes/Autoload.php';
+if (file_exists($file = BUNDLES_DIR.'app/classes/Autoload.php')) {
+    /** @noinspection PhpIncludeInspection */
+    require $file;
+} else {
+    require BUNDLES_DIR.'rax/classes/Autoload.php';
+}
 
 Autoload::getSingleton()
     ->setBundles(array(
@@ -46,7 +50,12 @@ Autoload::getSingleton()
 
 /**
  * Prepends the vendor directory to the include path for easy require()s of
- * misc classes.
+ * miscellaneous classes.
+ *
+ * E.g. to use a third party library like Markdown, you would place the markdown.php
+ * file in the vendor directory, then require it with `require('markdown.php')`.
+ * The advantage here, is you don't have to hard-code the full uri to load the
+ * file, which makes the script portable.
  */
 set_include_path(VENDOR_DIR.PATH_SEPARATOR.get_include_path());
 
@@ -91,9 +100,5 @@ date_default_timezone_set(Config::get('kernel.timezone'));
 
 $kernel = new Kernel();
 $kernel->setRouter(new Router(Route::parse(Config::get('routes'))));
-
-$request = new Request($_GET, $_POST, $_SERVER, array(), Config::get('request'));
-Request::setSingleton($request);
-
-$response = $kernel->process($request);
+$response = $kernel->process(new Request($_GET, $_POST, $_SERVER, array(), Config::get('request')));
 $response->send();

@@ -5,6 +5,8 @@
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
+ *
+ * @method Kernel setRouter()
  */
 class Rax_Kernel extends Object
 {
@@ -29,27 +31,6 @@ class Rax_Kernel extends Object
      * @var Twig_Environment
      */
     protected $twig;
-
-    /**
-     * Singleton instance.
-     *
-     * @var self
-     */
-    protected static $singleton;
-
-    /**
-     * Returns a singleton instance.
-     *
-     * @return self
-     */
-    public static function getSingleton()
-    {
-        if (null === static::$singleton) {
-            static::$singleton = new static();
-        }
-
-        return static::$singleton;
-    }
 
     /**
      * @param Request $request
@@ -92,6 +73,7 @@ class Rax_Kernel extends Object
     public function getTwig()
     {
         if (null === $this->twig) {
+//            $config = Config::get('twig');
             $loader = new Twig_Loader_Filesystem(Autoload::getSingleton()->findDirs('views'));
             $twig = new Twig_Environment($loader, array(
                 'cache'               => CACHE_DIR.'twig',

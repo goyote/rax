@@ -16,6 +16,12 @@ require_recipe "php::module_curl"
 require_recipe "php::module_gd"
 require_recipe "php::module_mysql"
 
+require_recipe "xdebug"
+
+node.set[:xdebug][:remote_enable]       = 1
+node.set[:xdebug][:remote_connect_back] = 1
+node.set[:xdebug][:remote_log]          = "/tmp/xdebug.log"
+
 node.set["apache"]["user"]  = "vagrant"
 node.set["apache"]["group"] = "vagrant"
 

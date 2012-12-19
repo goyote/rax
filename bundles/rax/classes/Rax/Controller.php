@@ -48,7 +48,7 @@ class Rax_Controller
     public function before()
     {
         $class = $this->request->getMatchedRoute()->getViewClassName();
-        $this->view = new $class($this->request, $this->kernel);
+        $this->view = new $class($this->request, $this->response, $this->kernel);
     }
 
     /**

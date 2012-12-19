@@ -92,7 +92,7 @@ class Rax_MatchedRoute extends Object
     public function getControllerClassName()
     {
         if (null === $this->controllerClassName) {
-            $this->controllerClassName = 'Controller_'.Inflector::ucWords(Inflector::toUndercase($this->params['controller']));
+            $this->controllerClassName = 'Controller_'.Inflector::ucWords(Inflector::toUnderscore($this->params['controller']));
         }
 
         return $this->controllerClassName;
@@ -104,7 +104,7 @@ class Rax_MatchedRoute extends Object
     public function getViewClassName()
     {
         if (null === $this->viewClassName) {
-            $this->viewClassName = 'View_'.Inflector::ucWords(Inflector::toUndercase($this->params['controller'])).'_'.Inflector::toCamelcase($this->params['action'], true);
+            $this->viewClassName = 'View_'.Inflector::ucWords(Inflector::toUnderscore($this->params['controller'])).'_'.Inflector::toCamelcase($this->params['action'], true);
         }
 
         return $this->viewClassName;
