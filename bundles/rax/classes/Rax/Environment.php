@@ -48,7 +48,7 @@ class Rax_Environment
         if (is_int($environment)) {
             static::$environment = $environment;
         } elseif (is_string($environment)) {
-            static::$environment = constant('Environment::'.strtoupper($environment));
+            static::$environment = constant(get_called_class().'::'.strtoupper($environment));
         } else {
             throw new InvalidArgumentException(
                 sprintf('Environment::set() expects parameter 1 to be an integer or string, %s given', gettype($environment))

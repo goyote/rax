@@ -9,6 +9,11 @@
 class Rax_Config
 {
     /**
+     * @var string
+     */
+    protected static $configDir = 'config';
+
+    /**
      * @var array
      */
     protected static $storage = array();
@@ -45,7 +50,7 @@ class Rax_Config
      */
     public static function load($name)
     {
-        if (!$files = Autoload::getSingleton()->findFiles('config', $name)) {
+        if (!$files = Autoload::getSingleton()->findFiles(static::$configDir, $name)) {
             throw new RuntimeException(sprintf('Unable to locate configuration files for %s', $name));
         }
 

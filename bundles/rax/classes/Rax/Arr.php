@@ -94,30 +94,28 @@ class Rax_Arr
     public static function set(&$array, $key, $value = null, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Error('First argument must be an array or array like object, %s given', Php::getType($array));
+            throw new Error('core.missingArrayArgument', array(get_called_class(), __FUNCTION__, 1, Php::getType($array)));
         }
 
         if (is_array($key)) {
-            foreach ($key as $tempKey => $tempValue) {
-                static::set($array, $tempKey, $tempValue, $delimiter);
+            foreach ($key as $tmpKey => $tmpValue) {
+                static::set($array, $tmpKey, $tmpValue, $delimiter);
+            }
+        } else {
+            $keys = explode($delimiter, $key);
+
+            while (count($keys) > 1) {
+                $key = array_shift($keys);
+
+                if (!isset($array[$key]) || !static::isArray($array[$key])) {
+                    $array[$key] = array();
+                }
+
+                $array =& $array[$key];
             }
 
-            return;
+            $array[array_shift($keys)] = $value;
         }
-
-        $keys = explode($delimiter, $key);
-
-        while (count($keys) > 1) {
-            $key = array_shift($keys);
-
-            if (!isset($array[$key]) || !static::isArray($array[$key])) {
-                $array[$key] = array();
-            }
-
-            $array =& $array[$key];
-        }
-
-        $array[array_shift($keys)] = $value;
     }
 
     /**
@@ -148,16 +146,16 @@ class Rax_Arr
     public static function get($array, $key = null, $default = null, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Error('First argument must be an array or array like object, %s given', Php::getType($array));
+            throw new Error('core.missingArrayArgument', array(get_called_class(), __FUNCTION__, 1, Php::getType($array)));
         }
 
         if (is_array($key)) {
-            $temp = array();
-            foreach ($key as $tempKey) {
-                $temp[$tempKey] = static::get($array, $tempKey, $default, $delimiter);
+            $tmp = array();
+            foreach ($key as $tmpKey) {
+                $tmp[$tmpKey] = static::get($array, $tmpKey, $default, $delimiter);
             }
 
-            return $temp;
+            return $tmp;
         }
 
         if (null === $key) {
@@ -207,20 +205,20 @@ class Rax_Arr
     public static function delete(&$array, $key, $delimiter = '.')
     {
         if (is_array($key)) {
-            $temp = array();
-            foreach ($key as $tempKey) {
-                $temp[$tempKey] = static::delete($array, $tempKey, $delimiter);
+            $tmp = array();
+            foreach ($key as $tmpKey) {
+                $tmp[$tmpKey] = static::delete($array, $tmpKey, $delimiter);
             }
 
-            return $temp;
+            return $tmp;
         }
 
-        $keys       = explode($delimiter, $key);
-        $currentKey = array_shift($keys);
+        $keys    = explode($delimiter, $key);
+        $currKey = array_shift($keys);
 
         if (
-            (!is_array($array) || !array_key_exists($currentKey, $array)) &&
-            (!$array instanceof ArrayAccess || !$array->offsetExists($currentKey))
+            (!is_array($array) || !array_key_exists($currKey, $array)) &&
+            (!$array instanceof ArrayAccess || !$array->offsetExists($currKey))
         ) {
             return false;
         }
@@ -228,9 +226,9 @@ class Rax_Arr
         if (!empty($keys)) {
             $key = implode($delimiter, $keys);
 
-            return static::delete($array[$currentKey], $key, $delimiter);
+            return static::delete($array[$currKey], $key, $delimiter);
         } else {
-            unset($array[$currentKey]);
+            unset($array[$currKey]);
         }
 
         return true;
@@ -259,29 +257,27 @@ class Rax_Arr
     public static function has($array, $key, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Error('First argument must be an array or array like object, %s given', Php::getType($array));
+            throw new Error('core.missingArrayArgument', array(get_called_class(), __FUNCTION__, 1, Php::getType($array)));
         }
 
         if (is_array($key)) {
-            foreach ($key as $tempKey) {
-                if (!static::has($array, $tempKey, $delimiter)) {
+            foreach ($key as $tmpKey) {
+                if (!static::has($array, $tmpKey, $delimiter)) {
                     return false;
                 }
             }
+        } else {
+            $keys = explode($delimiter, $key);
 
-            return true;
-        }
-
-        $keys = explode($delimiter, $key);
-
-        foreach ($keys as $key) {
-            if (
-                (is_array($array) && array_key_exists($key, $array)) ||
-                ($array instanceof ArrayAccess && $array->offsetExists($key))
-            ) {
-                $array = $array[$key];
-            } else {
-                return false;
+            foreach ($keys as $key) {
+                if (
+                    (is_array($array) && array_key_exists($key, $array)) ||
+                    ($array instanceof ArrayAccess && $array->offsetExists($key))
+                ) {
+                    $array = $array[$key];
+                } else {
+                    return false;
+                }
             }
         }
 

@@ -26,6 +26,11 @@ class Rax_Error extends Exception
     );
 
     /**
+     * @var string
+     */
+    protected $key;
+
+    /**
      *
      *
      * @param string      $message
@@ -34,9 +39,11 @@ class Rax_Error extends Exception
      */
     public function __construct($message, $values = null, Exception $previous = null)
     {
-        $message = Text::embedValues($message, $values);
+        if ($newMessage = Message::get('exceptions.'.$message)) {
+            $this->key = $newMessage;
+        }
 
-        parent::__construct($message, 0, $previous);
+        parent::__construct(Text::embedValues($newMessage ?: $message, $values), 0, $previous);
     }
 
     /**
@@ -99,5 +106,21 @@ class Rax_Error extends Exception
         echo ob_get_clean();
 
         exit(1);
+    }
+
+    /**
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
     }
 }
