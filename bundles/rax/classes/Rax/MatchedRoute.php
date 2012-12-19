@@ -52,11 +52,11 @@ class Rax_MatchedRoute extends Object
     public function __construct($name, array $params)
     {
         if (empty($params['controller'])) {
-            throw new Error('Route "%s" is missing the "controller" segment', $name);
+            throw new Error('matchedRoute.missingSegment', array($name, 'controller'));
         }
 
         if (empty($params['action'])) {
-            throw new Error('Route "%s" is missing the "action" segment', $name);
+            throw new Error('matchedRoute.missingSegment', array($name, 'action'));
         }
 
         $this->params = $params;
@@ -141,15 +141,15 @@ class Rax_MatchedRoute extends Object
      */
     public function getMethodArguments(ReflectionMethod $method)
     {
-        $parameters = array();
-        foreach ($method->getParameters() as $parameter) {
-            $value = Arr::get($this->params, $parameter->getName());
-            if (null === $value && $parameter->isDefaultValueAvailable()) {
-                $value = $parameter->getDefaultValue();
+        $params = array();
+        foreach ($method->getParameters() as $param) {
+            $value = Arr::get($this->params, $param->getName());
+            if (null === $value && $param->isDefaultValueAvailable()) {
+                $value = $param->getDefaultValue();
             }
-            $parameters[] = $value;
+            $params[] = $value;
         }
 
-        return $parameters;
+        return $params;
     }
 }

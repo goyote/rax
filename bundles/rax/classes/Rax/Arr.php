@@ -94,7 +94,7 @@ class Rax_Arr
     public static function set(&$array, $key, $value = null, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Error('core.missingArrayArgument', array(get_called_class(), __FUNCTION__, 1, Php::getType($array)));
+            throw new Error('arr.missingArrayArgument', array(__FUNCTION__, 1, Php::getType($array)));
         }
 
         if (is_array($key)) {
@@ -146,7 +146,7 @@ class Rax_Arr
     public static function get($array, $key = null, $default = null, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Error('core.missingArrayArgument', array(get_called_class(), __FUNCTION__, 1, Php::getType($array)));
+            throw new Error('arr.missingArrayArgument', array(__FUNCTION__, 1, Php::getType($array)));
         }
 
         if (is_array($key)) {
@@ -257,7 +257,7 @@ class Rax_Arr
     public static function has($array, $key, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Error('core.missingArrayArgument', array(get_called_class(), __FUNCTION__, 1, Php::getType($array)));
+            throw new Error('arr.missingArrayArgument', array(__FUNCTION__, 1, Php::getType($array)));
         }
 
         if (is_array($key)) {
