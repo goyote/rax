@@ -33,7 +33,7 @@ class Rax_View
     }
 
     /**
-     * @throws Barf
+     * @throws Error
      *
      * @param array|string $name
      * @param mixed        $value

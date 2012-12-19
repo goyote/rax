@@ -84,7 +84,7 @@ class Rax_Arr
      *         )
      *     )
      *
-     * @throws Barf
+     * @throws Error
      *
      * @param array|ArrayAccess $array
      * @param array|string      $key
@@ -94,7 +94,7 @@ class Rax_Arr
     public static function set(&$array, $key, $value = null, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Barf('First argument must be an array or array like object, %s given', Php::getType($array));
+            throw new Error('First argument must be an array or array like object, %s given', Php::getType($array));
         }
 
         if (is_array($key)) {
@@ -136,7 +136,7 @@ class Rax_Arr
      *     Arr::get($arr, 'one.two');              // 2
      *     Arr::get($arr, array('three', 'four')); // array('three' => 3, 'four' => 4)
      *
-     * @throws Barf
+     * @throws Error
      *
      * @param array|ArrayObject $array
      * @param array|string      $key
@@ -148,7 +148,7 @@ class Rax_Arr
     public static function get($array, $key = null, $default = null, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Barf('First argument must be an array or array like object, %s given', Php::getType($array));
+            throw new Error('First argument must be an array or array like object, %s given', Php::getType($array));
         }
 
         if (is_array($key)) {
@@ -248,7 +248,7 @@ class Rax_Arr
      *     Arr::has($arr, 'one.two');   // true
      *     Arr::has($arr, 'one.three'); // false
      *
-     * @throws Barf
+     * @throws Error
      *
      * @param array|ArrayAccess $array
      * @param array|string      $key
@@ -259,7 +259,7 @@ class Rax_Arr
     public static function has($array, $key, $delimiter = '.')
     {
         if (!static::isArray($array)) {
-            throw new Barf('First argument must be an array or array like object, %s given', Php::getType($array));
+            throw new Error('First argument must be an array or array like object, %s given', Php::getType($array));
         }
 
         if (is_array($key)) {

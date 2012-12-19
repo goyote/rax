@@ -44,7 +44,7 @@ class Rax_MatchedRoute extends Object
     protected $params;
 
     /**
-     * @throws Barf
+     * @throws Error
      *
      * @param string $name
      * @param array  $params
@@ -52,11 +52,11 @@ class Rax_MatchedRoute extends Object
     public function __construct($name, array $params)
     {
         if (empty($params['controller'])) {
-            throw new Barf('Route "%s" is missing the "controller" segment', $name);
+            throw new Error('Route "%s" is missing the "controller" segment', $name);
         }
 
         if (empty($params['action'])) {
-            throw new Barf('Route "%s" is missing the "action" segment', $name);
+            throw new Error('Route "%s" is missing the "action" segment', $name);
         }
 
         $this->params = $params;

@@ -26,6 +26,20 @@ class Rax_Error extends Exception
     );
 
     /**
+     *
+     *
+     * @param string      $message
+     * @param array|mixed $values
+     * @param Exception   $previous
+     */
+    public function __construct($message, $values = null, Exception $previous = null)
+    {
+        $message = Text::embedValues($message, $values);
+
+        parent::__construct($message, 0, $previous);
+    }
+
+    /**
      * Transforms notices and simple errors into an exception for better debugging.
      *
      * @throws ErrorException

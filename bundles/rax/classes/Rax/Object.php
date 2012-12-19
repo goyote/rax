@@ -9,7 +9,7 @@
 class Rax_Object
 {
     /**
-     * @throws Barf
+     * @throws Error
      *
      * @param string $method
      * @param array  $arguments
@@ -20,7 +20,7 @@ class Rax_Object
     {
         $function = substr($method, 0, 3);
         if (!in_array($function, array('set', 'get', 'has'))) {
-            throw new Barf('Call to undefined method %s::%s()', array(Php::getType($this), $method));
+            throw new Error('Call to undefined method %s::%s()', array(Php::getType($this), $method));
         }
 
         $property    = substr($method, 3);
@@ -28,7 +28,7 @@ class Rax_Object
 
         if ('set' === $function) {
             if (!array_key_exists(0, $arguments)) {
-                throw new Barf('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
+                throw new Error('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
             }
             $this->$property = $arguments[0];
         }
@@ -37,10 +37,10 @@ class Rax_Object
             if (!property_exists($this, $property)) {
                 $property .= 's';
                 if (!property_exists($this, $property)) {
-                    throw new Barf('Undefined property: %s::%s', array(Php::getType($this), $property));
+                    throw new Error('Undefined property: %s::%s', array(Php::getType($this), $property));
                 }
                 if (!array_key_exists(0, $arguments)) {
-                    throw new Barf('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
+                    throw new Error('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
                 }
                 $default = isset($arguments[1]) ? $arguments[1] : null;
 
@@ -53,10 +53,10 @@ class Rax_Object
         if ('has' === $function) {
             $property .= 's';
             if (!property_exists($this, $property)) {
-                throw new Barf('Undefined property: %s::%s', array(Php::getType($this), $property));
+                throw new Error('Undefined property: %s::%s', array(Php::getType($this), $property));
             }
             if (!array_key_exists(0, $arguments)) {
-                throw new Barf('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
+                throw new Error('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
             }
 
             return array_key_exists($arguments[0], $this->$property);
