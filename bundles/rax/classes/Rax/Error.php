@@ -31,8 +31,6 @@ class Rax_Error extends Exception
     protected $key;
 
     /**
-     *
-     *
      * @param string      $message
      * @param array|mixed $values
      * @param Exception   $previous
@@ -44,6 +42,22 @@ class Rax_Error extends Exception
         }
 
         parent::__construct(Text::embedValues($newMessage ?: $message, $values), 0, $previous);
+    }
+
+    /**
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
     }
 
     /**
@@ -106,21 +120,5 @@ class Rax_Error extends Exception
         echo ob_get_clean();
 
         exit(1);
-    }
-
-    /**
-     * @param string $key
-     */
-    public function setKey($key)
-    {
-        $this->key = $key;
-    }
-
-    /**
-     * @return string
-     */
-    public function getKey()
-    {
-        return $this->key;
     }
 }
