@@ -1,5 +1,8 @@
 <?php
 
+error_reporting(-1);
+ini_set('display_errors', 1);
+
 /*
  * This file is part of the Rax PHP framework.
  *
@@ -33,7 +36,7 @@ define('LOG_DIR',     STORAGE_DIR.'log/');
  * should kick in and load subsequent missing classes.
  */
 require BUNDLES_DIR.'rax/classes/Rax/Autoload.php';
-if (file_exists($file = BUNDLES_DIR.'app/classes/Autoload.php')) {
+if (is_file($file = BUNDLES_DIR.'app/classes/Autoload.php')) {
     /** @noinspection PhpIncludeInspection */
     require $file;
 } else {
@@ -98,7 +101,17 @@ if (Environment::isDev()) {
  */
 date_default_timezone_set(Config::get('kernel.timezone'));
 
+// todo lazy load twig and doctrine inside kernel
+$twigLoader      = new Twig_Loader_Filesystem(Autoload::getSingleton()->findDirs('views'));
+$twigEnvironment = new Twig_Environment($twigLoader, Config::get('twig')->asArray());
+
+$router  = new Router(Route::parse(Config::get('routes')));
+$request = new Request($_GET, $_POST, $_SERVER, array(), Config::get('request'));
+
 $kernel = new Kernel();
-$kernel->setRouter(new Router(Route::parse(Config::get('routes'))));
-$response = $kernel->process(new Request($_GET, $_POST, $_SERVER, array(), Config::get('request')));
+$kernel->setRouter($router);
+$kernel->setRequest($request);
+$kernel->setTwigEnvironment($twigEnvironment);
+
+$response = $kernel->process();
 $response->send();

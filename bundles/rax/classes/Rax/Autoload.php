@@ -262,7 +262,7 @@ class Rax_Autoload
         foreach ((array) $dirs as $dir) {
             foreach ($this->bundles as $baseDir) {
                 if (is_dir($baseDir.$dir)) {
-                    $dirs[] = $baseDir.$dir;
+                    $foundDirs[] = $baseDir.$dir;
                 }
             }
         }

@@ -29,6 +29,10 @@ abstract class Rax_FileReader
     public static function get($key = null, $default = null, $delimiter = null, $reload = false)
     {
         if (null !== $key) {
+            if (null === $delimiter) {
+                $delimiter = Text::PATH_DELIMITER;
+            }
+
             $name = current(explode($delimiter, $key));
 
             if ($reload || !static::isLoaded($name)) {
