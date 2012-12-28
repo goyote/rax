@@ -189,7 +189,7 @@ class Rax_Autoload
             require $file;
         } else {
             foreach ($this->includePath as $dir) {
-                if (file_exists($dir.$class.'.php')) {
+                if (is_file($dir.$class.'.php')) {
                     /** @noinspection PhpIncludeInspection */
                     require $dir.$class.'.php';
 
@@ -218,7 +218,7 @@ class Rax_Autoload
         $file = $baseDir.'/'.$file.'.'.$ext;
 
         foreach ($this->bundles as $dir) {
-            if (file_exists($dir.$file)) {
+            if (is_file($dir.$file)) {
                 return $dir.$file;
             }
         }
@@ -231,40 +231,42 @@ class Rax_Autoload
      *
      *     $filePaths = Autoload::getSingleton()->findFiles('classes', 'BarClass');
      *
-     * @param string $baseDir
-     * @param string $file
-     * @param string $ext
+     * @param string       $baseDir
+     * @param string       $file
+     * @param array|string $exts
      *
      * @return array
      */
-    public function findFiles($baseDir, $file, $ext = 'php')
+    public function findFiles($baseDir, $file, $exts = 'php')
     {
-        $file = $baseDir.'/'.$file.'.'.$ext;
+        $foundFiles = array();
 
-        $files = array();
-        foreach ($this->bundles as $dir) {
-            if (file_exists($dir.$file)) {
-                $files[] = $dir.$file;
+        foreach ((array) $exts as $ext) {
+            if ($foundFile = $this->findFile($baseDir, $file, $ext)) {
+                $foundFiles[] = $foundFile;
             }
         }
 
-        return $files;
+        return $foundFiles;
     }
 
     /**
-     * @param string $dir
+     * @param array|string $dirs
      *
      * @return array
      */
-    public function findDirs($dir)
+    public function findDirs($dirs)
     {
-        $dirs = array();
-        foreach ($this->bundles as $baseDir) {
-            if (is_dir($baseDir.$dir)) {
-                $dirs[] = $baseDir.$dir;
+        $foundDirs = array();
+
+        foreach ((array) $dirs as $dir) {
+            foreach ($this->bundles as $baseDir) {
+                if (is_dir($baseDir.$dir)) {
+                    $dirs[] = $baseDir.$dir;
+                }
             }
         }
 
-        return $dirs;
+        return $foundDirs;
     }
 }

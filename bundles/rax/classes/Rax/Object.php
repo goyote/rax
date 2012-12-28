@@ -20,24 +20,24 @@ class Rax_Object
     {
         $function = substr($method, 0, 3);
         if (!in_array($function, array('set', 'get', 'has'))) {
-            throw new Error('object.undefinedMethod', array(Php::getType($this), $method));
+            throw new Error('Call to undefined method %s::%s()', array(Php::getType($this), $method));
         }
 
         $property = lcfirst(substr($method, 3));
 
         if ('set' === $function) {
             if (!array_key_exists(0, $arguments)) {
-                throw new Error('object.missingArgument', array(1, Php::getType($this), $method));
+                throw new Error('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
             }
             $this->$property = $arguments[0];
         } elseif ('get' === $function) {
             if (!property_exists($this, $property)) {
                 $property .= 's';
                 if (!property_exists($this, $property)) {
-                    throw new Error('object.undefinedProperty', array(Php::getType($this), $method));
+                    throw new Error('Undefined property: %s::%s', array(Php::getType($this), $method));
                 }
                 if (!array_key_exists(0, $arguments)) {
-                    throw new Error('object.missingArgument', array(1, Php::getType($this), $method));
+                    throw new Error('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
                 }
                 $default = isset($arguments[1]) ? $arguments[1] : null;
 
@@ -48,10 +48,10 @@ class Rax_Object
         } elseif ('has' === $function) {
             $property .= 's';
             if (!property_exists($this, $property)) {
-                throw new Error('object.undefinedProperty', array(Php::getType($this), $method));
+                throw new Error('Undefined property: %s::%s', array(Php::getType($this), $method));
             }
             if (!array_key_exists(0, $arguments)) {
-                throw new Error('object.missingArgument', array(1, Php::getType($this), $method));
+                throw new Error('Missing argument 1 for %s::%s()', array(Php::getType($this), $method));
             }
 
             return array_key_exists($arguments[0], $this->$property);

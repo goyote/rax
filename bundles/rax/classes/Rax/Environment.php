@@ -48,7 +48,7 @@ class Rax_Environment
         if (is_int($environment)) {
             static::$environment = $environment;
         } elseif (is_string($environment)) {
-            static::$environment = constant(get_called_class().'::'.strtoupper($environment));
+            static::$environment = constant('Environment::'.strtoupper($environment));
         } else {
             throw new InvalidArgumentException(
                 sprintf('Environment::set() expects parameter 1 to be an integer or string, %s given', gettype($environment))
@@ -57,29 +57,62 @@ class Rax_Environment
     }
 
     /**
-     * Returns the application environment as either an integer or string.
+     * Returns the application environment as an integer.
      *
      *     Environment::set(Environment::DEVELOPMENT);
      *
-     *     $environment = Environment::get();     // 100
-     *     $environment = Environment::get(true); // "development"
+     *     $environment = Environment::get(); // 100
      *
-     * @param bool $string
-     *
-     * @return int|string
+     * @return int
      */
-    public static function get($string = false)
+    public static function get()
     {
-        if ($string) {
-            $reflection = new ReflectionClass(get_called_class());
-            foreach ($reflection->getConstants() as $name => $value) {
-                if (static::$environment === $value) {
-                    return strtolower($name);
-                }
+        return static::$environment;
+    }
+
+    /**
+     * Returns the application environment's string representation (a.k.a name.)
+     *
+     *     Environment::set(Environment::DEVELOPMENT);
+     *
+     *     $environment = Environment::getName(); // "development"
+     *
+     * @throws Error
+     * @return string
+     */
+    public static function getName()
+    {
+        $reflection = new ReflectionClass('Environment');
+
+        foreach ($reflection->getConstants() as $name => $value) {
+            if (static::$environment === $value) {
+                return strtolower($name);
             }
         }
 
-        return static::$environment;
+        throw new Error('Current environment "%s" has no class constant holding its value', static::$environment);
+    }
+
+    /**
+     * Returns the application environment's short name.
+     *
+     *     Environment::set(Environment::DEVELOPMENT); // Or
+     *     Environment::set(Environment::TESTING);
+     *
+     *     $environment = Environment::getShortName(); // "dev"
+     *
+     * @throws Error
+     * @return string
+     */
+    public static function getShortName()
+    {
+        if (static::isProd()) {
+            return 'prod';
+        } elseif (static::isDev()) {
+            return 'dev';
+        }
+
+        throw new Error('Current environment "%s" is not within the dev-prod range', static::$environment);
     }
 
     /**
@@ -93,7 +126,7 @@ class Rax_Environment
      */
     public static function is($environment)
     {
-        return (static::$environment === constant(get_called_class().'::'.strtoupper($environment)));
+        return (static::$environment === constant('Environment::'.strtoupper($environment)));
     }
 
     /**
@@ -154,8 +187,8 @@ class Rax_Environment
     public static function isProd()
     {
         return (
-            static::$environment <= static::PRODUCTION &&
-            static::$environment > static::TESTING
+            (static::$environment <= static::PRODUCTION) &&
+            (static::$environment > static::TESTING)
         );
     }
 
@@ -169,8 +202,8 @@ class Rax_Environment
     public static function isDev()
     {
         return (
-            static::$environment <= static::TESTING &&
-            static::$environment >= 0
+            (static::$environment <= static::TESTING) &&
+            (static::$environment >= 0)
         );
     }
 }

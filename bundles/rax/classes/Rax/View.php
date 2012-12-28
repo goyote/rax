@@ -58,7 +58,7 @@ class Rax_View
      */
     public function render()
     {
-        return $this->kernel->getTwig()->render($this->request->getMatchedRoute()->getTwigTemplateName(), array('view' => $this));
+        return $this->kernel->getTwigEnvironment()->render($this->request->getMatchedRoute()->getTwigTemplateName(), array('view' => $this));
     }
 
     /**

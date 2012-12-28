@@ -26,38 +26,13 @@ class Rax_Error extends Exception
     );
 
     /**
-     * @var string
-     */
-    protected $key;
-
-    /**
      * @param string      $message
      * @param array|mixed $values
      * @param Exception   $previous
      */
     public function __construct($message, $values = null, Exception $previous = null)
     {
-        if ($newMessage = Message::get('exceptions.'.$message)) {
-            $this->key = $newMessage;
-        }
-
-        parent::__construct(Text::embedValues($newMessage ?: $message, $values), 0, $previous);
-    }
-
-    /**
-     * @param string $key
-     */
-    public function setKey($key)
-    {
-        $this->key = $key;
-    }
-
-    /**
-     * @return string
-     */
-    public function getKey()
-    {
-        return $this->key;
+        parent::__construct(Text::embedValues($message, $values), 0, $previous);
     }
 
     /**

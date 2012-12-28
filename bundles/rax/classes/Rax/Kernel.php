@@ -6,7 +6,10 @@
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  *
- * @method Kernel setRouter()
+ * @method Kernel           setRouter()
+ * @method Kernel           setRequest()
+ * @method Request          getRequest()
+ * @method Twig_Environment getTwigEnvironment()
  */
 class Rax_Kernel extends Object
 {
@@ -30,33 +33,19 @@ class Rax_Kernel extends Object
     /**
      * @var Twig_Environment
      */
-    protected $twig;
+    protected $twigEnvironment;
 
     /**
-     * @param Request $request
+     * @param Twig_Environment $twigEnvironment
      *
-     * @return Response
+     * @return Kernel
      */
-    public function process(Request $request)
+    public function setTwigEnvironment(Twig_Environment $twigEnvironment)
     {
-        $this->request = $request;
+        $twigEnvironment->addGlobal('request', $this->request);
+        $this->twigEnvironment = $twigEnvironment;
 
-        if (!$match = $this->router->match($request)) {
-            // throw 404
-        }
-        $request->setMatchedRoute($match);
-
-        $response = new Response();
-
-        $reflection = new ReflectionClass($match->getControllerClassName());
-        $controller = $reflection->newInstance($request, $response, $this);
-
-        $reflection->getMethod('before')->invoke($controller);
-        $method = $reflection->getMethod($match->getActionMethodName());
-        $method->invokeArgs($controller, $match->getMethodArguments($method));
-        $reflection->getMethod('after')->invoke($controller);
-
-        return $response;
+        return $this;
     }
 
     /**
@@ -68,27 +57,25 @@ class Rax_Kernel extends Object
     }
 
     /**
-     * @return Twig_Environment
+     * @return Response
      */
-    public function getTwig()
+    public function process()
     {
-        if (null === $this->twig) {
-//            $config = Config::get('twig');
-            $loader = new Twig_Loader_Filesystem(Autoload::getSingleton()->findDirs('views'));
-            $twig = new Twig_Environment($loader, array(
-                'cache'               => CACHE_DIR.'twig',
-                'charset'             => $this->getCharset(),
-                'debug'               => Environment::isDev(),
-                'auto_reload'         => Environment::isDev(),
-                'strict_variables'    => Environment::isDev(),
-                'base_template_class' => 'Twig_Template',
-                'autoescape'          => 'html',
-                'optimizations'       => -1,
-            ));
-            $twig->addGlobal('request', $this->request);
-            $this->twig = $twig;
+        if (!$match = $this->router->match($this->request)) {
+            // throw 404
         }
+        $this->request->setMatchedRoute($match);
 
-        return $this->twig;
+        $response = new Response();
+
+        $reflection = new ReflectionClass($match->getControllerClassName());
+        $controller = $reflection->newInstance($this->request, $response, $this);
+
+        $reflection->getMethod('before')->invoke($controller);
+        $method = $reflection->getMethod($match->getActionMethodName());
+        $method->invokeArgs($controller, $match->getMethodArguments($method));
+        $reflection->getMethod('after')->invoke($controller);
+
+        return $response;
     }
 }

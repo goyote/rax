@@ -52,11 +52,11 @@ class Rax_MatchedRoute extends Object
     public function __construct($name, array $params)
     {
         if (empty($params['controller'])) {
-            throw new Error('matchedRoute.missingSegment', array($name, 'controller'));
+            throw new Error('Route "%s" is missing the "controller" segment', $name);
         }
 
         if (empty($params['action'])) {
-            throw new Error('matchedRoute.missingSegment', array($name, 'action'));
+            throw new Error('Route "%s" is missing the "action" segment', $name);
         }
 
         $this->params = $params;

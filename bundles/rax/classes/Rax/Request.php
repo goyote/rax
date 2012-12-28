@@ -132,7 +132,7 @@ class Rax_Request extends Object
      *
      * @return array|mixed
      */
-    public function getQuery($key = null, $default = null, $delimiter = '.')
+    public function getQuery($key = null, $default = null, $delimiter = null)
     {
         return Arr::get($this->query, $key, $default, $delimiter);
     }
@@ -143,7 +143,7 @@ class Rax_Request extends Object
      *
      * @return bool
      */
-    public function hasQuery($key, $delimiter = '.')
+    public function hasQuery($key, $delimiter = null)
     {
         return Arr::has($this->query, $key, $delimiter);
     }
@@ -155,7 +155,7 @@ class Rax_Request extends Object
      *
      * @return array|mixed
      */
-    public function getPost($key = null, $default = null, $delimiter = '.')
+    public function getPost($key = null, $default = null, $delimiter = null)
     {
         return Arr::get($this->post, $key, $default, $delimiter);
     }
@@ -166,7 +166,7 @@ class Rax_Request extends Object
      *
      * @return bool
      */
-    public function hasPost($key, $delimiter = '.')
+    public function hasPost($key, $delimiter = null)
     {
         return Arr::has($this->post, $key, $delimiter);
     }
@@ -178,7 +178,7 @@ class Rax_Request extends Object
      *
      * @return array|mixed
      */
-    public function getServer($key = null, $default = null, $delimiter = '.')
+    public function getServer($key = null, $default = null, $delimiter = null)
     {
         return Arr::get($this->server, $key, $default, $delimiter);
     }
@@ -189,7 +189,7 @@ class Rax_Request extends Object
      *
      * @return bool
      */
-    public function hasServer($key, $delimiter = '.')
+    public function hasServer($key, $delimiter = null)
     {
         return Arr::has($this->server, $key, $delimiter);
     }
@@ -201,7 +201,7 @@ class Rax_Request extends Object
      *
      * @return Request
      */
-    public function setAttribute($key, $value = null, $delimiter = '.')
+    public function setAttribute($key, $value = null, $delimiter = null)
     {
         Arr::set($this->attributes, $key, $value, $delimiter);
 
@@ -215,7 +215,7 @@ class Rax_Request extends Object
      *
      * @return array|mixed
      */
-    public function getAttribute($key = null, $default = null, $delimiter = '.')
+    public function getAttribute($key = null, $default = null, $delimiter = null)
     {
         return Arr::get($this->attributes, $key, $default, $delimiter);
     }
@@ -226,7 +226,7 @@ class Rax_Request extends Object
      *
      * @return bool
      */
-    public function hasAttribute($key, $delimiter = '.')
+    public function hasAttribute($key, $delimiter = null)
     {
         return Arr::has($this->attributes, $key, $delimiter);
     }
@@ -238,7 +238,7 @@ class Rax_Request extends Object
      *
      * @return array|mixed
      */
-    public function getPostQuery($key, $default = null, $delimiter = '.')
+    public function getPostQuery($key, $default = null, $delimiter = null)
     {
         return $this->getPost($key, $this->getQuery($key, $default, $delimiter), $delimiter);
     }
@@ -250,7 +250,7 @@ class Rax_Request extends Object
      *
      * @return array|mixed
      */
-    public function getHeader($key = null, $default = null, $delimiter = '.')
+    public function getHeader($key = null, $default = null, $delimiter = null)
     {
         if (null === $this->headers) {
             $this->headers = $this->parseHeaders($this->server);
@@ -269,7 +269,7 @@ class Rax_Request extends Object
      *
      * @return bool
      */
-    public function hasHeader($key, $delimiter = '.')
+    public function hasHeader($key, $delimiter = null)
     {
         if ($this->headers === null) {
             $this->headers = $this->parseHeaders($this->server);

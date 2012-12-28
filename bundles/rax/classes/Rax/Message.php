@@ -6,10 +6,10 @@
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
-class Rax_Message extends Config
+class Rax_Message extends FileReader
 {
     /**
-     * @var string
+     * {@inheritdoc}
      */
-    protected static $namespace = 'messages';
+    protected static $dir = 'messages';
 }

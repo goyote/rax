@@ -9,6 +9,11 @@
 class Rax_Text
 {
     /**
+     * @var string
+     */
+    const PATH_DELIMITER = '.';
+
+    /**
      * Embeds values into a string using either sprintf or strtr.
      *
      *     $str = Text::embedValues('hello %s', 'world'); // "hello world"

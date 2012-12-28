@@ -93,10 +93,14 @@ class Rax_Arr
      *
      * @return array|ArrayAccess
      */
-    public static function set(&$array, $key, $value = null, $delimiter = '.')
+    public static function set(&$array, $key, $value = null, $delimiter = null)
     {
         if (!static::isArray($array)) {
-            throw new Error('arr.missingArrayArgument', array(__FUNCTION__, 1, Php::getType($array)));
+            throw new Error('Arr::set() expects parameter 1 to be an array or ArrayAccess object, %s given', Php::getType($array));
+        }
+
+        if (null === $delimiter) {
+            $delimiter = Text::PATH_DELIMITER;
         }
 
         if (is_array($key)) {
@@ -147,10 +151,14 @@ class Rax_Arr
      *
      * @return mixed
      */
-    public static function get($array, $key = null, $default = null, $delimiter = '.')
+    public static function get($array, $key = null, $default = null, $delimiter = null)
     {
         if (!static::isArray($array)) {
-            throw new Error('arr.missingArrayArgument', array(__FUNCTION__, 1, Php::getType($array)));
+            throw new Error('Arr::get() expects parameter 1 to be an array or ArrayAccess object, %s given', Php::getType($array));
+        }
+
+        if (null === $delimiter) {
+            $delimiter = Text::PATH_DELIMITER;
         }
 
         if (is_array($key)) {
@@ -169,8 +177,7 @@ class Rax_Arr
         $keys = explode($delimiter, $key);
 
         foreach ($keys as $key) {
-            if (
-                (is_array($array) && array_key_exists($key, $array)) ||
+            if ((is_array($array) && array_key_exists($key, $array)) ||
                 ($array instanceof ArrayAccess && $array->offsetExists($key))
             ) {
                 $array = $array[$key];
@@ -206,8 +213,12 @@ class Rax_Arr
      *
      * @return array|bool
      */
-    public static function delete(&$array, $key, $delimiter = '.')
+    public static function delete(&$array, $key, $delimiter = null)
     {
+        if (null === $delimiter) {
+            $delimiter = Text::PATH_DELIMITER;
+        }
+
         if (is_array($key)) {
             $tmp = array();
             foreach ($key as $tmpKey) {
@@ -220,8 +231,7 @@ class Rax_Arr
         $keys    = explode($delimiter, $key);
         $currKey = array_shift($keys);
 
-        if (
-            (!is_array($array) || !array_key_exists($currKey, $array)) &&
+        if ((!is_array($array) || !array_key_exists($currKey, $array)) &&
             (!$array instanceof ArrayAccess || !$array->offsetExists($currKey))
         ) {
             return false;
@@ -258,10 +268,14 @@ class Rax_Arr
      *
      * @return bool
      */
-    public static function has($array, $key, $delimiter = '.')
+    public static function has($array, $key, $delimiter = null)
     {
         if (!static::isArray($array)) {
-            throw new Error('arr.missingArrayArgument', array(__FUNCTION__, 1, Php::getType($array)));
+            throw new Error('Arr::has() expects parameter 1 to be an array or ArrayAccess object, %s given', Php::getType($array));
+        }
+
+        if (null === $delimiter) {
+            $delimiter = Text::PATH_DELIMITER;
         }
 
         if (is_array($key)) {
@@ -274,8 +288,7 @@ class Rax_Arr
             $keys = explode($delimiter, $key);
 
             foreach ($keys as $key) {
-                if (
-                    (is_array($array) && array_key_exists($key, $array)) ||
+                if ((is_array($array) && array_key_exists($key, $array)) ||
                     ($array instanceof ArrayAccess && $array->offsetExists($key))
                 ) {
                     $array = $array[$key];
