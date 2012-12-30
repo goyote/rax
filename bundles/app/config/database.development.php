@@ -9,6 +9,6 @@
 return array(
     'default' => array(
         'user'     => 'root',
-        'password' => 'root',
+        'password' => '', // todo add root password to root user
     ),
 );

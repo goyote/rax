@@ -44,6 +44,13 @@ class Rax_Inflector
     public static $humanDelimiters = array('_', '.', '-');
 
     /**
+     * Characters that are treated like word delimiters.
+     *
+     * @var array|string
+     */
+    public static $charDelimiters = array('_', '.', '-', ' ');
+
+    /**
      * @param string $str
      * @param array  $delimiters
      *
@@ -130,5 +137,21 @@ class Rax_Inflector
         }
 
         return str_replace((array) $delimiters, ' ', $str);
+    }
+
+    /**
+     * @param string $char
+     * @param string $str
+     * @param array  $delimiters
+     *
+     * @return string
+     */
+    public static function to($char, $str, $delimiters = null)
+    {
+        if (null === $delimiters) {
+            $delimiters = static::$charDelimiters;
+        }
+
+        return str_replace((array) $delimiters, $char, $str);
     }
 }

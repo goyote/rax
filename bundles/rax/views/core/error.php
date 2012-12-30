@@ -117,7 +117,7 @@ if (Debug::isLanguageConstruct($step['function'])) {
                     $value = substr($value, 0, strpos($value, ' ')).'(<span class="hellip">&hellip;</span>)';
                 }
                 return '<span class="'.$type.'">'.$value.'</span>';
-            }, 10);
+            }, 30);
         }
 
         if (++$i < $count) {

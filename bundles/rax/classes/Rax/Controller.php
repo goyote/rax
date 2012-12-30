@@ -31,6 +31,11 @@ class Rax_Controller
     protected $kernel;
 
     /**
+     * @var
+     */
+    protected $em;
+
+    /**
      * @param Request  $request
      * @param Response $response
      * @param Kernel   $kernel

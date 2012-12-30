@@ -63,12 +63,15 @@ class Rax_MatchedRoute extends Object
     }
 
     /**
+     * Normalized string identifier for the controller. Use getControllerClassName()
+     * to get the actual PHP class name.
+     *
      * @return string
      */
     public function getController()
     {
         if (null === $this->controller) {
-            $this->controller = Inflector::toHyphen(strtolower($this->params['controller']));
+            $this->controller = SymbolGenerator::getId($this->params['controller']);
         }
 
         return $this->controller;
@@ -80,7 +83,7 @@ class Rax_MatchedRoute extends Object
     public function getAction()
     {
         if (null === $this->action) {
-            $this->action = Inflector::toHyphen(strtolower($this->params['action']));
+            $this->action = SymbolGenerator::getId($this->params['action']);
         }
 
         return $this->action;
@@ -92,7 +95,7 @@ class Rax_MatchedRoute extends Object
     public function getControllerClassName()
     {
         if (null === $this->controllerClassName) {
-            $this->controllerClassName = 'Controller_'.Inflector::ucWords(Inflector::toUnderscore($this->params['controller']));
+            $this->controllerClassName = SymbolGenerator::getControllerClassName($this->params['controller']);
         }
 
         return $this->controllerClassName;
@@ -104,7 +107,7 @@ class Rax_MatchedRoute extends Object
     public function getViewClassName()
     {
         if (null === $this->viewClassName) {
-            $this->viewClassName = 'View_'.Inflector::ucWords(Inflector::toUnderscore($this->params['controller'])).'_'.Inflector::toCamelcase($this->params['action'], true);
+            $this->viewClassName = SymbolGenerator::getViewClassName($this->params['controller'], $this->params['action']);
         }
 
         return $this->viewClassName;
@@ -116,7 +119,7 @@ class Rax_MatchedRoute extends Object
     public function getActionMethodName()
     {
         if (null === $this->actionMethodName) {
-            $this->actionMethodName = Inflector::toCamelcase($this->params['action']).'Action';
+            $this->actionMethodName = SymbolGenerator::getActionMethodName($this->params['action']);
         }
 
         return $this->actionMethodName;
@@ -128,7 +131,7 @@ class Rax_MatchedRoute extends Object
     public function getTwigTemplateName()
     {
         if (null === $this->twigTemplateName) {
-            $this->twigTemplateName = str_replace(array('_', '.', '-'), '/', $this->params['controller']).'/'.$this->getAction().'.twig';
+            $this->twigTemplateName = SymbolGenerator::getTwigTemplateName($this->params['controller'], $this->params['action']);
         }
 
         return $this->twigTemplateName;

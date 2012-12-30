@@ -1,8 +1,5 @@
 <?php
 
-error_reporting(-1);
-ini_set('display_errors', 1);
-
 /*
  * This file is part of the Rax PHP framework.
  *
@@ -22,14 +19,17 @@ define('RAX_START_MEMORY', memory_get_peak_usage(true));
 /**
  * Defines the top level directories paths.
  */
-define('ROOT_DIR',    realpath('..').'/');
-define('BIN_DIR',     ROOT_DIR.'bin/');
-define('BUNDLES_DIR', ROOT_DIR.'bundles/');
-define('VENDOR_DIR',  ROOT_DIR.'vendor/');
-define('WEB_DIR',     ROOT_DIR.'web/');
-define('STORAGE_DIR', ROOT_DIR.'storage/');
-define('CACHE_DIR',   STORAGE_DIR.'cache/');
-define('LOG_DIR',     STORAGE_DIR.'log/');
+define('ROOT_DIR',     realpath('..').'/');
+define('BIN_DIR',      ROOT_DIR.'bin/');
+define('BUNDLES_DIR',  ROOT_DIR.'bundles/');
+define('APP_DIR',      BUNDLES_DIR.'app/');
+define('DOCTRINE_DIR', BUNDLES_DIR.'doctrine/');
+define('RAX_DIR',      BUNDLES_DIR.'rax/');
+define('VENDOR_DIR',   ROOT_DIR.'vendor/');
+define('WEB_DIR',      ROOT_DIR.'web/');
+define('STORAGE_DIR',  ROOT_DIR.'storage/');
+define('CACHE_DIR',    STORAGE_DIR.'cache/');
+define('LOG_DIR',      STORAGE_DIR.'log/');
 
 /**
  * These are the only two hardcoded require()s, from now forth the autoloader
@@ -45,8 +45,9 @@ if (is_file($file = BUNDLES_DIR.'app/classes/Autoload.php')) {
 
 Autoload::getSingleton()
     ->setBundles(array(
-        'App' => BUNDLES_DIR.'app',
-        'Rax' => BUNDLES_DIR.'rax',
+        'App'      => BUNDLES_DIR.'app',
+        'Doctrine' => BUNDLES_DIR.'doctrine',
+        'Rax'      => BUNDLES_DIR.'rax',
     ))
     ->setIncludePath(VENDOR_DIR)
     ->register();
