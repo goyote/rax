@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+ * @todo change get to build or generate
  */
 class Rax_SymbolGenerator
 {
@@ -13,6 +13,16 @@ class Rax_SymbolGenerator
     public static function getEntityClassName($entity)
     {
         return 'Entity_'.Inflector::ucWords(Inflector::toUnderscore($entity));
+    }
+
+    /**
+     * @param string $entity
+     *
+     * @return string
+     */
+    public static function getRepositoryClassName($entity)
+    {
+        return 'Repository_'.Inflector::ucWords(Inflector::toUnderscore($entity));
     }
 
     /**
