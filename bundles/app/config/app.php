@@ -3,11 +3,17 @@
 /**
  * Your application configuration.
  *
- *     // e.g. Given the following config:
- *     'foo' => array('bar' => 'wut')
+ *     // e.g.
+ *     return array('foo' => array('bar' => 'wut'));
  *
- *     // You can use dot notation to retrieve values:
+ *     // Use dot notation to retrieve values
  *     Config::get('app.foo.bar'); // "wut"
+ *
+ *     // Or retrieve the "ArrObj" object
+ *     $config = Config::get('app');
+ *
+ *     $config->foo;       // array("bar" => "wut")
+ *     $config['foo.bar']; // "wut"
  *
  * @see todo
  */

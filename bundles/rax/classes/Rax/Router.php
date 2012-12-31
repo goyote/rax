@@ -96,7 +96,11 @@ class Rax_Router extends Object
             return false;
         }
 
-        if ($route->hasRule('environment') && !preg_match('#^'.$route->getRule('environment').'$#i', Environment::get(true))) {
+        if ($route->hasRule('environment') && !preg_match('#^'.$route->getRule('environment').'$#i', Environment::getName())) {
+            return false;
+        }
+
+        if ($route->hasRule('environment') && !preg_match('#^'.$route->getRule('environment').'$#i', Environment::getShortName())) {
             return false;
         }
 

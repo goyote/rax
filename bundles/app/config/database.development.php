@@ -1,14 +1,16 @@
 <?php
 
 /**
- * Your database connections.
+ * Development specific database settings.
  *
- * @see http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html
+ * Values here will override the values found in database.dev.php and database.php
+ * subsequently. A merge occurs, as oppose to a replacement.
+ *
  * @see todo
  */
 return array(
     'default' => array(
         'user'     => 'root',
-        'password' => '', // todo add root password to root user
+        'password' => 'root',
     ),
 );

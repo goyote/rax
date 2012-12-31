@@ -102,17 +102,12 @@ if (Environment::isDev()) {
  */
 date_default_timezone_set(Config::get('kernel.timezone'));
 
-// todo lazy load twig and doctrine inside kernel
-$twigLoader      = new Twig_Loader_Filesystem(Autoload::getSingleton()->findDirs('views'));
-$twigEnvironment = new Twig_Environment($twigLoader, Config::get('twig')->asArray());
-
 $router  = new Router(Route::parse(Config::get('routes')));
 $request = new Request($_GET, $_POST, $_SERVER, array(), Config::get('request'));
 
 $kernel = new Kernel();
 $kernel->setRouter($router);
 $kernel->setRequest($request);
-$kernel->setTwigEnvironment($twigEnvironment);
 
 $response = $kernel->process();
 $response->send();

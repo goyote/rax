@@ -31,11 +31,6 @@ class Rax_Controller
     protected $kernel;
 
     /**
-     * @var
-     */
-    protected $em;
-
-    /**
      * @param Request  $request
      * @param Response $response
      * @param Kernel   $kernel
@@ -45,6 +40,17 @@ class Rax_Controller
         $this->request  = $request;
         $this->response = $response;
         $this->kernel   = $kernel;
+    }
+
+    /**
+     * @param string $connectionName
+     * @param bool   $new
+     *
+     * @return \Doctrine\ORM\EntityManager
+     */
+    public function getEntityManager($connectionName = null, $new = false)
+    {
+        return $this->kernel->getEntityManager($connectionName, $new);
     }
 
     /**
