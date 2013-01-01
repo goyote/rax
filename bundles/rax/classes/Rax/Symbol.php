@@ -1,16 +1,19 @@
 <?php
 
 /**
- * @todo change get to build or generate
+ * @package   Rax\Generator
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
-class Rax_SymbolGenerator
+class Rax_Symbol
 {
     /**
      * @param string $entity
      *
      * @return string
      */
-    public static function getEntityClassName($entity)
+    public static function buildEntityClassName($entity)
     {
         return 'Entity_'.Inflector::ucWords(Inflector::toUnderscore($entity));
     }
@@ -20,7 +23,7 @@ class Rax_SymbolGenerator
      *
      * @return string
      */
-    public static function getRepositoryClassName($entity)
+    public static function buildRepositoryClassName($entity)
     {
         return 'Repository_'.Inflector::ucWords(Inflector::toUnderscore($entity));
     }
@@ -30,7 +33,7 @@ class Rax_SymbolGenerator
      *
      * @return string
      */
-    public static function getControllerClassName($controller)
+    public static function buildControllerClassName($controller)
     {
         return 'Controller_'.Inflector::ucWords(Inflector::toUnderscore($controller));
     }
@@ -41,7 +44,7 @@ class Rax_SymbolGenerator
      *
      * @return string
      */
-    public static function getViewClassName($controller, $action)
+    public static function buildViewClassName($controller, $action)
     {
         return 'View_'.Inflector::ucWords(Inflector::toUnderscore($controller)).'_'.Inflector::toCamelcase($action, true);
     }
@@ -51,7 +54,7 @@ class Rax_SymbolGenerator
      *
      * @return string
      */
-    public static function getActionMethodName($action)
+    public static function buildActionMethodName($action)
     {
         return Inflector::toCamelcase($action).'Action';
     }
@@ -62,7 +65,7 @@ class Rax_SymbolGenerator
      *
      * @return string
      */
-    public static function getTwigTemplateName($controller, $action)
+    public static function buildTwigTemplateName($controller, $action)
     {
         return Inflector::to('/', strtolower($controller)).'/'.Inflector::toHyphen(strtolower($action)).'.twig';
     }
@@ -72,7 +75,7 @@ class Rax_SymbolGenerator
      *
      * @return string
      */
-    public static function getId($id)
+    public static function buildId($id)
     {
         return Inflector::toHyphen(strtolower($id));
     }
@@ -82,11 +85,11 @@ class Rax_SymbolGenerator
      *
      * @return array
      */
-    public static function getEntityClassNames(array $entities)
+    public static function buildEntityClassNames(array $entities)
     {
         $tmp = array();
         foreach ($entities as $entity) {
-            $tmp[] = static::getEntityClassName($entity);
+            $tmp[] = static::buildEntityClassName($entity);
         }
 
         return $tmp;
@@ -97,11 +100,11 @@ class Rax_SymbolGenerator
      *
      * @return array
      */
-    public static function getControllerClassNames(array $controllers)
+    public static function buildControllerClassNames(array $controllers)
     {
         $tmp = array();
         foreach ($controllers as $controller) {
-            $tmp[] = static::getControllerClassName($controller);
+            $tmp[] = static::buildControllerClassName($controller);
         }
 
         return $tmp;
@@ -112,11 +115,11 @@ class Rax_SymbolGenerator
      *
      * @return array
      */
-    public static function getViewClassNames(array $arr)
+    public static function buildViewClassNames(array $arr)
     {
         $tmp = array();
         foreach ($arr as $controller => $action) {
-            $tmp[] = static::getViewClassName($controller, $action);
+            $tmp[] = static::buildViewClassName($controller, $action);
         }
 
         return $tmp;
@@ -127,11 +130,11 @@ class Rax_SymbolGenerator
      *
      * @return array
      */
-    public static function getActionMethodNames(array $actions)
+    public static function buildActionMethodNames(array $actions)
     {
         $tmp = array();
         foreach ($actions as $action) {
-            $tmp[] = static::getActionMethodName($action);
+            $tmp[] = static::buildActionMethodName($action);
         }
 
         return $tmp;
@@ -142,11 +145,11 @@ class Rax_SymbolGenerator
      *
      * @return array
      */
-    public static function getTwigTemplateNames(array $arr)
+    public static function buildTwigTemplateNames(array $arr)
     {
         $tmp = array();
         foreach ($arr as $controller => $action) {
-            $tmp[] = static::getTwigTemplateName($controller, $action);
+            $tmp[] = static::buildTwigTemplateName($controller, $action);
         }
 
         return $tmp;
@@ -157,11 +160,11 @@ class Rax_SymbolGenerator
      *
      * @return array
      */
-    public static function getIds(array $ids)
+    public static function buildIds(array $ids)
     {
         $tmp = array();
         foreach ($ids as $id) {
-            $tmp[] = static::getId($id);
+            $tmp[] = static::buildId($id);
         }
 
         return $tmp;

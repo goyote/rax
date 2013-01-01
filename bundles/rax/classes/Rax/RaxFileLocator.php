@@ -15,7 +15,7 @@ class Rax_RaxFileLocator extends DefaultFileLocator
     {
         $classes = parent::getAllClassNames($globalBasename);
 
-        return SymbolGenerator::getEntityClassNames($classes);
+        return Symbol::buildEntityClassNames($classes);
     }
 
     /**

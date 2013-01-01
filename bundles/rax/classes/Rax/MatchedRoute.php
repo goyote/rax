@@ -71,7 +71,7 @@ class Rax_MatchedRoute extends Object
     public function getController()
     {
         if (null === $this->controller) {
-            $this->controller = SymbolGenerator::getId($this->params['controller']);
+            $this->controller = Symbol::buildId($this->params['controller']);
         }
 
         return $this->controller;
@@ -83,7 +83,7 @@ class Rax_MatchedRoute extends Object
     public function getAction()
     {
         if (null === $this->action) {
-            $this->action = SymbolGenerator::getId($this->params['action']);
+            $this->action = Symbol::buildId($this->params['action']);
         }
 
         return $this->action;
@@ -95,7 +95,7 @@ class Rax_MatchedRoute extends Object
     public function getControllerClassName()
     {
         if (null === $this->controllerClassName) {
-            $this->controllerClassName = SymbolGenerator::getControllerClassName($this->params['controller']);
+            $this->controllerClassName = Symbol::buildControllerClassName($this->params['controller']);
         }
 
         return $this->controllerClassName;
@@ -107,7 +107,7 @@ class Rax_MatchedRoute extends Object
     public function getViewClassName()
     {
         if (null === $this->viewClassName) {
-            $this->viewClassName = SymbolGenerator::getViewClassName($this->params['controller'], $this->params['action']);
+            $this->viewClassName = Symbol::buildViewClassName($this->params['controller'], $this->params['action']);
         }
 
         return $this->viewClassName;
@@ -119,7 +119,7 @@ class Rax_MatchedRoute extends Object
     public function getActionMethodName()
     {
         if (null === $this->actionMethodName) {
-            $this->actionMethodName = SymbolGenerator::getActionMethodName($this->params['action']);
+            $this->actionMethodName = Symbol::buildActionMethodName($this->params['action']);
         }
 
         return $this->actionMethodName;
@@ -131,7 +131,7 @@ class Rax_MatchedRoute extends Object
     public function getTwigTemplateName()
     {
         if (null === $this->twigTemplateName) {
-            $this->twigTemplateName = SymbolGenerator::getTwigTemplateName($this->params['controller'], $this->params['action']);
+            $this->twigTemplateName = Symbol::buildTwigTemplateName($this->params['controller'], $this->params['action']);
         }
 
         return $this->twigTemplateName;

@@ -56,7 +56,7 @@ class Rax_PhpDriver extends YamlDriver
         }
 
         if (!isset($result['repositoryClass'])) {
-            $result['repositoryClass'] = SymbolGenerator::getRepositoryClassName($result['table']);
+            $result['repositoryClass'] = Symbol::buildRepositoryClassName($result['table']);
         }
 
         // todo add new properties "repositoryClassName" "repositoryClassNameFilename" samething for etities
