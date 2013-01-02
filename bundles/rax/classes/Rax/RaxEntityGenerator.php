@@ -42,8 +42,9 @@ class Rax_RaxEntityGenerator extends EntityGenerator
  * <entity> entity class.
  *
  * NOTE: This file was created so you can safely override any aspect of the
- * auto generated base entity. Use the Entity_Base class to apply logic to all
- * entities. Inheritance order:
+ * auto generated base entity.
+ *
+ * To apply logic to all entities, use the Entity_Base class. Inheritance order:
  *
  * <entityName> > <entityBaseName> > Entity_Base
  *
@@ -61,11 +62,11 @@ class Rax_RaxEntityGenerator extends EntityGenerator
 '<?php
 
 /**
- * WARNING: Auto generated entity class.
+ * WARNING: Auto generated base entity class.
  *
  * Please don\'t edit this class directly. Any changes made to this file will
  * be overridden on schema update. Your customizations should instead go in the
- * <entityName> class or the global Entity_Base.
+ * <entityName> class or Entity_Base for global logic.
  *
  * @package Rax\Entity\Base
  */

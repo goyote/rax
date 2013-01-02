@@ -57,10 +57,16 @@ class Rax_Kernel extends Object
         $reflection = new ReflectionClass($match->getControllerClassName());
         $controller = $reflection->newInstance($this->request, $response, $this);
 
-        $reflection->getMethod('before')->invoke($controller);
+        if ($reflection->hasMethod('before')) {
+            $reflection->getMethod('before')->invoke($controller);
+        }
+
         $method = $reflection->getMethod($match->getActionMethodName());
         $method->invokeArgs($controller, $match->getMethodArguments($method));
-        $reflection->getMethod('after')->invoke($controller);
+
+        if ($reflection->hasMethod('after')) {
+            $reflection->getMethod('after')->invoke($controller);
+        }
 
         return $response;
     }

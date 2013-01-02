@@ -52,12 +52,13 @@ class Rax_Arr
     }
 
     /**
-     * Prepends an item to the beginning of an associative array.
+     * array_unshift() for associative arrays. Prepends an key=>value pair to the
+     * beginning of an array.
      *
-     *     $arr = array('one' => 'one');
+     *     $arr = array('foo' => 'bar');
      *
-     *     Arr::unshift($arr, 'two', 'two'); // array('two' => 'two', 'one' => 'one')
-     *     array_unshift($arr, 'two');       // array(0     => 'two', 'one' => 'one')
+     *     Arr::unshift($arr, 'key', 'value'); // array("key" => "value", "foo" => "bar")
+     *     array_unshift($arr, 'value');       // array(0     => "value", "foo" => "bar")
      *
      * @param array  $array
      * @param string $key
