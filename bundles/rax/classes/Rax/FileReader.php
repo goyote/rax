@@ -54,7 +54,7 @@ abstract class Rax_FileReader
     {
         $exts = array(Environment::getName().'.php', Environment::getShortName().'.php', 'php');
         if (!$files = Autoload::getSingleton()->findFiles(static::$dir, $key, $exts)) {
-            throw new Error('Unable to locate a %s file named "%s"', array(strtolower(get_called_class()), $key));
+            throw new Error('Unable to locate a %s file named %s.php', array(strtolower(get_called_class()), $key));
         }
 
         $files = array_reverse($files);

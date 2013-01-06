@@ -6,12 +6,12 @@ return array(
      *
      * @var bool
      */
-    'trustProxyData' => false,
+    'trust_proxy_data' => false,
 
     /**
      * Whitelist of trusted reverse proxy IPs.
      *
      * @var array
      */
-    'trustedProxies' => array('127.0.0.1'),
+    'trusted_proxies' => array('127.0.0.1'),
 );

@@ -13,9 +13,13 @@ class Rax_Arr
     /**
      * Checks if the parameter is an array or array like object.
      *
-     *     Arr::isArray(array());           // true
-     *     Arr::isArray(new ArrayObject()); // true
-     *     Arr::isArray('lol');             // false
+     *     // true
+     *     Arr::isArray(array());
+     *     Arr::isArray(new ArrayObject());
+     *
+     *     // false
+     *     Arr::isArray('a');
+     *     Arr::isArray(123);
      *
      * @param array|ArrayAccess $array
      *
@@ -29,8 +33,8 @@ class Rax_Arr
     /**
      * Checks if the parameter is an associative array.
      *
-     *     Arr::isAssociative(array('foo' => 'bar')); // true
-     *     Arr::isAssociative(array('foo'));          // false
+     *     Arr::isAssociative(array('a' => 'b')); // true
+     *     Arr::isAssociative(array('a'));        // false
      *
      * @param array|ArrayObject $array
      *
@@ -46,9 +50,30 @@ class Rax_Arr
             return false;
         }
 
-        $keys = array_keys($array);
+        return ($array !== array_values($array));
+    }
 
-        return ($keys !== array_keys($keys));
+    /**
+     * Checks if the parameter is a numeric array.
+     *
+     *     Arr::isNumeric(array('a'));        // true
+     *     Arr::isNumeric(array('a' => 'b')); // false
+     *
+     * @param array|ArrayObject $array
+     *
+     * @return bool
+     */
+    public static function isNumeric($array)
+    {
+        if ($array instanceof ArrayObject) {
+            $array = $array->getArrayCopy();
+        }
+
+        if (!is_array($array)) {
+            return false;
+        }
+
+        return ($array === array_values($array));
     }
 
     /**

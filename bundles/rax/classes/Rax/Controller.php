@@ -1,7 +1,10 @@
 <?php
 
 /**
- *
+ * @package   Rax
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_Controller
 {
@@ -48,9 +51,21 @@ class Rax_Controller
      *
      * @return \Doctrine\ORM\EntityManager
      */
-    public function getEntityManager($connectionName = null, $new = false)
+    public function getManager($connectionName = null, $new = false)
     {
         return $this->kernel->getEntityManager($connectionName, $new);
+    }
+
+    /**
+     * @param string $entityName
+     * @param string $connectionName
+     * @param bool   $new
+     *
+     * @return \Doctrine\ORM\EntityRepository
+     */
+    public function getRepository($entityName, $connectionName = null, $new = false)
+    {
+        return $this->getManager($connectionName, $new)->getRepository($entityName);
     }
 
     /**
@@ -58,7 +73,7 @@ class Rax_Controller
      */
     public function before()
     {
-        $class = $this->request->getMatchedRoute()->getViewClassName();
+        $class      = $this->request->getMatchedRoute()->getViewClassName();
         $this->view = new $class($this->request, $this->response, $this->kernel);
     }
 

@@ -15,7 +15,7 @@ class Rax_Symbol
      */
     public static function buildEntityClassName($entity)
     {
-        return 'Entity_'.Inflector::ucWords(Inflector::toUnderscore($entity));
+        return 'Entity_'.static::buildClassName($entity);
     }
 
     /**
@@ -25,7 +25,17 @@ class Rax_Symbol
      */
     public static function buildRepositoryClassName($entity)
     {
-        return 'Repository_'.Inflector::ucWords(Inflector::toUnderscore($entity));
+        return 'Repository_'.static::buildClassName($entity);
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return string
+     */
+    public static function buildTypeClassName($type)
+    {
+        return 'Form_Type_'.static::buildClassName($type);
     }
 
     /**
@@ -35,7 +45,7 @@ class Rax_Symbol
      */
     public static function buildControllerClassName($controller)
     {
-        return 'Controller_'.Inflector::ucWords(Inflector::toUnderscore($controller));
+        return 'Controller_'.static::buildClassName($controller);
     }
 
     /**
@@ -46,7 +56,7 @@ class Rax_Symbol
      */
     public static function buildViewClassName($controller, $action)
     {
-        return 'View_'.Inflector::ucWords(Inflector::toUnderscore($controller)).'_'.Inflector::toCamelcase($action, true);
+        return 'View_'.static::buildClassName($controller).'_'.Inflector::toCamelcase($action, true);
     }
 
     /**
@@ -67,7 +77,7 @@ class Rax_Symbol
      */
     public static function buildTwigTemplateName($controller, $action)
     {
-        return Inflector::to('/', strtolower($controller)).'/'.Inflector::toHyphen(strtolower($action)).'.twig';
+        return Inflector::to('/', strtolower($controller)).'/'.static::buildId($action).'.twig';
     }
 
     /**
@@ -77,7 +87,17 @@ class Rax_Symbol
      */
     public static function buildId($id)
     {
-        return Inflector::toHyphen(strtolower($id));
+        return Inflector::toUnderscore(strtolower($id));
+    }
+
+    /**
+     * @param string $class
+     *
+     * @return string
+     */
+    public static function buildClassName($class)
+    {
+        return Inflector::ucWords(Inflector::toUnderscore($class));
     }
 
     /**
@@ -165,6 +185,21 @@ class Rax_Symbol
         $tmp = array();
         foreach ($ids as $id) {
             $tmp[] = static::buildId($id);
+        }
+
+        return $tmp;
+    }
+
+    /**
+     * @param array $classes
+     *
+     * @return array
+     */
+    public static function buildClassNames(array $classes)
+    {
+        $tmp = array();
+        foreach ($classes as $class) {
+            $tmp[] = static::buildClassName($class);
         }
 
         return $tmp;

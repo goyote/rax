@@ -96,6 +96,17 @@ class Rax_Inflector
 
     /**
      * @param string $str
+     * @param string $separator
+     *
+     * @return string
+     */
+    public static function unCamelcase($str, $separator = '_')
+    {
+        return preg_replace('/([a-z])([A-Z])/', '$1'.$separator.'$2', $str);
+    }
+
+    /**
+     * @param string $str
      * @param array  $delimiters
      *
      * @return string

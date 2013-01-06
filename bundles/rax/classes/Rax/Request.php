@@ -238,7 +238,7 @@ class Rax_Request extends Object
      *
      * @return array|mixed
      */
-    public function getPostQuery($key, $default = null, $delimiter = null)
+    public function getPostQuery($key = null, $default = null, $delimiter = null)
     {
         return $this->getPost($key, $this->getQuery($key, $default, $delimiter), $delimiter);
     }

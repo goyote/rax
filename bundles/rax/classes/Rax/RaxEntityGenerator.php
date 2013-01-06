@@ -16,11 +16,11 @@ class Rax_RaxEntityGenerator extends EntityGenerator
      * @var array
      */
     protected $typeAlias = array(
-        Type::DATETIMETZ   => '\DateTime',
-        Type::DATETIME     => '\DateTime',
-        Type::DATE         => '\DateTime',
-        Type::TIME         => '\DateTime',
-        Type::OBJECT       => '\stdClass',
+        Type::DATETIMETZ   => 'DateTime',
+        Type::DATETIME     => 'DateTime',
+        Type::DATE         => 'DateTime',
+        Type::TIME         => 'DateTime',
+        Type::OBJECT       => 'stdClass',
         Type::SMALLINT     => 'int',
         Type::INTEGER      => 'int',
         Type::BIGINT       => 'int',

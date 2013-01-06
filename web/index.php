@@ -23,8 +23,6 @@ define('ROOT_DIR',     realpath('..').'/');
 define('BIN_DIR',      ROOT_DIR.'bin/');
 define('BUNDLES_DIR',  ROOT_DIR.'bundles/');
 define('APP_DIR',      BUNDLES_DIR.'app/');
-define('DOCTRINE_DIR', BUNDLES_DIR.'doctrine/');
-define('RAX_DIR',      BUNDLES_DIR.'rax/');
 define('VENDOR_DIR',   ROOT_DIR.'vendor/');
 define('WEB_DIR',      ROOT_DIR.'web/');
 define('STORAGE_DIR',  ROOT_DIR.'storage/');
@@ -47,6 +45,7 @@ Autoload::getSingleton()
     ->setBundles(array(
         'App'      => BUNDLES_DIR.'app',
         'Doctrine' => BUNDLES_DIR.'doctrine',
+        'Form'     => BUNDLES_DIR.'form',
         'Rax'      => BUNDLES_DIR.'rax',
     ))
     ->setIncludePath(VENDOR_DIR)
