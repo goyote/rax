@@ -9,11 +9,11 @@
  * - To make a <segment> required, omit a default value in the "defaults" array.
  * - Routes are read from top to bottom and dispatched on a first-come first-serve basis.
  * - Use regular expressions to limit what a <segment> matches, these go in the
- *   "rules" array. The default regex for a <segment> looks very similar to:
- *   "[^/]+" (which is pretty broad.)
+ *   "rules" array. The default regex for a <segment> looks something very similar
+ *   to [^/]+ (which is pretty broad.)
  * - "Special segments" are made available for you to define default values or
- *   expose through the pattern to be altered dynamically: <controller>, <action>,
- *   <format>, <locale>
+ *   expose through the pattern string to be altered dynamically: <controller>,
+ *   <action>, <format>, <locale>
  * - "Special rules" are available to filter requests: ajax, secure, method,
  *   clientIp, serverIp, environment, auth, acl
  *

@@ -1,7 +1,10 @@
 <?php
 
 /**
- *
+ * @package   Rax
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
 class Rax_View
 {
@@ -42,7 +45,7 @@ class Rax_View
      */
     public function set($name, $value = null)
     {
-        if (Arr::isArray($name)) {
+        if (is_array($name)) {
             foreach ($name as $key => $value) {
                 $this->$key = $value;
             }

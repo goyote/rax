@@ -49,7 +49,7 @@ class Rax_Controller
      * @param string $connectionName
      * @param bool   $new
      *
-     * @return \Doctrine\ORM\EntityManager
+     * @return Doctrine\ORM\EntityManager
      */
     public function getManager($connectionName = null, $new = false)
     {
@@ -61,7 +61,7 @@ class Rax_Controller
      * @param string $connectionName
      * @param bool   $new
      *
-     * @return \Doctrine\ORM\EntityRepository
+     * @return Doctrine\ORM\EntityRepository
      */
     public function getRepository($entityName, $connectionName = null, $new = false)
     {
@@ -73,6 +73,10 @@ class Rax_Controller
      */
     public function before()
     {
+        if (!$this->autoRender) {
+            return;
+        }
+
         $class      = $this->request->getMatchedRoute()->getViewClassName();
         $this->view = new $class($this->request, $this->response, $this->kernel);
     }
