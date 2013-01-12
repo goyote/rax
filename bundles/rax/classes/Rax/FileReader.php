@@ -1,5 +1,9 @@
 <?php
 
+use Rax\Helper\ArrHelper;
+use Rax\Helper\PhpHelper;
+use Rax\Helper\TextHelper;
+
 /**
  * @package   Rax
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
@@ -30,7 +34,7 @@ abstract class Rax_FileReader
     {
         if (null !== $key) {
             if (null === $delimiter) {
-                $delimiter = Text::PATH_DELIMITER;
+                $delimiter = TextHelper::PATH_DELIMITER;
             }
 
             $name = current(explode($delimiter, $key));
@@ -40,7 +44,7 @@ abstract class Rax_FileReader
             }
         }
 
-        return Arr::get(static::$storage, $key, $default, $delimiter);
+        return ArrHelper::get(static::$storage, $key, $default, $delimiter);
     }
 
     /**
@@ -61,7 +65,7 @@ abstract class Rax_FileReader
 
         $config = array();
         foreach ($files as $file) {
-            $config = Arr::merge($config, Php::load($file));
+            $config = ArrHelper::merge($config, PhpHelper::load($file));
         }
 
         return (static::$storage[$key] = new ArrObj($config));

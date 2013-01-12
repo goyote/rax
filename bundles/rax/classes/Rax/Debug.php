@@ -1,5 +1,7 @@
 <?php
 
+use Rax\Helper\ArrHelper;
+
 /**
  *
  */
@@ -140,7 +142,7 @@ class Rax_Debug
         $return = array();
 
         foreach ($stackTrace as $trace) {
-            $temp = Arr::get($trace, array(
+            $temp = ArrHelper::get($trace, array(
                 'class',
                 'type',
                 'function',
@@ -158,7 +160,7 @@ class Rax_Debug
                 continue;
             }
 
-            $temp['source'] = Debug::highlightSourceCode($temp['file'], $temp['line'], Arr::get($options, 'sourceCodePadding', 3));
+            $temp['source'] = Debug::highlightSourceCode($temp['file'], $temp['line'], ArrHelper::get($options, 'sourceCodePadding', 3));
 
             if ($temp['class']) {
                 $temp['call'] = $temp['class'].$temp['type'].$temp['function'];
@@ -271,6 +273,14 @@ class Rax_Debug
         return $value;
     }
 
+    /**
+     * @param     $var
+     * @param int $length
+     * @param int $limit
+     * @param int $level
+     *
+     * @return string
+     */
     public static function _dump($var, $length = 128, $limit = 10, $level = 0)
     {
         if (is_resource($var)) {

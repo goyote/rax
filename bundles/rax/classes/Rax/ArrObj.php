@@ -1,5 +1,7 @@
 <?php
 
+use Rax\Helper\ArrHelper;
+
 /**
  * ArrObj class.
  */
@@ -23,7 +25,7 @@ class Rax_ArrObj extends ArrayObject
      */
     public function set($key, $value, $delimiter = null)
     {
-        Arr::set($this, $key, $value, $delimiter);
+        ArrHelper::set($this, $key, $value, $delimiter);
 
         return $this;
     }
@@ -39,7 +41,7 @@ class Rax_ArrObj extends ArrayObject
      */
     public function get($key = null, $default = null, $delimiter = null)
     {
-        return Arr::get($this, $key, $default, $delimiter);
+        return ArrHelper::get($this, $key, $default, $delimiter);
     }
 
     /**
@@ -50,7 +52,7 @@ class Rax_ArrObj extends ArrayObject
      */
     public function has($key, $delimiter = null)
     {
-        return Arr::has($this, $key, $delimiter);
+        return ArrHelper::has($this, $key, $delimiter);
     }
 
     /**
@@ -61,7 +63,7 @@ class Rax_ArrObj extends ArrayObject
      */
     public function delete($key, $delimiter = null)
     {
-        Arr::delete($this, $key, $delimiter);
+        ArrHelper::delete($this, $key, $delimiter);
 
         return $this;
     }

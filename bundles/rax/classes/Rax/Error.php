@@ -1,5 +1,7 @@
 <?php
 
+use Rax\Helper\TextHelper;
+
 /**
  * @package   Rax
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
@@ -32,7 +34,7 @@ class Rax_Error extends Exception
      */
     public function __construct($message, $values = null, Exception $previous = null)
     {
-        parent::__construct(Text::embedValues($message, $values), 0, $previous);
+        parent::__construct(TextHelper::embedValues($message, $values), 0, $previous);
     }
 
     /**

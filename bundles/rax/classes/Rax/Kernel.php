@@ -5,8 +5,8 @@ use Doctrine\ORM\EntityManager;
 
 /**
  * @package   Rax
- * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  *
  * @method Kernel  setRouter()
@@ -16,7 +16,7 @@ use Doctrine\ORM\EntityManager;
 class Rax_Kernel extends Object
 {
     /**
-     * Rax version.
+     * Current version number of the Rax PHP framework.
      *
      * @see http://semver.org/
      */
@@ -90,6 +90,7 @@ class Rax_Kernel extends Object
             $twigEnvironment->addGlobal('request', $this->request);
 
             $this->twigEnvironment = $twigEnvironment;
+//            $this->twigEnvironment->setExtensions(array(new FormExtension())); todo enable
         }
 
         return $this->twigEnvironment;

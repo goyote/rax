@@ -2,6 +2,7 @@
 
 use Doctrine\ORM\Mapping\Driver\YamlDriver;
 use Doctrine\Common\Persistence\Mapping\MappingException;
+use Rax\Helper\PhpHelper;
 
 /**
  *
@@ -26,7 +27,7 @@ class Rax_PhpDriver extends YamlDriver
      */
     protected function loadMappingFile($file)
     {
-        return Php::load($file);
+        return PhpHelper::load($file);
     }
 
     /**

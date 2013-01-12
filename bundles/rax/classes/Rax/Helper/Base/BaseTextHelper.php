@@ -1,14 +1,22 @@
 <?php
 
+namespace Rax\Helper\Base;
+
+use Rax\Helper\ArrHelper;
+
 /**
+ * Helper functions for working with strings.
+ *
  * @package   Rax\Helper
- * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
-class Rax_Text
+class BaseTextHelper
 {
     /**
+     * Delimiter used in a path to separate words.
+     *
      * @var string
      */
     const PATH_DELIMITER = '.';
@@ -16,15 +24,16 @@ class Rax_Text
     /**
      * Embeds values into a string using either sprintf or strtr.
      *
-     *     $str = Text::embedValues('hello %s', 'world'); // "hello world"
-     *     $str = Text::embedValues('%s %s', array('hello', 'world')); // "hello world"
-     *     $str = Text::embedValues('{{greeting}} {{planet}}', array(
+     *     // "hello world"
+     *     $str = TextHelper::embedValues('hello %s', 'world');
+     *     $str = TextHelper::embedValues('%s %s', array('hello', 'world'));
+     *     $str = TextHelper::embedValues('{{greeting}} {{planet}}', array(
      *         '{{greeting}}' => 'hello',
      *         '{{planet}}'   => 'world',
-     *     )); // "hello world"
+     *     ));
      *
-     * @param string      $str
-     * @param array|mixed $values
+     * @param string       $str
+     * @param array|string $values
      *
      * @return string
      */
@@ -36,7 +45,7 @@ class Rax_Text
 
         $values = (array) $values;
 
-        if (Arr::isAssociative($values)) {
+        if (ArrHelper::isAssociative($values)) {
             $str = strtr($str, $values);
         } else {
             array_unshift($values, $str);

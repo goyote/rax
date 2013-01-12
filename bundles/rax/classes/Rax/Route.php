@@ -1,5 +1,7 @@
 <?php
 
+use Rax\Helper\ArrHelper;
+
 /**
  * @package   Rax
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
@@ -20,6 +22,8 @@
  * @method mixed  getRule(string $key, mixed $default = null)    Returns the regex rule for the given segment.
  * @method bool   hasRule(string $key)                           Checks if the segment has a regex rule.
  * @method bool   getEndsInSlash()                               Checks if the pattern ends in slash.
+ *
+ * todo remove base Object class, no more magic shit
  */
 class Rax_Route extends Object
 {
@@ -186,7 +190,7 @@ class Rax_Route extends Object
     {
         $routes = array();
         foreach ($config as $name => $route) {
-            $routes[$name] = new static($name, $route['pattern'], $route['defaults'], Arr::get($route, 'rules', array()));
+            $routes[$name] = new static($name, $route['pattern'], $route['defaults'], ArrHelper::get($route, 'rules', array()));
         }
 
         return $routes;

@@ -9,16 +9,6 @@
 class Rax_Controller
 {
     /**
-     * @var bool
-     */
-    protected $autoRender = true;
-
-    /**
-     * @var View
-     */
-    protected $view;
-
-    /**
      * @var Request
      */
     protected $request;
@@ -66,30 +56,5 @@ class Rax_Controller
     public function getRepository($entityName, $connectionName = null, $new = false)
     {
         return $this->getManager($connectionName, $new)->getRepository($entityName);
-    }
-
-    /**
-     *
-     */
-    public function before()
-    {
-        if (!$this->autoRender) {
-            return;
-        }
-
-        $class      = $this->request->getMatchedRoute()->getViewClassName();
-        $this->view = new $class($this->request, $this->response, $this->kernel);
-    }
-
-    /**
-     *
-     */
-    public function after()
-    {
-        if (!$this->autoRender) {
-            return;
-        }
-
-        $this->response->setContent($this->view->render());
     }
 }

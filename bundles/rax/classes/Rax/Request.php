@@ -1,5 +1,7 @@
 <?php
 
+use Rax\Helper\ArrHelper;
+
 /**
  * @package   Rax
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
@@ -134,7 +136,7 @@ class Rax_Request extends Object
      */
     public function getQuery($key = null, $default = null, $delimiter = null)
     {
-        return Arr::get($this->query, $key, $default, $delimiter);
+        return ArrHelper::get($this->query, $key, $default, $delimiter);
     }
 
     /**
@@ -145,7 +147,7 @@ class Rax_Request extends Object
      */
     public function hasQuery($key, $delimiter = null)
     {
-        return Arr::has($this->query, $key, $delimiter);
+        return ArrHelper::has($this->query, $key, $delimiter);
     }
 
     /**
@@ -157,7 +159,7 @@ class Rax_Request extends Object
      */
     public function getPost($key = null, $default = null, $delimiter = null)
     {
-        return Arr::get($this->post, $key, $default, $delimiter);
+        return ArrHelper::get($this->post, $key, $default, $delimiter);
     }
 
     /**
@@ -168,7 +170,7 @@ class Rax_Request extends Object
      */
     public function hasPost($key, $delimiter = null)
     {
-        return Arr::has($this->post, $key, $delimiter);
+        return ArrHelper::has($this->post, $key, $delimiter);
     }
 
     /**
@@ -180,7 +182,7 @@ class Rax_Request extends Object
      */
     public function getServer($key = null, $default = null, $delimiter = null)
     {
-        return Arr::get($this->server, $key, $default, $delimiter);
+        return ArrHelper::get($this->server, $key, $default, $delimiter);
     }
 
     /**
@@ -191,7 +193,7 @@ class Rax_Request extends Object
      */
     public function hasServer($key, $delimiter = null)
     {
-        return Arr::has($this->server, $key, $delimiter);
+        return ArrHelper::has($this->server, $key, $delimiter);
     }
 
     /**
@@ -203,7 +205,7 @@ class Rax_Request extends Object
      */
     public function setAttribute($key, $value = null, $delimiter = null)
     {
-        Arr::set($this->attributes, $key, $value, $delimiter);
+        ArrHelper::set($this->attributes, $key, $value, $delimiter);
 
         return $this;
     }
@@ -217,7 +219,7 @@ class Rax_Request extends Object
      */
     public function getAttribute($key = null, $default = null, $delimiter = null)
     {
-        return Arr::get($this->attributes, $key, $default, $delimiter);
+        return ArrHelper::get($this->attributes, $key, $default, $delimiter);
     }
 
     /**
@@ -228,7 +230,7 @@ class Rax_Request extends Object
      */
     public function hasAttribute($key, $delimiter = null)
     {
-        return Arr::has($this->attributes, $key, $delimiter);
+        return ArrHelper::has($this->attributes, $key, $delimiter);
     }
 
     /**
@@ -260,7 +262,7 @@ class Rax_Request extends Object
             $key = $this->normalizeHeaderName($key);
         }
 
-        return Arr::get($this->headers, $key, $default, $delimiter);
+        return ArrHelper::get($this->headers, $key, $default, $delimiter);
     }
 
     /**
@@ -279,7 +281,7 @@ class Rax_Request extends Object
             $key = $this->normalizeHeaderName($key);
         }
 
-        return Arr::has($this->headers, $key, $delimiter);
+        return ArrHelper::has($this->headers, $key, $delimiter);
     }
 
     /**

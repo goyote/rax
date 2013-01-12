@@ -1,5 +1,7 @@
 <?php
 
+use Rax\Helper\ArrHelper;
+
 /**
  * @package   Rax
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
@@ -146,7 +148,7 @@ class Rax_MatchedRoute extends Object
     {
         $params = array();
         foreach ($method->getParameters() as $param) {
-            $value = Arr::get($this->params, $param->getName());
+            $value = ArrHelper::get($this->params, $param->getName());
             if (null === $value && $param->isDefaultValueAvailable()) {
                 $value = $param->getDefaultValue();
             }

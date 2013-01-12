@@ -1,25 +1,33 @@
 <?php
 
+namespace Rax\Helper\Base;
+
+use ArrayAccess;
+use ArrayObject;
+use Error;
+use Rax\Helper\PhpHelper;
+use Rax\Helper\TextHelper;
+
 /**
- * Helpers functions for working with arrays.
+ * Helper functions for working with arrays.
  *
  * @package   Rax\Helper
- * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
-class Rax_Arr
+class BaseArrHelper
 {
     /**
      * Checks if the parameter is an array or array like object.
      *
      *     // true
-     *     Arr::isArray(array());
-     *     Arr::isArray(new ArrayObject());
+     *     ArrHelper::isArray(array());
+     *     ArrHelper::isArray(new ArrayObject());
      *
      *     // false
-     *     Arr::isArray('a');
-     *     Arr::isArray(123);
+     *     ArrHelper::isArray('a');
+     *     ArrHelper::isArray(123);
      *
      * @param array|ArrayAccess $array
      *
@@ -33,8 +41,8 @@ class Rax_Arr
     /**
      * Checks if the parameter is an associative array.
      *
-     *     Arr::isAssociative(array('a' => 'b')); // true
-     *     Arr::isAssociative(array('a'));        // false
+     *     ArrHelper::isAssociative(array('a' => 'b')); // true
+     *     ArrHelper::isAssociative(array('a'));        // false
      *
      * @param array|ArrayObject $array
      *
@@ -56,8 +64,8 @@ class Rax_Arr
     /**
      * Checks if the parameter is a numeric array.
      *
-     *     Arr::isNumeric(array('a'));        // true
-     *     Arr::isNumeric(array('a' => 'b')); // false
+     *     ArrHelper::isNumeric(array('a'));        // true
+     *     ArrHelper::isNumeric(array('a' => 'b')); // false
      *
      * @param array|ArrayObject $array
      *
@@ -77,17 +85,17 @@ class Rax_Arr
     }
 
     /**
-     * array_unshift() for associative arrays. Prepends an key=>value pair to the
+     * array_unshift() for associative arrays. Prepends a key=>value item to the
      * beginning of an array.
      *
-     *     $arr = array('foo' => 'bar');
+     *     $array = array('b' => 'b');
      *
-     *     Arr::unshift($arr, 'key', 'value'); // array("key" => "value", "foo" => "bar")
-     *     array_unshift($arr, 'value');       // array(0     => "value", "foo" => "bar")
+     *     ArrHelper::unshift($array, 'a', 'a'); // array("a" => "a", "b" => "b")
+     *     array_unshift($array, 'a');           // array(0   => "a", "b" => "b")
      *
-     * @param array  $array
-     * @param string $key
-     * @param mixed  $value
+     * @param array|ArrayAccess  $array
+     * @param string             $key
+     * @param mixed              $value
      *
      * @return array
      */
@@ -99,13 +107,13 @@ class Rax_Arr
     /**
      * Sets a value on an array using dot notation.
      *
-     *     $arr = array();
-     *     Arr::set($arr, 'one.two.three', 'wut');
+     *     $array = array();
+     *     ArrHelper::set($array, 'one.two.three', 'wut');
      *
      *     array(
-     *         'one' => array(
-     *             'two' => array(
-     *                 'three' => 'wut'
+     *         "one" => array(
+     *             "two" => array(
+     *                 "three" => "wut",
      *             )
      *         )
      *     )
@@ -122,11 +130,11 @@ class Rax_Arr
     public static function set(&$array, $key, $value = null, $delimiter = null)
     {
         if (!static::isArray($array)) {
-            throw new Error('Arr::set() expects parameter 1 to be an array or ArrayAccess object, %s given', Php::getType($array));
+            throw new Error('ArrHelper::set() expects parameter 1 to be an array or ArrayAccess object, %s given', PhpHelper::getType($array));
         }
 
         if (null === $delimiter) {
-            $delimiter = Text::PATH_DELIMITER;
+            $delimiter = TextHelper::PATH_DELIMITER;
         }
 
         if (is_array($key)) {
@@ -153,10 +161,13 @@ class Rax_Arr
     }
 
     /**
-     * Returns the value found at the specified index. Avoids a notice if the
-     * index does not exist. You can provide multiple indexes to retrieve.
+     * Returns the value found in the array or array like object at the specified
+     * index or dot notation path.
      *
-     *     $arr = array(
+     * This function also helps avoid the dreaded notice that's thrown when you
+     * try to access an undefined index.
+     *
+     *     $array = array(
      *         'one' => array(
      *             'two' => 2,
      *         ),
@@ -164,13 +175,13 @@ class Rax_Arr
      *         'four'  => 4,
      *     );
      *
-     *     Arr::get($arr, 'one');                  // array('two' => 2)
-     *     Arr::get($arr, 'one.two');              // 2
-     *     Arr::get($arr, array('three', 'four')); // array('three' => 3, 'four' => 4)
+     *     ArrHelper::get($array, 'one');                  // array("two" => 2)
+     *     ArrHelper::get($array, 'one.two');              // 2
+     *     ArrHelper::get($array, array('three', 'four')); // array("three" => 3, "four" => 4)
      *
      * @throws Error
      *
-     * @param array|ArrayObject $array
+     * @param array|ArrayAccess $array
      * @param array|string      $key
      * @param mixed             $default
      * @param string            $delimiter
@@ -180,11 +191,11 @@ class Rax_Arr
     public static function get($array, $key = null, $default = null, $delimiter = null)
     {
         if (!static::isArray($array)) {
-            throw new Error('Arr::get() expects parameter 1 to be an array or ArrayAccess object, %s given', Php::getType($array));
+            throw new Error('ArrHelper::get() expects parameter 1 to be an array or ArrayAccess object, %s given', PhpHelper::getType($array));
         }
 
         if (null === $delimiter) {
-            $delimiter = Text::PATH_DELIMITER;
+            $delimiter = TextHelper::PATH_DELIMITER;
         }
 
         if (is_array($key)) {
@@ -208,7 +219,7 @@ class Rax_Arr
             ) {
                 $array = $array[$key];
             } else {
-                return Php::value($default);
+                return PhpHelper::value($default);
             }
         }
 
@@ -218,18 +229,18 @@ class Rax_Arr
     /**
      * Unsets an array item using dot notation.
      *
-     *     $arr = array(
+     *     $array = array(
      *         'one' => array(
      *             'two'   => 2,
      *             'three' => 3,
      *         ),
      *     );
      *
-     *     Arr::delete($arr, 'one.two');
+     *     ArrHelper::delete($array, 'one.two');
      *
      *     array(
-     *         'one' => array(
-     *             'three' => 3
+     *         "one" => array(
+     *             "three" => 3,
      *         )
      *     )
      *
@@ -242,7 +253,7 @@ class Rax_Arr
     public static function delete(&$array, $key, $delimiter = null)
     {
         if (null === $delimiter) {
-            $delimiter = Text::PATH_DELIMITER;
+            $delimiter = TextHelper::PATH_DELIMITER;
         }
 
         if (is_array($key)) {
@@ -275,7 +286,7 @@ class Rax_Arr
     }
 
     /**
-     * Checks if the key exists in the array (accepts dot notation.)
+     * Checks if the key exists in the array; accepts dot notation.
      *
      *     $arr = array(
      *         'one' => array(
@@ -283,8 +294,8 @@ class Rax_Arr
      *         ),
      *     );
      *
-     *     Arr::has($arr, 'one.two');   // true
-     *     Arr::has($arr, 'one.three'); // false
+     *     ArrHelper::has($arr, 'one.two');   // true
+     *     ArrHelper::has($arr, 'one.three'); // false
      *
      * @throws Error
      *
@@ -297,11 +308,11 @@ class Rax_Arr
     public static function has($array, $key, $delimiter = null)
     {
         if (!static::isArray($array)) {
-            throw new Error('Arr::has() expects parameter 1 to be an array or ArrayAccess object, %s given', Php::getType($array));
+            throw new Error('ArrHelper::has() expects parameter 1 to be an array or ArrayAccess object, %s given', PhpHelper::getType($array));
         }
 
         if (null === $delimiter) {
-            $delimiter = Text::PATH_DELIMITER;
+            $delimiter = TextHelper::PATH_DELIMITER;
         }
 
         if (is_array($key)) {
