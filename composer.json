@@ -1,6 +1,16 @@
 {
-    "require": {
-        "twig/twig": "1.*",
+    "name"       : "rax/rax",
+    "description": "The Rax full stack PHP framework",
+    "license"    : "BSD-3-Clause",
+    "authors"    : [
+        {
+            "name" : "Gregorio Ramirez",
+            "email": "goyocode@gmail.com"
+        }
+    ],
+    "require"    : {
+        "php"         : ">=5.3.3",
+        "twig/twig"   : "1.*",
         "doctrine/orm": "2.*"
     }
 }
