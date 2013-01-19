@@ -54,7 +54,7 @@ abstract class Rax_Filter
     public function getOption($key)
     {
         if (!isset($this->options[$key])) {
-            throw new Error('%s::getOption() "%s" option does not exist', array(Php::getType($this), $key));
+            throw new Error('%s::getOption() "%s" option does not exist', array(PhpHelper::getType($this), $key));
         }
 
         return $this->options[$key];

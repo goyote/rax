@@ -1,0 +1,132 @@
+<?php
+
+namespace Rax\Mvc\Base;
+
+use Rax\Mvc\Router;
+use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\EntityManager;
+use Rax\Mvc\Kernel;
+use PhpDriver;
+use Rax\Data\Config;
+use Rax\Http\Request;
+use Rax\Http\Response;
+use Rax\Mvc\Cfs;
+use Rax\Mvc\Environment;
+use Rax\Mvc\Object;
+use ReflectionClass;
+use Twig_Environment;
+use Twig_Loader_Filesystem;
+
+/**
+ * @package   Rax
+ * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD
+ *
+ * @method Kernel  setRouter()
+ * @method Kernel  setRequest()
+ * @method Request getRequest()
+ */
+class BaseKernel extends Object
+{
+    /**
+     * Current version number of the Rax PHP framework.
+     *
+     * @see http://semver.org/
+     */
+    const VERSION = '0.1.0';
+
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * @var Router
+     */
+    protected $router;
+
+    /**
+     * @var Twig_Environment
+     */
+    protected $twigEnvironment;
+
+    /**
+     * @var array
+     */
+    protected $entityManagers = array();
+
+    /**
+     * @return Response
+     */
+    public function process()
+    {
+        if (!$match = $this->router->match($this->request)) {
+            // throw 404
+        }
+        $this->request->setMatchedRoute($match);
+
+        $response = new Response();
+
+        $reflection = new ReflectionClass($match->getControllerClassName());
+        $controller = $reflection->newInstance($this->request, $response, $this);
+
+        if ($reflection->hasMethod('before')) {
+            $reflection->getMethod('before')->invoke($controller);
+        }
+
+        $method = $reflection->getMethod($match->getActionMethodName());
+        $method->invokeArgs($controller, $match->getMethodArguments($method));
+
+        if ($reflection->hasMethod('after')) {
+            $reflection->getMethod('after')->invoke($controller);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCharset()
+    {
+        return 'UTF-8';
+    }
+
+    /**
+     * @return Twig_Environment
+     */
+    public function getTwigEnvironment()
+    {
+        if (null === $this->twigEnvironment) {
+            $twigLoader      = new Twig_Loader_Filesystem(Cfs::getSingleton()->findDirs('views'));
+            $twigEnvironment = new Twig_Environment($twigLoader, Config::get('twig')->asArray());
+            $twigEnvironment->addGlobal('request', $this->request);
+
+            $this->twigEnvironment = $twigEnvironment;
+//            $this->twigEnvironment->setExtensions(array(new FormExtension())); todo enable
+        }
+
+        return $this->twigEnvironment;
+    }
+
+    /**
+     * @param string $connectionName
+     * @param bool   $new
+     *
+     * @return \Doctrine\ORM\EntityManager
+     */
+    public function getEntityManager($connectionName = null, $new = false)
+    {
+        $connectionName = $connectionName ?: 'default';
+
+        if ($new || !isset($this->entityManagers[$connectionName])) {
+            $config = Setup::createConfiguration(Environment::isDev(), Config::get('doctrine.proxyDir'));
+            $config->setMetadataDriverImpl(new PhpDriver(Cfs::getSingleton()->findDirs('schema')));
+
+            $this->entityManagers[$connectionName] = EntityManager::create(Config::get('database.'.$connectionName), $config);
+        }
+
+        return $this->entityManagers[$connectionName];
+    }
+}

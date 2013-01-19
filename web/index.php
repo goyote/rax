@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Rax PHP framework.
+ * The front controller of the Rax PHP framework.
  *
  * (c) Gregorio Ramirez <goyocode@gmail.com>
  *
@@ -9,56 +9,64 @@
  * that was distributed with this source code.
  */
 
-/**
- * Capture the current time and memory usage. We'll use this in conjunction with
- * the final numbers to benchmark the framework.
- */
-define('RAX_START_TIME',   microtime(true));
+use Rax\Http\Request;
+use Rax\Loader\Autoload;
+use Rax\Mvc\Cfs;
+use Rax\Mvc\Environment;
+use Rax\Data\Config;
+use Rax\Mvc\Kernel;
+use Rax\Mvc\Route;
+use Rax\Mvc\Router;
+
+// initial snapshot used for benchmarking
+define('RAX_START_TIME', microtime(true));
 define('RAX_START_MEMORY', memory_get_peak_usage(true));
 
-/**
- * Defines the top level directories paths.
- */
-define('ROOT_DIR',     realpath('..').'/');
-define('BIN_DIR',      ROOT_DIR.'bin/');
-define('BUNDLES_DIR',  ROOT_DIR.'bundles/');
-define('APP_DIR',      BUNDLES_DIR.'app/');
-define('VENDOR_DIR',   ROOT_DIR.'vendor/');
-define('WEB_DIR',      ROOT_DIR.'web/');
-define('STORAGE_DIR',  ROOT_DIR.'storage/');
-define('CACHE_DIR',    STORAGE_DIR.'cache/');
-define('LOG_DIR',      STORAGE_DIR.'log/');
+// top level directory paths
+define('ROOT_DIR', realpath('..').'/');
+define('BUNDLES_DIR', ROOT_DIR.'bundles/');
+define('APP_DIR', BUNDLES_DIR.'app/');
+define('RAX_DIR', BUNDLES_DIR.'rax/');
+define('VENDOR_DIR', ROOT_DIR.'vendor/');
+define('WEB_DIR', ROOT_DIR.'web/');
+define('STORAGE_DIR', ROOT_DIR.'storage/');
+define('CACHE_DIR', STORAGE_DIR.'cache/');
+define('LOG_DIR', STORAGE_DIR.'log/');
 
-/**
- * These are the only two hardcoded require()s, from now forth the autoloader
- * should kick in and load subsequent missing classes.
- */
-require BUNDLES_DIR.'rax/classes/Rax/Autoload.php';
-if (is_file($file = BUNDLES_DIR.'app/classes/Autoload.php')) {
+// todo generate bootstrap.php.cache
+// hardcoded requires needed before the autoloader kicks in
+require RAX_DIR.'classes/Rax/Mvc/Base/BaseEnvironment.php';
+if (is_file($file = APP_DIR.'classes/Rax/Mvc/Environment.php')) {
     /** @noinspection PhpIncludeInspection */
     require $file;
 } else {
-    require BUNDLES_DIR.'rax/classes/Autoload.php';
+    require RAX_DIR.'classes/Rax/Mvc/Environment.php';
 }
-
-Autoload::getSingleton()
-    ->setBundles(array(
-        'App'      => BUNDLES_DIR.'app',
-        'Doctrine' => BUNDLES_DIR.'doctrine',
-        'Form'     => BUNDLES_DIR.'form',
-        'Rax'      => BUNDLES_DIR.'rax',
-    ))
-    ->setIncludePath(VENDOR_DIR)
-    ->register();
+require RAX_DIR.'classes/Rax/Mvc/Base/BaseCfs.php';
+if (is_file($file = APP_DIR.'classes/Rax/Mvc/Cfs.php')) {
+    /** @noinspection PhpIncludeInspection */
+    require $file;
+} else {
+    require RAX_DIR.'classes/Rax/Mvc/Cfs.php';
+}
+require RAX_DIR.'classes/Rax/Loader/Base/BaseAutoload.php';
+if (is_file($file = APP_DIR.'classes/Rax/Loader/Autoload.php')) {
+    /** @noinspection PhpIncludeInspection */
+    require $file;
+} else {
+    require RAX_DIR.'classes/Rax/Loader/Autoload.php';
+}
+require RAX_DIR.'classes/Rax/Mvc/Base/BaseException.php';
+if (is_file($file = APP_DIR.'classes/Rax/Mvc/Exception.php')) {
+    /** @noinspection PhpIncludeInspection */
+    require $file;
+} else {
+    require RAX_DIR.'classes/Rax/Mvc/Exception.php';
+}
 
 /**
  * Prepends the vendor directory to the include path for easy require()s of
- * miscellaneous classes.
- *
- * E.g. to use a third party library like Markdown, you would place the markdown.php
- * file in the vendor directory, then require it with `require('markdown.php')`.
- * The advantage here, is you don't have to hard-code the full uri to load the
- * file, which makes the script portable.
+ * misc classes.
  */
 set_include_path(VENDOR_DIR.PATH_SEPARATOR.get_include_path());
 
@@ -87,12 +95,35 @@ error_reporting(-1);
  */
 if (Environment::isDev()) {
     ini_set('display_errors', 1);
-    set_error_handler(array('Error', 'handleError'));
-    register_shutdown_function(array('Error', 'handleShutdown'));
-    set_exception_handler(array('Error', 'handleException'));
+    set_error_handler(array('Rax\Mvc\Exception', 'handleError'));
+    register_shutdown_function(array('Rax\Mvc\Exception', 'handleShutdown'));
+    set_exception_handler(array('Rax\Mvc\Exception', 'handleException'));
 } else {
     ini_set('display_errors', 0);
 }
+
+$cfs = Cfs::setSingleton(function () {
+    return Cfs::create()
+        ->setFileExtension(array(
+            'generated.php',
+            Environment::getName().'.php',
+            Environment::getShortName().'.php',
+            'php',
+        ))
+        ->loadBundles(APP_DIR.'config/bundles');
+});
+
+Autoload::setSingleton(function () use ($cfs) {
+    return Autoload::create()
+        ->setCfs($cfs)
+        ->setClassMap(require VENDOR_DIR.'composer/autoload_classmap.php')
+        ->setNamespaces(require VENDOR_DIR.'composer/autoload_namespaces.php')
+        ->register();
+});
+
+//$cfs->bootstrapBundles();
+
+//Debug::dump(Config::get('twig'));
 
 /**
  * Sets the default time zone.

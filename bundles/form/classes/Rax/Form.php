@@ -42,6 +42,32 @@ class Rax_Form
     protected $inlineErrors = array();
 
     /**
+     * @var string
+     */
+    protected $action;
+
+    /**
+     * @var string
+     */
+    protected $method = 'post';
+
+    /**
+     * @param string $action
+     */
+    public function setAction($action)
+    {
+        $this->action = $action;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAction()
+    {
+        return $this->action;
+    }
+
+    /**
      * @var object
      */
     protected $model;
@@ -105,7 +131,7 @@ class Rax_Form
     public function isValid($newData)
     {
         if ($newData instanceof Request) {
-            $newData = $newData->getPostQuery();
+            $newData = $newData->getPost() + $newData->getQuery();
         }
 
         if (!is_array($newData)) {
@@ -143,6 +169,20 @@ class Rax_Form
     }
 
     /**
+     * @return array
+     */
+    public function getHtmlAttributes()
+    {
+        $attributes = array(
+            'action' => $this->getAction(),
+            'method' => $this->getMethod(),
+            'class'  => 'form form-'.$this->getName(),
+        );
+
+        return $attributes;
+    }
+
+    /**
      * @throws Error
      *
      * @param string|Form_Type $name
@@ -157,9 +197,9 @@ class Rax_Form
             $this->children[$name->getName()] = $name;
         } elseif (is_string($name)) {
             $class                 = Symbol::buildTypeClassName($type);
-            $this->children[$name] = new $class($name, $options);
+            $this->children[$name] = new $class($name, $options, $this);
         } else {
-            throw new Error('Form::add() expects parameter 1 to be a string or descendant of Form_Type, %s given', Php::getType($name));
+            throw new Error('Form::add() expects parameter 1 to be a string or descendant of Form_Type, %s given', PhpHelper::getType($name));
         }
 
         return $this;
@@ -184,11 +224,12 @@ class Rax_Form
      */
     public function get($name = null)
     {
-        if (null === $name) {
-            return $this->children;
-        }
-
         return isset($this->children[$name]) ? $this->children[$name] : null;
+    }
+
+    public function getFields()
+    {
+        return $this->children;
     }
 
     /**
@@ -443,5 +484,29 @@ class Rax_Form
     public function getModel()
     {
         return $this->model;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return strtolower(Inflector::unCamelcase(substr(get_class($this), 5), '-'));
+    }
+
+    /**
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @param string $method
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
     }
 }

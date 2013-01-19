@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
-use Rax\Mvc\Controller;
+use Rax\Twig\LayoutController;
 
-class DefaultController extends Controller
+/**
+ * {@inheritDoc}
+ */
+class DefaultController extends LayoutController
 {
-
 }

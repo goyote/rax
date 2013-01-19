@@ -1,3 +1,4 @@
+# todo improve this, ref h5bp
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule .* index.php [L]

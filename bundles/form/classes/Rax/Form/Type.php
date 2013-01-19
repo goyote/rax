@@ -1,13 +1,23 @@
 <?php
 
+use Rax\Helper\ArrHelper;
+use Rax\Helper\PhpHelper;
+
 /**
  * @package   Rax\Form\Type
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
+ *
+ * todo globally add colon : ?to labels
  */
 abstract class Rax_Form_Type
 {
+    /**
+     * @var Form
+     */
+    protected $form;
+
     /**
      * @var array
      */
@@ -27,6 +37,11 @@ abstract class Rax_Form_Type
      * @var string
      */
     protected $value;
+
+    /**
+     * @var string
+     */
+    protected $placeholder;
 
     /**
      * @var array
@@ -58,11 +73,13 @@ abstract class Rax_Form_Type
      *
      * @param string $name
      * @param array  $options
+     * @param Form   $form
      */
-    public function __construct($name, array $options = array())
+    public function __construct($name, array $options = array(), Form $form)
     {
         $this->name    = $name;
         $this->options = $options;
+        $this->form    = $form;
 
         if (isset($options['label'])) {
             $this->label = $options['label'];
@@ -70,6 +87,10 @@ abstract class Rax_Form_Type
 
         if (isset($options['value'])) {
             $this->value = $options['value'];
+        }
+
+        if (isset($options['placeholder'])) {
+            $this->placeholder = $options['placeholder'];
         }
 
         if (isset($options['attributes'])) {
@@ -271,7 +292,7 @@ abstract class Rax_Form_Type
         }
 
         if (!$filter instanceof Filter) {
-            throw new Error('Invalid filter, %s must be an instance of Filter', Php::getType($this));
+            throw new Error('Invalid filter, %s must be an instance of Filter', PhpHelper::getType($this));
         }
 
         $this->filters[] = $filter;
@@ -320,7 +341,7 @@ abstract class Rax_Form_Type
         }
 
         if (!$validator instanceof Validator) {
-            throw new Error('Invalid validator, %s must be an instance of Validator', Php::getType($this));
+            throw new Error('Invalid validator, %s must be an instance of Validator', PhpHelper::getType($this));
         }
 
         $this->validators[] = $validator;
@@ -369,12 +390,82 @@ abstract class Rax_Form_Type
     }
 
     /**
-     * todo normalize to getName as vlaidator?
+     * todo normalize to getName as validator?
      *
      * @return string
      */
     public function getType()
     {
-        return Inflector::unCamelcase(substr(get_class($this), 10));
+        return strtolower(Inflector::unCamelcase(substr(get_class($this), 10), '-'));
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlaceholder()
+    {
+        return $this->placeholder;
+    }
+
+    /**
+     * @param string $placeholder
+     */
+    public function setPlaceholder($placeholder)
+    {
+        $this->placeholder = $placeholder;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        return 'form-'.$this->form->getName().'-'.$this->getName();
+    }
+
+    /**
+     * @return string
+     */
+    public function getCssClasses()
+    {
+        $cssClasses = array(
+            'type',
+            'type-'.$this->getType(),
+            'type-'.$this->getType().'-'.$this->getName(),
+            'type-'.$this->getType().'-'.$this->form->getName().'-'.$this->getName(),
+        );
+
+        $customCssClasses = array();
+
+        if ($cssClassStr = ArrHelper::get($this->getAttributes(), 'class')) {
+            $customCssClasses = explode(' ', $cssClassStr);
+        }
+
+        return array_merge($cssClasses, $customCssClasses);
+    }
+
+    /**
+     * @return array
+     */
+    public function getHtmlAttributes()
+    {
+        $attributes = array(
+            'type'        => 'text',
+            'name'        => $this->getName(),
+            'id'          => $this->getId(),
+            'class'       => implode(' ', $this->getCssClasses()),
+            'value'       => $this->getValue(),
+            'placeholder' => $this->getPlaceholder(),
+        );
+
+        $attributes = $attributes + $this->getAttributes();
+
+        return array_filter($attributes, function ($value) {
+            if (empty($value) && '0' !== $value) {
+                return false;
+            }
+
+            return true;
+        });
     }
 }

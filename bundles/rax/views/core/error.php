@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+<?php
+use Rax\Mvc\Debug;
+?><!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -60,7 +62,7 @@
                 <?php
                 $a = array();
                 if ($e instanceof ErrorException) {
-                    echo '<span class="highlight">'.static::$levels[$code].'</span> Uh-oh an error occurred:';
+                    echo '<span class="highlight">'.Rax\Mvc\Exception::$levels[$code].'</span> Uh-oh an error occurred:';
                 } else {
                     echo '<span class="highlight">'.$class.'</span> Uh-oh an exception was thrown:';
                 }

@@ -1,5 +1,7 @@
 <?php
 
+use Rax\Helper\TextHelper;
+
 /**
  * @package   Rax\Validator
  * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
@@ -56,8 +58,8 @@ abstract class Rax_Validator
                 throw new Error('Missing "inline.%s" error message in messages/errors.php', $this->getName());
             }
 
-            $this->error       = Text::embedValues($error, $this->getEmbedValues());
-            $this->inlineError = Text::embedValues($inlineError, $this->getEmbedValues());
+            $this->error       = TextHelper::embedValues($error, $this->getEmbedValues());
+            $this->inlineError = TextHelper::embedValues($inlineError, $this->getEmbedValues());
 
             return false;
         }
@@ -83,7 +85,7 @@ abstract class Rax_Validator
             '<name>'       => $this->type->getName(),
             '<label>'      => $this->type->getLabel(),
             '<value>'      => $this->type->getValue(),
-            '<value_type>' => Php::getType($this->type->getValue()),
+            '<value_type>' => PhpHelper::getType($this->type->getValue()),
         );
     }
 

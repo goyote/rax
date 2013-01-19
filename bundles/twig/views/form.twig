@@ -1,0 +1,15 @@
+<form{{ formMacros.attributes(form.htmlAttributes) }}>
+    {% for field in form.fields %}
+        <div class="field ">
+            <div>
+                <label for="{{ field.id }}">{{ field.label ?: field.name|title }}</label>
+            </div>
+            <div>
+                {% include "form/type/" ~ field.type ~ ".twig" %}
+            </div>
+        </div>
+    {% endfor %}
+
+    <button type="submit">Submit</button>
+</form>
+
