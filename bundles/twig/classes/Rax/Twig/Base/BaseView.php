@@ -6,6 +6,7 @@ use Rax\Http\Request;
 use Rax\Http\Response;
 use Rax\Mvc\Kernel;
 use Rax\Twig\View;
+use Twig_Environment;
 
 /**
  * @author    Gregorio Ramirez <goyocode@gmail.com>
@@ -20,25 +21,18 @@ class BaseView
     protected $request;
 
     /**
-     * @var Response
+     * @var Twig_Environment
      */
-    protected $response;
+    protected $twig;
 
     /**
-     * @var Kernel
+     * @param Request          $request
+     * @param Twig_Environment $twig
      */
-    protected $kernel;
-
-    /**
-     * @param Request  $request
-     * @param Response $response
-     * @param Kernel   $kernel
-     */
-    public function __construct(Request $request, Response $response, Kernel $kernel)
+    public function __construct(Request $request, Twig_Environment $twig)
     {
-        $this->request  = $request;
-        $this->response = $response;
-        $this->kernel   = $kernel;
+        $this->request = $request;
+        $this->twig    = $twig;
     }
 
     /**
@@ -65,7 +59,7 @@ class BaseView
      */
     public function render()
     {
-        return $this->kernel->getTwigEnvironment()->render($this->request->getMatchedRoute()->getTwigTemplateName(), array('view' => $this));
+        return $this->twig->render($this->request->getRouteMatch()->getTwigTemplateName(), array('view' => $this));
     }
 
     /**

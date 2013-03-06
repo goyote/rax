@@ -1,7 +1,7 @@
 <?php
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 abstract class Filter extends Rax_Filter
 {

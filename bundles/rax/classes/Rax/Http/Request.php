@@ -5,7 +5,7 @@ namespace Rax\Http;
 use Rax\Http\Base\BaseRequest;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Request extends BaseRequest
 {

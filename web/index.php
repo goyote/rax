@@ -9,135 +9,129 @@
  * that was distributed with this source code.
  */
 
-use Rax\Http\Request;
-use Rax\Loader\Autoload;
+use Doctrine\ORM\Tools\Setup;
+use Rax\Mvc\Autoload;
 use Rax\Mvc\Cfs;
-use Rax\Mvc\Environment;
-use Rax\Data\Config;
-use Rax\Mvc\Kernel;
-use Rax\Mvc\Route;
-use Rax\Mvc\Router;
+use Rax\Mvc\Debugger;
+use Rax\Mvc\ServerMode;
+use Rax\Mvc\ServiceContainer;
 
-// initial snapshot used for benchmarking
-define('RAX_START_TIME', microtime(true));
-define('RAX_START_MEMORY', memory_get_peak_usage(true));
+/**
+ * "Popular" constants.
+ *
+ * You may define more in your bundle's bootstrap file.
+ */
+define('EXT', '.php');
+define('DS',  DIRECTORY_SEPARATOR);
+define('PS',  PATH_SEPARATOR);
 
-// top level directory paths
-define('ROOT_DIR', realpath('..').'/');
+/**
+ * Top level directory paths.
+ */
+define('ROOT_DIR',    dirname(__DIR__).'/');
+define('BIN_DIR',     ROOT_DIR.'bin/');
 define('BUNDLES_DIR', ROOT_DIR.'bundles/');
-define('APP_DIR', BUNDLES_DIR.'app/');
-define('RAX_DIR', BUNDLES_DIR.'rax/');
-define('VENDOR_DIR', ROOT_DIR.'vendor/');
-define('WEB_DIR', ROOT_DIR.'web/');
+define('APP_DIR',     BUNDLES_DIR.'app/');
+define('RAX_DIR',     BUNDLES_DIR.'rax/');
+define('VENDOR_DIR',  ROOT_DIR.'vendor/');
+define('WEB_DIR',     ROOT_DIR.'web/');
 define('STORAGE_DIR', ROOT_DIR.'storage/');
-define('CACHE_DIR', STORAGE_DIR.'cache/');
-define('LOG_DIR', STORAGE_DIR.'log/');
+define('CACHE_DIR',   STORAGE_DIR.'cache/');
+define('LOG_DIR',     STORAGE_DIR.'log/');
 
-// todo generate bootstrap.php.cache
-// hardcoded requires needed before the autoloader kicks in
-require RAX_DIR.'classes/Rax/Mvc/Base/BaseEnvironment.php';
-if (is_file($file = APP_DIR.'classes/Rax/Mvc/Environment.php')) {
-    /** @noinspection PhpIncludeInspection */
-    require $file;
-} else {
-    require RAX_DIR.'classes/Rax/Mvc/Environment.php';
+/**
+ * Hardcoded requires needed before the autoloader kicks in.
+ */
+foreach (array(
+    'ServerMode',
+    'Cfs',
+    'Autoload',
+) as $class) {
+    require RAX_DIR.'classes/Rax/Mvc/Base/Base'.$class.'.php';
+    if (is_file($file = APP_DIR.'classes/Rax/Mvc/'.$class.'.php')) {
+        require $file;
+    } else {
+        require RAX_DIR.'classes/Rax/Mvc/'.$class.'.php';
+    }
 }
-require RAX_DIR.'classes/Rax/Mvc/Base/BaseCfs.php';
-if (is_file($file = APP_DIR.'classes/Rax/Mvc/Cfs.php')) {
-    /** @noinspection PhpIncludeInspection */
-    require $file;
-} else {
-    require RAX_DIR.'classes/Rax/Mvc/Cfs.php';
-}
-require RAX_DIR.'classes/Rax/Loader/Base/BaseAutoload.php';
-if (is_file($file = APP_DIR.'classes/Rax/Loader/Autoload.php')) {
-    /** @noinspection PhpIncludeInspection */
-    require $file;
-} else {
-    require RAX_DIR.'classes/Rax/Loader/Autoload.php';
-}
-require RAX_DIR.'classes/Rax/Mvc/Base/BaseException.php';
-if (is_file($file = APP_DIR.'classes/Rax/Mvc/Exception.php')) {
-    /** @noinspection PhpIncludeInspection */
-    require $file;
-} else {
-    require RAX_DIR.'classes/Rax/Mvc/Exception.php';
-}
+
+/**
+ * Date manipulation should be done in UTC.
+ *
+ * @link todo
+ */
+date_default_timezone_set('UTC');
+
+/**
+ * The server mode can be defined at the server level:
+ *
+ * - Apache: SetEnv ServerMode development
+ * - Nginx:  fastcgi_param ServerMode development
+ * - Shell:  export ServerMode=development
+ *
+ * @link todo
+ */
+$serverMode = new ServerMode($_SERVER['ServerMode']);
+
+/**
+ * The Cascading Filesystem is used to determine which file(s) to load.
+ *
+ * @link todo
+ */
+$cfs = new Cfs($serverMode);
+$cfs->loadBundles(APP_DIR.'config/bundles');
+
+/**
+ * The autoloader uses Composer to install new bundles and third party libraries.
+ *
+ * @link todo
+ */
+$autoload = new Autoload($cfs);
+$autoload->setClassMap(require VENDOR_DIR.'composer/autoload_classmap.php');
+$autoload->setNamespaces(require VENDOR_DIR.'composer/autoload_namespaces.php');
+$autoload->register();
+
+/**
+ * The service container builds the objects and injects its dependencies.
+ *
+ * @link todo
+ */
+$service = ServiceContainer::getShared();
+$service->debugger = new Debugger($cfs);
+$service->set(compact('serverMode', 'cfs', 'autoload', 'service'));
 
 /**
  * Prepends the vendor directory to the include path for easy require()s of
- * misc classes.
+ * miscellaneous files.
  */
-set_include_path(VENDOR_DIR.PATH_SEPARATOR.get_include_path());
+set_include_path(VENDOR_DIR.PS.get_include_path());
 
 /**
- * The application environment can be defined at the server level:
- *
- * - Apache: SetEnv APP_ENV development
- * - Nginx:  fastcgi_param APP_ENV development
- * - Shell:  export APP_ENV=development
- */
-if (empty($_SERVER['APP_ENV'])) {
-    throw new RuntimeException('Application environment was not defined');
-}
-Environment::set($_SERVER['APP_ENV']);
-
-/**
- * "-1" reports all current and future errors.
- *
- * Ideally we show these in development and hide but log them in production.
+ * A value of "-1" reports all current and future errors.
  */
 error_reporting(-1);
 
 /**
- * All errors and exceptions are handled. You can set the logging threshold in
- * the configuration.
+ * We show errors in dev(), but hide and log them in prod().
+ *
+ * @link todo
  */
-if (Environment::isDev()) {
-    ini_set('display_errors', 1);
-    set_error_handler(array('Rax\Mvc\Exception', 'handleError'));
-    register_shutdown_function(array('Rax\Mvc\Exception', 'handleShutdown'));
-    set_exception_handler(array('Rax\Mvc\Exception', 'handleException'));
-} else {
-    ini_set('display_errors', 0);
-}
+ini_set('display_errors', $serverMode->isDev());
 
-$cfs = Cfs::setSingleton(function () {
-    return Cfs::create()
-        ->setFileExtension(array(
-            'generated.php',
-            Environment::getName().'.php',
-            Environment::getShortName().'.php',
-            'php',
-        ))
-        ->loadBundles(APP_DIR.'config/bundles');
-});
-
-Autoload::setSingleton(function () use ($cfs) {
-    return Autoload::create()
-        ->setCfs($cfs)
-        ->setClassMap(require VENDOR_DIR.'composer/autoload_classmap.php')
-        ->setNamespaces(require VENDOR_DIR.'composer/autoload_namespaces.php')
-        ->register();
-});
-
-//$cfs->bootstrapBundles();
-
-//Debug::dump(Config::get('twig'));
+set_error_handler(array($service->debugger, 'handleError'));
+register_shutdown_function(array($service->debugger, 'handleShutdown'));
+set_exception_handler(array($service->debugger, 'handleException'));
 
 /**
- * Sets the default time zone.
+ * Bootstraps each bundle.
  *
- * @link http://www.php.net/manual/timezones
+ * @link todo
  */
-date_default_timezone_set(Config::get('kernel.timezone'));
+$cfs->bootstrap();
 
-$router  = new Router(Route::parse(Config::get('routes')));
-$request = new Request($_GET, $_POST, $_SERVER, array(), Config::get('request'));
-
-$kernel = new Kernel();
-$kernel->setRouter($router);
-$kernel->setRequest($request);
-
-$response = $kernel->process();
-$response->send();
+/**
+ * Handles the request and serves the response.
+ *
+ * @link todo
+ */
+$service->kernel->process()->send();

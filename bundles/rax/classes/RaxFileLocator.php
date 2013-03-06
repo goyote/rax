@@ -1,7 +1,7 @@
 <?php
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class RaxFileLocator extends Rax_RaxFileLocator
 {

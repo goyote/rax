@@ -2,33 +2,16 @@
 
 namespace Rax\Mvc\Base;
 
+use Rax\Mvc\Exception;
 use Rax\Mvc\Object;
 use Rax\Mvc\Route;
 use ArrayAccess;
-use Rax\Helper\ArrHelper;
+use Rax\Helper\Arr;
 
 /**
- * @package   Rax
- * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
  * @author    Gregorio Ramirez <goyocode@gmail.com>
+ * @copyright Copyright (c) Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
- *
- * @method Route  setName(string $name)                          Sets the route name.
- * @method string getName()                                      Returns the route name.
- * @method Route  setPattern(string $pattern)                    Sets the raw route pattern.
- * @method string getPattern()                                   Returns the raw route pattern.
- * @method Route  setDefaults(array $defaults)                   Sets the route defaults.
- * @method array  getDefaults()                                  Returns the route defaults.
- * @method mixed  getDefault(string $key, mixed $default = null) Returns the default value for the given segment.
- * @method bool   hasDefault(string $key)                        Checks if the segment has a default value.
- * @method Route  setRegex(string $regex)                        Sets the route regex.
- * @method Route  setRules(array $rules)                         Sets the route rules.
- * @method array  getRules()                                     Returns the route rules.
- * @method mixed  getRule(string $key, mixed $default = null)    Returns the regex rule for the given segment.
- * @method bool   hasRule(string $key)                           Checks if the segment has a regex rule.
- * @method bool   getEndsInSlash()                               Checks if the pattern ends in slash.
- *
- * todo remove base Object class, no more magic shit
  */
 class BaseRoute extends Object
 {
@@ -40,7 +23,7 @@ class BaseRoute extends Object
     /**
      * @var string
      */
-    protected $pattern;
+    protected $path;
 
     /**
      * @var array
@@ -63,60 +46,364 @@ class BaseRoute extends Object
     protected $endsInSlash;
 
     /**
-     * Constructor.
-     *
-     * @param string $name
-     * @param string $pattern
-     * @param array  $defaults
-     * @param array  $rules
+     * @var array
      */
-    public function __construct($name, $pattern, array $defaults, array $rules = array())
+    protected $segments;
+
+    /**
+     * @var array
+     */
+    protected $specialRuleKeys = array(
+        'ajax',
+        'secure',
+        'method',
+        'clientIp',
+        'serverIp',
+        'environment',
+        'auth',
+        'acl',
+    );
+
+    /**
+     * @param array|ArrayAccess $config
+     *
+     * @return Route[]
+     */
+    public static function parse($config = array())
     {
-        $this->name        = $name;
-        $this->pattern     = $pattern;
-        $this->defaults    = $defaults;
-        $this->rules       = $rules;
-        $this->endsInSlash = ('/' === substr($pattern, -1));
+        $routes = array();
+        foreach ($config as $name => $route) {
+            $routes[$name] = new static($name, $route['path'], $route['defaults'], Arr::get($route, 'rules', array()));
+        }
+
+        return $routes;
     }
 
     /**
+     * @throws Exception
+     *
+     * @param string $name
+     * @param string $path
+     * @param array  $defaults
+     * @param array  $rules
+     */
+    public function __construct($name, $path, array $defaults, array $rules = array())
+    {
+        $this->name        = $name;
+        $this->path        = $path;
+        $this->defaults    = $defaults;
+        $this->rules       = $rules;
+        $this->endsInSlash = ('/' === substr($path, -1));
+    }
+
+    /**
+     * Sets the name.
+     *
+     * @param string $name
+     *
+     * @return Route
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Returns the name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Sets the path.
+     *
+     * @param string $path
+     *
+     * @return Route
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Returns the path.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Sets the defaults.
+     *
+     * @param array $defaults
+     */
+    public function setDefaults(array $defaults)
+    {
+        $this->defaults = $defaults;
+    }
+
+    /**
+     * Returns the defaults.
+     *
+     * @return array
+     */
+    public function getDefaults()
+    {
+        return $this->defaults;
+    }
+
+    /**
+     * Return a default value.
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return string
+     */
+    public function getDefault($key, $default = null)
+    {
+        return array_key_exists($key, $this->defaults) ? $this->defaults[$key] : $default;
+    }
+
+    /**
+     * Checks if default value exists for the given key.
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function hasDefault($key)
+    {
+        return array_key_exists($key, $this->defaults);
+    }
+
+    /**
+     * Sets the rules.
+     *
+     * @param array $rules
+     *
+     * @return Route
+     */
+    public function setRules(array $rules)
+    {
+        $this->rules = $rules;
+
+        return $this;
+    }
+
+    /**
+     * Returns the rules.
+     *
+     * @return array
+     */
+    public function getRules()
+    {
+        return $this->rules;
+    }
+
+    /**
+     * Returns a rule.
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function getRule($key, $default = null)
+    {
+        return isset($this->rules[$key]) ? $this->rules[$key] : $default;
+    }
+
+    /**
+     * Checks if rule exists.
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function hasRule($key)
+    {
+        return isset($this->rules[$key]);
+    }
+
+    /**
+     * Returns the special rules.
+     *
+     * @return array
+     */
+    public function getSpecialRules()
+    {
+        return array_filter(Arr::get($this->rules, $this->specialRuleKeys));
+    }
+
+    /**
+     * Sets the special rule keys.
+     *
+     * @param array $specialRuleKeys
+     *
+     * @return Route
+     */
+    public function setSpecialRuleKeys($specialRuleKeys)
+    {
+        $this->specialRuleKeys = $specialRuleKeys;
+
+        return $this;
+    }
+
+    /**
+     * Returns the special rule keys.
+     *
+     * @return array
+     */
+    public function getSpecialRuleKeys()
+    {
+        return $this->specialRuleKeys;
+    }
+
+    /**
+     * Sets the regex.
+     *
+     * @param string $regex
+     *
+     * @return Route
+     */
+    public function setRegex($regex)
+    {
+        $this->regex = $regex;
+
+        return $this;
+    }
+
+    /**
+     * Returns the compiled route regex.
+     *
+     * @return string
+     */
+    public function getRegex()
+    {
+        if (null === $this->regex) {
+            $this->regex = $this->compile();
+        }
+
+        return $this->regex;
+    }
+
+    /**
+     * Sets whether the path ends slash.
+     *
+     * @param bool $endsInSlash
+     *
+     * @return Route
+     */
+    public function setEndsInSlash($endsInSlash)
+    {
+        $this->endsInSlash = (bool) $endsInSlash;
+
+        return $this;
+    }
+
+    /**
+     * Returns whether the path ends slash.
+     *
+     * @return boolean
+     */
+    public function getEndsInSlash()
+    {
+        return $this->endsInSlash;
+    }
+
+    /**
+     * Sets the segments.
+     *
+     * @param array $segments
+     *
+     * @return Route
+     */
+    public function setSegments($segments)
+    {
+        $this->segments = $segments;
+
+        return $this;
+    }
+
+    /**
+     * Returns the segments.
+     *
+     * @return array
+     */
+    public function getSegments()
+    {
+        return $this->segments;
+    }
+
+    /**
+     * Checks if the segment was defined in the path.
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function hasSegment($key)
+    {
+        return in_array($key, $this->segments);
+    }
+
+    /**
+     * Compiles the route.
+     *
      * @return string
      */
     public function compile()
     {
-        $pattern = sprintf('/%s/', trim($this->getPattern(), '/'));
+        $path = rtrim($this->getPath(), '/').'/';
 
-        preg_match_all('#\<(\w+)\>.?#', $pattern, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
+        preg_match_all('#\<(\w+)\>.?#', $path, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
 
         $lastPosition = 0;
         $segments     = array();
+        $segmentNames = array();
+
         foreach ($matches as $match) {
             $currPosition = $match[0][1] - 1;
             if ($lastPosition < $currPosition) {
                 $segments[] = array(
                     'type' => 'static',
-                    'text' => substr($pattern, $lastPosition, $currPosition - $lastPosition),
+                    'text' => substr($path, $lastPosition, $currPosition - $lastPosition),
                 );
             }
             $lastPosition = $currPosition + strlen($match[0][0]);
 
             $name = $match[1][0];
-            /** @noinspection PhpParamsInspection */
             $rule = $this->getRule($name, '[^'.substr($match[0][0], -1).']+');
 
-            $segments[] = array(
+            $segmentNames[] = $name;
+            $segments[]     = array(
                 'type' => 'dynamic',
                 'name' => $name,
                 'rule' => $rule,
-                'text' => $pattern[$currPosition],
+                'text' => $path[$currPosition],
             );
         }
 
-        $length = strlen($pattern) - 1;
+        $this->segments = $segmentNames;
+
+        $length = strlen($path) - 1;
         if ($length > $lastPosition) {
             $segments[] = array(
                 'type' => 'static',
-                'text' => substr($pattern, $lastPosition, $length - $lastPosition),
+                'text' => substr($path, $lastPosition, $length - $lastPosition),
             );
         }
 
@@ -129,7 +416,7 @@ class BaseRoute extends Object
         }
 
         $totalSegments = count($segments);
-        $regex = '';
+        $regex         = '';
         foreach ($segments as $i => $segment) {
             $regexChunk = '';
             switch ($segment['type']) {
@@ -157,48 +444,5 @@ class BaseRoute extends Object
         }
 
         return '#^'.$regex.'/?$#';
-    }
-
-    /**
-     * Returns the compiled route regex.
-     *
-     * @return string
-     */
-    public function getRegex()
-    {
-        if (null === $this->regex) {
-            $this->regex = $this->compile();
-        }
-
-        return $this->regex;
-    }
-
-    /**
-     * Sets whether the pattern ends slash.
-     *
-     * @param bool $endsInSlash
-     *
-     * @return Route
-     */
-    public function setEndsInSlash($endsInSlash)
-    {
-        $this->endsInSlash = (bool) $endsInSlash;
-
-        return $this;
-    }
-
-    /**
-     * @param array|ArrayAccess $config
-     *
-     * @return array
-     */
-    public static function parse($config = array())
-    {
-        $routes = array();
-        foreach ($config as $name => $route) {
-            $routes[$name] = new static($name, $route['pattern'], $route['defaults'], ArrHelper::get($route, 'rules', array()));
-        }
-
-        return $routes;
     }
 }

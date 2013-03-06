@@ -5,7 +5,7 @@ namespace Rax\Mvc;
 use Rax\Mvc\Base\BaseSymbol;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Symbol extends BaseSymbol
 {

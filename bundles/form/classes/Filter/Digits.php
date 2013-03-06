@@ -1,12 +1,12 @@
 <?php
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Filter_Digits extends Filter
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function filter($value)
     {

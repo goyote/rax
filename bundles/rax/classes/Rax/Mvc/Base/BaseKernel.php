@@ -2,6 +2,8 @@
 
 namespace Rax\Mvc\Base;
 
+use Rax\Mvc\Container;
+use Rax\Mvc\Exception;
 use Rax\Mvc\Router;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
@@ -11,23 +13,18 @@ use Rax\Data\Config;
 use Rax\Http\Request;
 use Rax\Http\Response;
 use Rax\Mvc\Cfs;
-use Rax\Mvc\Environment;
-use Rax\Mvc\Object;
+use Rax\Mvc\ServerMode;
+use Rax\Mvc\ServiceContainer;
 use ReflectionClass;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
 /**
- * @package   Rax
  * @author    Gregorio Ramirez <goyocode@gmail.com>
- * @copyright Copyright (c) 2012 Gregorio Ramirez <goyocode@gmail.com>
+ * @copyright Copyright (c) Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
- *
- * @method Kernel  setRouter()
- * @method Kernel  setRequest()
- * @method Request getRequest()
  */
-class BaseKernel extends Object
+class BaseKernel
 {
     /**
      * Current version number of the Rax PHP framework.
@@ -35,6 +32,21 @@ class BaseKernel extends Object
      * @see http://semver.org/
      */
     const VERSION = '0.1.0';
+
+    /**
+     * @var ServiceContainer
+     */
+    public $service;
+
+    /**
+     * @var Cfs
+     */
+    protected $cfs;
+
+    /**
+     * @var Config
+     */
+    protected $config;
 
     /**
      * @var Request
@@ -47,6 +59,11 @@ class BaseKernel extends Object
     protected $router;
 
     /**
+     * @var ServerMode
+     */
+    protected $serverMode;
+
+    /**
      * @var Twig_Environment
      */
     protected $twigEnvironment;
@@ -57,30 +74,166 @@ class BaseKernel extends Object
     protected $entityManagers = array();
 
     /**
+     * Returns a new chainable instance.
+     *
+     * @return Kernel
+     */
+    public static function create()
+    {
+        return new static();
+    }
+
+    /**
+     * Sets the Cfs.
+     *
+     * @param Cfs $cfs
+     *
+     * @return Kernel
+     */
+    public function setCfs(Cfs $cfs)
+    {
+        $this->cfs = $cfs;
+
+        return $this;
+    }
+
+    /**
+     * Returns the Cfs.
+     *
+     * @return Cfs
+     */
+    public function getCfs()
+    {
+        return $this->cfs;
+    }
+
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * Sets the request.
+     *
+     * @param Request $request
+     *
+     * @return Kernel
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
+
+        return $this;
+    }
+
+    /**
+     * Returns the request.
+     *
+     * @return Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * Sets the router.
+     *
+     * @param Router $router
+     *
+     * @return Kernel
+     */
+    public function setRouter(Router $router)
+    {
+        $this->router = $router;
+
+        return $this;
+    }
+
+    /**
+     * Returns the router.
+     *
+     * @return Router
+     */
+    public function getRouter()
+    {
+        return $this->router;
+    }
+
+    public function setService(ServiceContainer $service)
+    {
+        $this->service = $service;
+
+        return $this;
+    }
+
+    public function getService()
+    {
+        return $this->service;
+    }
+
+    /**
+     * Sets the ServerMode.
+     *
+     * @param ServerMode $serverMode
+     *
+     * @return Kernel
+     */
+    public function setServerMode(ServerMode $serverMode)
+    {
+        $this->serverMode = $serverMode;
+
+        return $this;
+    }
+
+    /**
+     * Returns the ServerMode.
+     *
+     * @return ServerMode
+     */
+    public function getServerMode()
+    {
+        return $this->serverMode;
+    }
+
+    /**
+     * @throws Exception
+     *
      * @return Response
      */
     public function process()
     {
-        if (!$match = $this->router->match($this->request)) {
+        if (!$routeMatch = $this->router->match($this->request)) {
             // throw 404
+            throw new Exception('todo throw 404');
         }
-        $this->request->setMatchedRoute($match);
+        $this->request->setRouteMatch($routeMatch);
 
         $response = new Response();
 
-        $reflection = new ReflectionClass($match->getControllerClassName());
-        $controller = $reflection->newInstance($this->request, $response, $this);
+        $this->service->routeMatch = $routeMatch;
+        $this->service->response = $response;
 
-        if ($reflection->hasMethod('before')) {
-            $reflection->getMethod('before')->invoke($controller);
+        $controller = $this->service->build($routeMatch->getControllerClassName());
+
+        if (method_exists($controller, 'before')) {
+            $this->service->callMethod($controller, 'before');
         }
 
-        $method = $reflection->getMethod($match->getActionMethodName());
-        $method->invokeArgs($controller, $match->getMethodArguments($method));
+        $this->service->callMethod($controller, $routeMatch->getActionMethodName(), $routeMatch->getParams());
 
-        if ($reflection->hasMethod('after')) {
-            $reflection->getMethod('after')->invoke($controller);
+        if (method_exists($controller, 'after')) {
+            $this->service->callMethod($controller, 'after');
         }
+
+        $response->setContent($this->service->view->render());
 
         return $response;
     }
@@ -91,42 +244,5 @@ class BaseKernel extends Object
     public function getCharset()
     {
         return 'UTF-8';
-    }
-
-    /**
-     * @return Twig_Environment
-     */
-    public function getTwigEnvironment()
-    {
-        if (null === $this->twigEnvironment) {
-            $twigLoader      = new Twig_Loader_Filesystem(Cfs::getSingleton()->findDirs('views'));
-            $twigEnvironment = new Twig_Environment($twigLoader, Config::get('twig')->asArray());
-            $twigEnvironment->addGlobal('request', $this->request);
-
-            $this->twigEnvironment = $twigEnvironment;
-//            $this->twigEnvironment->setExtensions(array(new FormExtension())); todo enable
-        }
-
-        return $this->twigEnvironment;
-    }
-
-    /**
-     * @param string $connectionName
-     * @param bool   $new
-     *
-     * @return \Doctrine\ORM\EntityManager
-     */
-    public function getEntityManager($connectionName = null, $new = false)
-    {
-        $connectionName = $connectionName ?: 'default';
-
-        if ($new || !isset($this->entityManagers[$connectionName])) {
-            $config = Setup::createConfiguration(Environment::isDev(), Config::get('doctrine.proxyDir'));
-            $config->setMetadataDriverImpl(new PhpDriver(Cfs::getSingleton()->findDirs('schema')));
-
-            $this->entityManagers[$connectionName] = EntityManager::create(Config::get('database.'.$connectionName), $config);
-        }
-
-        return $this->entityManagers[$connectionName];
     }
 }

@@ -5,7 +5,7 @@ namespace Rax\Mvc;
 use Rax\Mvc\Base\BaseKernel;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Kernel extends BaseKernel
 {

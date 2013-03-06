@@ -62,9 +62,9 @@ use Rax\Mvc\Debug;
                 <?php
                 $a = array();
                 if ($e instanceof ErrorException) {
-                    echo '<span class="highlight">'.Rax\Mvc\Exception::$levels[$code].'</span> Uh-oh an error occurred:';
+                    echo '<span class="highlight">'.Rax\Mvc\Exception\Debugger::$levels[$code].'</span> Uh-oh an error occurred:';
                 } else {
-                    echo '<span class="highlight">'.$class.'</span> Uh-oh an exception was thrown:';
+                    echo '<span class="highlight">'.$reflection.'</span> Uh-oh an exception was thrown:';
                 }
                 ?>
             </div>

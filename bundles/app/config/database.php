@@ -10,7 +10,6 @@
  * In the end, all applicable files are merged into one configuration array.
  *
  * e.g.
- *
  * database.php < database.prod.php < database.staging.php
  *
  * @see http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html

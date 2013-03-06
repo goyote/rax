@@ -5,7 +5,7 @@ namespace Rax\Twig;
 use Rax\Twig\Base\BaseLayoutController;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class LayoutController extends BaseLayoutController
 {

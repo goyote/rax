@@ -2,7 +2,7 @@
 
 use Doctrine\ORM\Mapping\Driver\YamlDriver;
 use Doctrine\Common\Persistence\Mapping\MappingException;
-use Rax\Helper\PhpHelper;
+use Rax\Helper\Php;
 
 /**
  *
@@ -15,7 +15,7 @@ class Rax_PhpDriver extends YamlDriver
     const DEFAULT_FILE_EXTENSION = '.php';
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function __construct($locator, $fileExtension = PhpDriver::DEFAULT_FILE_EXTENSION)
     {
@@ -23,15 +23,15 @@ class Rax_PhpDriver extends YamlDriver
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function loadMappingFile($file)
     {
-        return PhpHelper::load($file);
+        return Php::load($file);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getElement($className)
     {

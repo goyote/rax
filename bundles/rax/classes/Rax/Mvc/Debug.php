@@ -5,7 +5,7 @@ namespace Rax\Mvc;
 use Rax\Mvc\Base\BaseDebug;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Debug extends BaseDebug
 {

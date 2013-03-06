@@ -2,15 +2,11 @@
 
 namespace Rax\Data\Base;
 
-use Rax\Data\FileReader;
+use Rax\Data\DataBank;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
-class BaseMessage extends FileReader
+class BaseMessage extends DataBank
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected static $dataDir = 'messages';
 }

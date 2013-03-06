@@ -1,7 +1,7 @@
 <?php
 
-use Rax\Helper\ArrHelper;
-use Rax\Helper\PhpHelper;
+use Rax\Helper\Arr;
+use Rax\Helper\Php;
 
 /**
  * @package   Rax\Form\Type
@@ -292,7 +292,7 @@ abstract class Rax_Form_Type
         }
 
         if (!$filter instanceof Filter) {
-            throw new Error('Invalid filter, %s must be an instance of Filter', PhpHelper::getType($this));
+            throw new Error('Invalid filter, %s must be an instance of Filter', Php::getType($this));
         }
 
         $this->filters[] = $filter;
@@ -341,7 +341,7 @@ abstract class Rax_Form_Type
         }
 
         if (!$validator instanceof Validator) {
-            throw new Error('Invalid validator, %s must be an instance of Validator', PhpHelper::getType($this));
+            throw new Error('Invalid validator, %s must be an instance of Validator', Php::getType($this));
         }
 
         $this->validators[] = $validator;
@@ -437,7 +437,7 @@ abstract class Rax_Form_Type
 
         $customCssClasses = array();
 
-        if ($cssClassStr = ArrHelper::get($this->getAttributes(), 'class')) {
+        if ($cssClassStr = Arr::get($this->getAttributes(), 'class')) {
             $customCssClasses = explode(' ', $cssClassStr);
         }
 

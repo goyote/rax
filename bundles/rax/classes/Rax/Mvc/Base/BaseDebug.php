@@ -2,7 +2,7 @@
 
 namespace Rax\Mvc\Base;
 
-use Rax\Helper\ArrHelper;
+use Rax\Helper\Arr;
 use Rax\Mvc\Debug;
 use ReflectionFunction;
 use ReflectionMethod;
@@ -151,7 +151,7 @@ class BaseDebug
         $return = array();
 
         foreach ($stackTrace as $trace) {
-            $temp = ArrHelper::get($trace, array(
+            $temp = Arr::get($trace, array(
                 'class',
                 'type',
                 'function',
@@ -169,7 +169,7 @@ class BaseDebug
                 continue;
             }
 
-            $temp['source'] = Debug::highlightSourceCode($temp['file'], $temp['line'], ArrHelper::get($options, 'sourceCodePadding', 3));
+            $temp['source'] = Debug::highlightSourceCode($temp['file'], $temp['line'], Arr::get($options, 'sourceCodePadding', 3));
 
             if ($temp['class']) {
                 $temp['call'] = $temp['class'].$temp['type'].$temp['function'];

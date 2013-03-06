@@ -9,7 +9,7 @@ use Doctrine\Common\Persistence\Mapping\MappingException;
 class Rax_RaxFileLocator extends DefaultFileLocator
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getAllClassNames($globalBasename)
     {
@@ -19,7 +19,7 @@ class Rax_RaxFileLocator extends DefaultFileLocator
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function findMappingFile($className)
     {

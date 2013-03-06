@@ -5,7 +5,7 @@ namespace Rax\Data;
 use Rax\Data\Base\BaseMessage;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Message extends BaseMessage
 {

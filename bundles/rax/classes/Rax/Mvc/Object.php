@@ -5,7 +5,7 @@ namespace Rax\Mvc;
 use Rax\Mvc\Base\BaseObject;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Object extends BaseObject
 {

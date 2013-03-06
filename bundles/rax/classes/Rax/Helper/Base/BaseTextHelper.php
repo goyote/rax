@@ -2,7 +2,7 @@
 
 namespace Rax\Helper\Base;
 
-use Rax\Helper\ArrHelper;
+use Rax\Helper\Arr;
 
 /**
  * Helper functions for working with strings.
@@ -45,7 +45,7 @@ class BaseTextHelper
 
         $values = (array) $values;
 
-        if (ArrHelper::isAssociative($values)) {
+        if (Arr::isAssociative($values)) {
             $str = strtr($str, $values);
         } else {
             array_unshift($values, $str);

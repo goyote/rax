@@ -1,12 +1,12 @@
 <?php
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Filter_Trim extends Filter
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function filter($value)
     {

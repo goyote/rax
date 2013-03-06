@@ -1,6 +1,6 @@
 <?php
 
-use Rax\Mvc\Environment;
+use Rax\Mvc\ServerMode;
 
 /**
  *
@@ -9,17 +9,17 @@ return array(
     /**
      *
      */
-    'debug'               => Environment::isDev(),
+    'debug'               => true,
 
     /**
      *
      */
-    'auto_reload'         => Environment::isDev(),
+    'auto_reload'         => true,
 
     /**
      *
      */
-    'strict_variables'    => Environment::isDev(),
+    'strict_variables'    => true,
 
     /**
      *

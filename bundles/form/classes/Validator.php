@@ -1,7 +1,7 @@
 <?php
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 abstract class Validator extends Rax_Validator
 {

@@ -2,7 +2,7 @@
 
 namespace Rax\Mvc\Base;
 
-use Rax\Helper\InflectorHelper;
+use Rax\Helper\Inflector;
 
 /**
  * @author    Gregorio Ramirez <goyocode@gmail.com>
@@ -59,7 +59,7 @@ class BaseSymbol
      */
     public static function buildViewClassName($controller, $action)
     {
-        return 'View_'.static::buildClassName($controller).'_'.InflectorHelper::toCamelcase($action, true);
+        return 'View_'.static::buildClassName($controller).'_'.Inflector::toCamel($action, true);
     }
 
     /**
@@ -69,7 +69,7 @@ class BaseSymbol
      */
     public static function buildActionMethodName($action)
     {
-        return InflectorHelper::toCamelcase($action).'Action';
+        return Inflector::toCamel($action).'Action';
     }
 
     /**
@@ -80,7 +80,7 @@ class BaseSymbol
      */
     public static function buildTwigTemplateName($controller, $action)
     {
-        return InflectorHelper::to('/', strtolower($controller)).'/'.static::buildId($action).'.twig';
+        return Inflector::to('/', strtolower($controller)).'/'.static::buildId($action).'.twig';
     }
 
     /**
@@ -90,7 +90,7 @@ class BaseSymbol
      */
     public static function buildId($id)
     {
-        return InflectorHelper::toUnderscore(strtolower($id));
+        return Inflector::toUnderscore(strtolower($id));
     }
 
     /**
@@ -100,7 +100,7 @@ class BaseSymbol
      */
     public static function buildClassName($class)
     {
-        return InflectorHelper::ucWords(InflectorHelper::toUnderscore($class));
+        return Inflector::ucWords(Inflector::toUnderscore($class));
     }
 
     /**

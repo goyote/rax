@@ -5,7 +5,7 @@ namespace Rax\Twig;
 use Rax\Twig\Base\BaseView;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class View extends BaseView
 {

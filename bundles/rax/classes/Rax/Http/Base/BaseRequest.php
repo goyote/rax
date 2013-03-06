@@ -3,20 +3,18 @@
 namespace Rax\Http\Base;
 
 use Rax\Mvc\Object;
-use Rax\Helper\ArrHelper;
+use Rax\Helper\Arr;
 use Rax\Http\Request;
-use Rax\Mvc\ArrObj;
-use Rax\Mvc\MatchedRoute;
+use Rax\Data\ArrObj;
+use Rax\Mvc\RouteMatch;
 use RuntimeException;
 
 /**
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @copyright Copyright (c) 2012-2013 Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
- *
- * @method MatchedRoute getMatchedRoute()
  */
-class BaseRequest extends Object
+class BaseRequest
 {
     // HTTP Methods
     const GET     = 'GET';
@@ -78,9 +76,9 @@ class BaseRequest extends Object
     protected $uri;
 
     /**
-     * @var MatchedRoute
+     * @var RouteMatch
      */
-    protected $matchedRoute;
+    protected $routeMatch;
 
     /**
      * @var string
@@ -142,7 +140,7 @@ class BaseRequest extends Object
      */
     public function getQuery($key = null, $default = null, $delimiter = null)
     {
-        return ArrHelper::get($this->query, $key, $default, $delimiter);
+        return Arr::get($this->query, $key, $default, $delimiter);
     }
 
     /**
@@ -153,7 +151,7 @@ class BaseRequest extends Object
      */
     public function hasQuery($key, $delimiter = null)
     {
-        return ArrHelper::has($this->query, $key, $delimiter);
+        return Arr::has($this->query, $key, $delimiter);
     }
 
     /**
@@ -165,7 +163,7 @@ class BaseRequest extends Object
      */
     public function getPost($key = null, $default = null, $delimiter = null)
     {
-        return ArrHelper::get($this->post, $key, $default, $delimiter);
+        return Arr::get($this->post, $key, $default, $delimiter);
     }
 
     /**
@@ -176,7 +174,7 @@ class BaseRequest extends Object
      */
     public function hasPost($key, $delimiter = null)
     {
-        return ArrHelper::has($this->post, $key, $delimiter);
+        return Arr::has($this->post, $key, $delimiter);
     }
 
     /**
@@ -188,7 +186,7 @@ class BaseRequest extends Object
      */
     public function getServer($key = null, $default = null, $delimiter = null)
     {
-        return ArrHelper::get($this->server, $key, $default, $delimiter);
+        return Arr::get($this->server, $key, $default, $delimiter);
     }
 
     /**
@@ -199,7 +197,7 @@ class BaseRequest extends Object
      */
     public function hasServer($key, $delimiter = null)
     {
-        return ArrHelper::has($this->server, $key, $delimiter);
+        return Arr::has($this->server, $key, $delimiter);
     }
 
     /**
@@ -211,7 +209,7 @@ class BaseRequest extends Object
      */
     public function setAttribute($key, $value = null, $delimiter = null)
     {
-        ArrHelper::set($this->attributes, $key, $value, $delimiter);
+        Arr::set($this->attributes, $key, $value, $delimiter);
 
         return $this;
     }
@@ -225,7 +223,7 @@ class BaseRequest extends Object
      */
     public function getAttribute($key = null, $default = null, $delimiter = null)
     {
-        return ArrHelper::get($this->attributes, $key, $default, $delimiter);
+        return Arr::get($this->attributes, $key, $default, $delimiter);
     }
 
     /**
@@ -236,7 +234,7 @@ class BaseRequest extends Object
      */
     public function hasAttribute($key, $delimiter = null)
     {
-        return ArrHelper::has($this->attributes, $key, $delimiter);
+        return Arr::has($this->attributes, $key, $delimiter);
     }
 
     /**
@@ -268,7 +266,7 @@ class BaseRequest extends Object
             $key = $this->normalizeHeaderName($key);
         }
 
-        return ArrHelper::get($this->headers, $key, $default, $delimiter);
+        return Arr::get($this->headers, $key, $default, $delimiter);
     }
 
     /**
@@ -287,7 +285,7 @@ class BaseRequest extends Object
             $key = $this->normalizeHeaderName($key);
         }
 
-        return ArrHelper::has($this->headers, $key, $delimiter);
+        return Arr::has($this->headers, $key, $delimiter);
     }
 
     /**
@@ -340,13 +338,19 @@ class BaseRequest extends Object
     }
 
     /**
-     * @param string $method
+     * @param array|string $methods
      *
      * @return bool
      */
-    public function isMethod($method)
+    public function isMethod($methods)
     {
-        return (strtoupper($method) === $this->getMethod());
+        foreach ((array) $methods as $method) {
+            if (strtoupper($method) === $this->getMethod()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -504,11 +508,11 @@ class BaseRequest extends Object
     }
 
     /**
-     * @param MatchedRoute $matchedRoute
+     * @param RouteMatch $routeMatch
      */
-    public function setMatchedRoute(MatchedRoute $matchedRoute)
+    public function setRouteMatch(RouteMatch $routeMatch)
     {
-        $this->matchedRoute = $matchedRoute;
+        $this->routeMatch = $routeMatch;
     }
 
     /**
@@ -516,7 +520,7 @@ class BaseRequest extends Object
      */
     public function getController()
     {
-        return $this->matchedRoute->getController();
+        return $this->routeMatch->getController();
     }
 
     /**
@@ -524,6 +528,14 @@ class BaseRequest extends Object
      */
     public function getAction()
     {
-        return $this->matchedRoute->getAction();
+        return $this->routeMatch->getAction();
+    }
+
+    /**
+     * @return \Rax\Mvc\RouteMatch
+     */
+    public function getRouteMatch()
+    {
+        return $this->routeMatch;
     }
 }

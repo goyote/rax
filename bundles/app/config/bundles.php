@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+ * Your loaded bundles.
  */
 return array(
     'App'      => BUNDLES_DIR.'app',

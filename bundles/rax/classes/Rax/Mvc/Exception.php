@@ -5,7 +5,7 @@ namespace Rax\Mvc;
 use Rax\Mvc\Base\BaseException;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Exception extends BaseException
 {

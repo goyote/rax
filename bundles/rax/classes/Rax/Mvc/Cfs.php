@@ -5,7 +5,7 @@ namespace Rax\Mvc;
 use Rax\Mvc\Base\BaseCfs;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Cfs extends BaseCfs
 {

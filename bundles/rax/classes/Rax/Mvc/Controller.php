@@ -5,7 +5,7 @@ namespace Rax\Mvc;
 use Rax\Mvc\Base\BaseController;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Controller extends BaseController
 {

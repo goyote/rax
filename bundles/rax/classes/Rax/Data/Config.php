@@ -5,7 +5,7 @@ namespace Rax\Data;
 use Rax\Data\Base\BaseConfig;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Config extends BaseConfig
 {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class RaxEntityGenerator extends Rax_RaxEntityGenerator
 {

@@ -3,10 +3,12 @@
 namespace Rax\Mvc\Base;
 
 use Closure;
+use Exception;
 use RuntimeException;
 use Rax\Mvc\Cfs;
-use Rax\Mvc\Exception;
-use Rax\Helper\PhpHelper;
+use Rax\Helper\Php;
+use Symfony\Component\Finder\Finder;
+use Rax\Mvc\ServerMode;
 
 /**
  * The Cfs class maintains the list of loaded bundles.
@@ -26,130 +28,9 @@ class BaseCfs
     protected $bundles = array();
 
     /**
-     * @var array
+     * @var ServerMode
      */
-    protected $fileExtension = array('php');
-
-    /**
-     * @var Cfs
-     */
-    protected static $singleton;
-
-    /**
-     * Sets the Cfs singleton instance.
-     *
-     *     $cfs = Cfs::setSingleton(function() {
-     *         $cfs = new Cfs();
-     *         ...
-     *
-     *         return $cfs;
-     *     });
-     *
-     * @throws Exception
-     *
-     * @param Cfs|Closure $singleton
-     *
-     * @return Cfs
-     */
-    public static function setSingleton($singleton)
-    {
-        if ($singleton instanceof Closure) {
-            $singleton = $singleton();
-        }
-
-        if (!$singleton instanceof static) {
-            throw new Exception('Parameter $singleton must be an instanceof %s, %s given',  array(get_called_class(), PhpHelper::getType($singleton)));
-        }
-
-        return (static::$singleton = $singleton);
-    }
-
-    /**
-     * Returns the Cfs singleton instance.
-     *
-     *     $cfs = Cfs::getSingleton();
-     *     $cfs-> ...
-     *
-     * @return Cfs
-     */
-    public static function getSingleton()
-    {
-        return static::$singleton;
-    }
-
-    /**
-     * Returns a new Cfs instance, useful for chaining.
-     *
-     *     $cfs = Cfs::create()
-     *         -> ...
-     *     ;
-     *
-     * @return Cfs
-     */
-    public static function create()
-    {
-        return new static();
-    }
-
-    /**
-     * Loads the list of bundles found in the configuration.
-     *
-     *     Cfs::create()->loadBundles(APP_DIR.'config/bundles');
-     *
-     * @param string $path
-     *
-     * @return Cfs
-     */
-    public function loadBundles($path)
-    {
-        $bundles = array();
-        foreach ($this->fileExtension as $ext) {
-            if (is_file($file = $path.'.'.$ext)) {
-                /** @noinspection PhpIncludeInspection */
-                $bundles += require $file;
-            }
-        }
-
-        $this->setBundles($bundles);
-
-        return $this;
-    }
-
-    /**
-     * Sets the bundles.
-     *
-     *     Cfs::create()
-     *         ->setBundles(array(
-     *             'App' => BUNDLES_DIR.'app',
-     *             ...
-     *         ));
-     *
-     * @param array $dirs
-     *
-     * @return Cfs
-     */
-    public function setBundles(array $dirs)
-    {
-        foreach ($dirs as $name => $path) {
-            $dirs[$name] = static::normalizeDirPath($path);
-        }
-
-        $this->bundles = $dirs;
-
-        return $this;
-    }
-
-    /**
-     * Returns the loaded bundles.
-     *
-     *     $bundles = Cfs::getSingleton()->getBundles();
-     *
-     * @return array
-     */
-    public function getBundles()
-    {
-        return $this->bundles;
-    }
+    protected $serverMode;
 
     /**
      * Normalizes a directory path by appending a trailing slash.
@@ -172,37 +53,93 @@ class BaseCfs
     }
 
     /**
-     * Sets the file extensions.
+     * @param ServerMode $serverMode
+     */
+    public function __construct(ServerMode $serverMode)
+    {
+        $this->serverMode = $serverMode;
+    }
+
+    /**
+     * Sets the bundles.
      *
-     *     Cfs::create()
-     *         ->setFileExtension(array(
-     *             'generated.php',
-     *             Environment::getName().'.php',
-     *             Environment::getShortName().'.php',
-     *             'php',
-     *         ));
-     *
-     * @param array $fileExtension
+     * @param array $dirs
      *
      * @return Cfs
      */
-    public function setFileExtension($fileExtension)
+    public function setBundles(array $dirs)
     {
-        $this->fileExtension = (array) $fileExtension;
+        foreach ($dirs as $name => $path) {
+            $dirs[$name] = static::normalizeDirPath($path);
+        }
+
+        $this->bundles = $dirs;
 
         return $this;
     }
 
     /**
-     * Returns the file extensions.
-     *
-     *     Cfs::getSingleton()->getFileExtension();
+     * Returns the bundles.
      *
      * @return array
      */
-    public function getFileExtension()
+    public function getBundles()
     {
-        return $this->fileExtension;
+        return $this->bundles;
+    }
+
+    /**
+     * Returns the file extensions.
+     *
+     * @return array
+     */
+    public function getFileExtensions()
+    {
+        return array(
+            'generated.php',
+            $this->serverMode->getName().'.php',
+            $this->serverMode->getShortName().'.php',
+            'php',
+        );
+    }
+
+    /**
+     * Loads the list of bundles found in the configuration.
+     *
+     *     Cfs::create()->loadBundles(APP_DIR.'config/bundles');
+     *
+     * @param string $path
+     *
+     * @return Cfs
+     */
+    public function loadBundles($path)
+    {
+        $bundles = array();
+        foreach ($this->getFileExtensions() as $ext) {
+            if (is_file($file = $path.'.'.$ext)) {
+                $bundles += require $file;
+            }
+        }
+
+        $this->setBundles($bundles);
+
+        return $this;
+    }
+
+    /**
+     * Bootstrap each bundle.
+     *
+     * @return Cfs
+     */
+    public function bootstrap()
+    {
+        foreach (array_reverse($this->bundles) as $bundle) {
+            if (is_file($file = $bundle.'bootstrap.php')) {
+                require $file;
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -211,19 +148,19 @@ class BaseCfs
      *
      *     $path = Cfs::getSingleton()->findFile('classes', 'Rax\Mvc\BarClass');
      *
-     * @param string $baseDir
+     * @param string $scanDir
      * @param string $file
      * @param string $ext
      *
      * @return string|bool
      */
-    public function findFile($baseDir, $file, $ext = 'php')
+    public function findFile($scanDir, $file, $ext = 'php')
     {
-        $file = $baseDir.'/'.$file.'.'.$ext;
+        $file = $scanDir.'/'.$file.'.'.$ext;
 
-        foreach ($this->bundles as $dir) {
-            if (is_file($dir.$file)) {
-                return $dir.$file;
+        foreach ($this->bundles as $bundle) {
+            if (is_file($bundle.$file)) {
+                return $bundle.$file;
             }
         }
 
@@ -236,23 +173,26 @@ class BaseCfs
      *
      *     $files = Cfs::getSingleton()->findFiles('views', 'about/team', 'twig');
      *
-     * @param string       $baseDir
+     * @param string       $dir
      * @param string       $file
-     * @param array|string $exts
+     * @param string|array $exts
      *
      * @return array
      */
-    public function findFiles($baseDir, $file, $exts = null)
+    public function findFiles($dir, $file, $exts = null)
     {
+        $file = $dir.'/'.$file;
+
         if (null === $exts) {
-            $exts = $this->fileExtension;
+            $exts = $this->getFileExtensions();
         }
 
         $foundFiles = array();
         foreach ((array) $exts as $ext) {
-            /** @noinspection PhpAssignmentInConditionInspection */
-            if ($foundFile = $this->findFile($baseDir, $file, $ext)) {
-                $foundFiles[] = $foundFile;
+            foreach ($this->bundles as $bundle) {
+                if (is_file($bundle.$file.'.'.$ext)) {
+                    $foundFiles[] = $bundle.$file.'.'.$ext;
+                }
             }
         }
 
@@ -273,9 +213,9 @@ class BaseCfs
     {
         $foundDirs = array();
         foreach ((array) $dirs as $dir) {
-            foreach ($this->bundles as $baseDir) {
-                if (is_dir($baseDir.$dir)) {
-                    $foundDirs[] = $baseDir.$dir;
+            foreach ($this->bundles as $bundleDir) {
+                if (is_dir($bundleDir.$dir)) {
+                    $foundDirs[] = $bundleDir.$dir;
                 }
             }
         }

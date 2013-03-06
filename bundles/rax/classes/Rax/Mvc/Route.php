@@ -5,7 +5,7 @@ namespace Rax\Mvc;
 use Rax\Mvc\Base\BaseRoute;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Route extends BaseRoute
 {

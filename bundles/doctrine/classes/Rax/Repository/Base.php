@@ -3,7 +3,7 @@
 use Doctrine\ORM\EntityRepository;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class Rax_Repository_Base extends EntityRepository
 {

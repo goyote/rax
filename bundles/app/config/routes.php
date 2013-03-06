@@ -15,16 +15,15 @@
  *   expose through the pattern string to be altered dynamically: <controller>,
  *   <action>, <format>, <locale>
  * - "Special rules" are available to filter requests: ajax, secure, method,
- *   clientIp, serverIp, environment, auth, acl
+ *   clientIp, serverIp, environment, auth, acl, host
  *
  * @see todo
  */
 return array(
     'default' => array(
-        'pattern'  => '<controller>/<action>',
+        'path'  => '/',
         'defaults' => array(
-            'controller' => 'default',
-            'action'     => 'index',
+            'controller' => 'App\Controller\Welcome:index',
         ),
     ),
 );

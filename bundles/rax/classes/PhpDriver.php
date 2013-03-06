@@ -1,7 +1,7 @@
 <?php
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class PhpDriver extends Rax_PhpDriver
 {

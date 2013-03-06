@@ -19,7 +19,7 @@ class Rax_Validator_NotEmpty extends Validator
             $value = $value->getArrayCopy();
         }
 
-        if (empty($value) && '0' !== $value) {
+        if (empty($value) && ('0' !== $value)) {
             return false;
         }
 

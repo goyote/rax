@@ -5,7 +5,7 @@ namespace Rax\Helper;
 use Rax\Helper\Base\BaseTextHelper;
 
 /**
- * {@inheritDoc}
+ * {@inheritdoc}
  */
 class TextHelper extends BaseTextHelper
 {

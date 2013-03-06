@@ -166,7 +166,7 @@ public function __construct()
 ';
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function generate(array $metadatas, $outputDirectory)
     {
@@ -248,7 +248,7 @@ public function __construct()
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function generateEntityClass(ClassMetadataInfo $metadata)
     {

@@ -2,45 +2,97 @@
 
 namespace Rax\Mvc\Base;
 
-use Rax\Mvc\MatchedRoute;
-use Rax\Mvc\Object;
+use Rax\Mvc\RouteMatch;
 use Rax\Mvc\Route;
 use Rax\Mvc\Router;
 use Rax\Http\Request;
-use Rax\Mvc\Environment;
+use Rax\Mvc\Validator\RouteValidator;
 
 /**
  * @author    Gregorio Ramirez <goyocode@gmail.com>
- * @copyright Copyright (c) 2012-2013 Gregorio Ramirez <goyocode@gmail.com>
+ * @copyright Copyright (c) Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
- *
- * @method Router setRoutes(array $routes) Sets the routes.
- * @method array  getRoutes()              Returns the loaded routes.
  */
-class BaseRouter extends Object
+class BaseRouter
 {
     /**
-     * @var array
+     * @var Route[]
      */
     protected $routes;
 
     /**
-     * @param array $routes
+     * @var RouteValidator
      */
-    public function __construct(array $routes = array())
+    public $routeValidator;
+
+    /**
+     * @param Route[]        $routes
+     * @param RouteValidator $routeValidator
+     */
+    public function __construct(array $routes = array(), RouteValidator $routeValidator = null)
+    {
+        $this->routes         = $routes;
+        $this->routeValidator = $routeValidator;
+    }
+
+    /**
+     * Sets the routes.
+     *
+     * @param Route[] $routes
+     *
+     * @return Router
+     */
+    public function setRoutes(array $routes)
     {
         $this->routes = $routes;
+
+        return $this;
+    }
+
+    /**
+     * Returns the routes.
+     *
+     * @return Route[]
+     */
+    public function getRoutes()
+    {
+        return $this->routes;
+    }
+
+    /**
+     * Sets the route validator.
+     *
+     * @param RouteValidator $routeValidator
+     *
+     * @return Router
+     */
+    public function setRouteValidator(RouteValidator $routeValidator)
+    {
+        $this->routeValidator = $routeValidator;
+
+        return $this;
+    }
+
+    /**
+     * Returns the route validator.
+     *
+     * @return RouteValidator
+     */
+    public function getRouteValidator()
+    {
+        return $this->routeValidator;
     }
 
     /**
      * @param Request $request
      *
-     * @return MatchedRoute
+     * @return RouteMatch
      */
     public function match(Request $request)
     {
+        $this->routeValidator->setRequest($request);
+
         foreach ($this->routes as $route) {
-            /** @noinspection PhpAssignmentInConditionInspection */
             if ($match = $this->matchRoute($request, $route)) {
                 return $match;
             }
@@ -53,11 +105,11 @@ class BaseRouter extends Object
      * @param Request $request
      * @param Route   $route
      *
-     * @return MatchedRoute
+     * @return RouteMatch
      */
     public function matchRoute(Request $request, Route $route)
     {
-        if (!$this->isSpecialRulesValid($request, $route)) {
+        if (!$this->routeValidator->isValid($route)) {
             return false;
         }
 
@@ -74,45 +126,6 @@ class BaseRouter extends Object
             }
         }
 
-        return new MatchedRoute($route->getName(), $params);
-    }
-
-    /**
-     * @param Request $request
-     * @param Route   $route
-     *
-     * @return bool
-     */
-    public function isSpecialRulesValid(Request $request, Route $route)
-    {
-        if ($route->hasRule('ajax') && $route->getRule('ajax') !== $request->isAjax()) {
-            return false;
-        }
-
-        if ($route->hasRule('secure') && $route->getRule('secure') !== $request->isSecure()) {
-            return false;
-        }
-
-        if ($route->hasRule('method') && !preg_match('#^'.$route->getRule('method').'$#i', $request->getMethod())) {
-            return false;
-        }
-
-        if ($route->hasRule('clientIp') && !preg_match('#^'.$route->getRule('clientIp').'$#', $request->getClientIp())) {
-            return false;
-        }
-
-        if ($route->hasRule('serverIp') && !preg_match('#^'.$route->getRule('serverIp').'$#', $request->getServerIp())) {
-            return false;
-        }
-
-        if ($route->hasRule('environment') && !preg_match('#^'.$route->getRule('environment').'$#i', Environment::getName())) {
-            return false;
-        }
-
-        if ($route->hasRule('environment') && !preg_match('#^'.$route->getRule('environment').'$#i', Environment::getShortName())) {
-            return false;
-        }
-
-        return true;
+        return new RouteMatch($route, $params);
     }
 }
