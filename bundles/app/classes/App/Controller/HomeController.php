@@ -2,28 +2,28 @@
 
 namespace App\Controller;
 
-use Doctrine\ORM\EntityManager;
-use Rax\Http\Request;
-use Rax\Twig\LayoutController;
-use Rax\Data\Config;
+use Rax\Mvc\MatchedRoute;
+use Rax\Twig\TwigController;
 
 /**
  * {@inheritdoc}
  */
-class WelcomeController extends LayoutController
+class HomeController extends TwigController
 {
     /**
-     * @param EntityManager $em
+     * @param MatchedRoute $matchedRoute
      */
-    public function indexAction(EntityManager $em)
+    public function indexAction(MatchedRoute $matchedRoute)
     {
-//        foreach ($em->getConnection()->getSchemaManager()->listTables() as $table) {
-//            echo $table->getName();
-//        }
+//        \Rax\Mvc\Debug::dump($matchedRoute->getTemplateName());
+//        $view->form = $form;
+        //        foreach ($em->getConnection()->getSchemaManager()->listTables() as $table) {
+        //            echo $table->getName();
+        //        }
 
-//        foreach ($this->getEntityManager()->getConnection()->getSchemaManager()->listTables() as $table) {
-//            echo $table->getName()."\n";
-//        }
+        //        foreach ($this->getEntityManager()->getConnection()->getSchemaManager()->listTables() as $table) {
+        //            echo $table->getName()."\n";
+        //        }
 
         //        $entity = new Entity_Product();
         //        $form   = new Form_Test($entity);
@@ -37,8 +37,6 @@ class WelcomeController extends LayoutController
         //        }
         //        exit();
 
-
-
         //        echo '<pre>';
         //        print_r($this->request->getPost());
         //        echo '</pre>';
@@ -48,7 +46,6 @@ class WelcomeController extends LayoutController
         //        }
 
         //        $this->view->form = $form;
-
 
         //        $em = $this->getManager();
         //

@@ -7,6 +7,6 @@ use Rax\Twig\View;
 /**
  * {@inheritdoc}
  */
-class WelcomeView extends View
+class HomeView extends View
 {
 }

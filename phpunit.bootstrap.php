@@ -15,8 +15,8 @@ use Rax\Mvc\Cfs;
 use Rax\Mvc\ServerMode;
 use Rax\Data\Config;
 use Rax\Mvc\Kernel;
-use Rax\Mvc\Route;
-use Rax\Mvc\Router;
+use Rax\Routing\Route;
+use Rax\Routing\Router;
 
 // initial snapshot used for benchmarking
 define('RAX_START_TIME',   microtime(true));

@@ -1,29 +1,28 @@
 <?php
 
-namespace Rax\Mvc\Base;
-
-use Rax\Mvc\Exception;
-use Rax\Mvc\Object;
-use Rax\Mvc\Route;
-use ArrayAccess;
-use Rax\Helper\Arr;
+namespace Rax\Routing\Base;
 
 /**
  * @author    Gregorio Ramirez <goyocode@gmail.com>
  * @copyright Copyright (c) Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
-class BaseRoute extends Object
+class BaseRoute
 {
     /**
      * @var string
      */
-    protected $name;
+    protected $id;
 
     /**
      * @var string
      */
     protected $path;
+
+    /**
+     * @var string
+     */
+    protected $controller;
 
     /**
      * @var array
@@ -36,9 +35,14 @@ class BaseRoute extends Object
     protected $rules;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $regex;
+    protected $filters;
+
+    /**
+     * @var array
+     */
+    protected $segments = array();
 
     /**
      * @var bool
@@ -46,96 +50,41 @@ class BaseRoute extends Object
     protected $endsInSlash;
 
     /**
-     * @var array
+     * @var string
      */
-    protected $segments;
+    protected $regex;
 
     /**
-     * @var array
-     */
-    protected $specialRuleKeys = array(
-        'ajax',
-        'secure',
-        'method',
-        'clientIp',
-        'serverIp',
-        'environment',
-        'auth',
-        'acl',
-    );
-
-    /**
-     * @param array|ArrayAccess $config
-     *
-     * @return Route[]
-     */
-    public static function parse($config = array())
-    {
-        $routes = array();
-        foreach ($config as $name => $route) {
-            $routes[$name] = new static($name, $route['path'], $route['defaults'], Arr::get($route, 'rules', array()));
-        }
-
-        return $routes;
-    }
-
-    /**
-     * @throws Exception
-     *
-     * @param string $name
+     * @param string $id
      * @param string $path
+     * @param string $controller
      * @param array  $defaults
      * @param array  $rules
+     * @param array  $filters
      */
-    public function __construct($name, $path, array $defaults, array $rules = array())
+    public function __construct($id, $path, $controller, array $defaults = array(), array $rules = array(), array $filters = array())
     {
-        $this->name        = $name;
+        $this->id          = $id;
         $this->path        = $path;
+        $this->controller  = $controller;
         $this->defaults    = $defaults;
         $this->rules       = $rules;
+        $this->filters     = $filters;
         $this->endsInSlash = ('/' === substr($path, -1));
     }
 
     /**
-     * Sets the name.
-     *
-     * @param string $name
-     *
-     * @return Route
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Returns the name.
+     * Gets the id.
      *
      * @return string
      */
-    public function getName()
+    public function getId()
     {
-        return $this->name;
+        return $this->id;
     }
 
     /**
-     * Sets the path.
-     *
-     * @param string $path
-     *
-     * @return Route
-     */
-    public function setPath($path)
-    {
-        $this->path = $path;
-
-        return $this;
-    }
-
-    /**
-     * Returns the path.
+     * Gets the path.
      *
      * @return string
      */
@@ -145,17 +94,17 @@ class BaseRoute extends Object
     }
 
     /**
-     * Sets the defaults.
+     * Gets the controller.
      *
-     * @param array $defaults
+     * @return string
      */
-    public function setDefaults(array $defaults)
+    public function getController()
     {
-        $this->defaults = $defaults;
+        return $this->controller;
     }
 
     /**
-     * Returns the defaults.
+     * Gets the defaults.
      *
      * @return array
      */
@@ -165,7 +114,7 @@ class BaseRoute extends Object
     }
 
     /**
-     * Return a default value.
+     * Gets a default.
      *
      * @param string $key
      * @param mixed  $default
@@ -178,7 +127,7 @@ class BaseRoute extends Object
     }
 
     /**
-     * Checks if default value exists for the given key.
+     * Checks if a default exists.
      *
      * @param string $key
      *
@@ -190,21 +139,7 @@ class BaseRoute extends Object
     }
 
     /**
-     * Sets the rules.
-     *
-     * @param array $rules
-     *
-     * @return Route
-     */
-    public function setRules(array $rules)
-    {
-        $this->rules = $rules;
-
-        return $this;
-    }
-
-    /**
-     * Returns the rules.
+     * Gets the rules.
      *
      * @return array
      */
@@ -214,7 +149,7 @@ class BaseRoute extends Object
     }
 
     /**
-     * Returns a rule.
+     * Gets a rule.
      *
      * @param string $key
      * @param mixed  $default
@@ -239,55 +174,74 @@ class BaseRoute extends Object
     }
 
     /**
-     * Returns the special rules.
+     * Gets the filters.
      *
      * @return array
      */
-    public function getSpecialRules()
+    public function getFilters()
     {
-        return array_filter(Arr::get($this->rules, $this->specialRuleKeys));
+        return $this->filters;
     }
 
     /**
-     * Sets the special rule keys.
+     * Gets a filter.
      *
-     * @param array $specialRuleKeys
+     * @param string $key
+     * @param mixed  $default
      *
-     * @return Route
+     * @return mixed
      */
-    public function setSpecialRuleKeys($specialRuleKeys)
+    public function getFilter($key, $default = null)
     {
-        $this->specialRuleKeys = $specialRuleKeys;
-
-        return $this;
+        return isset($this->filters[$key]) ? $this->filters[$key] : $default;
     }
 
     /**
-     * Returns the special rule keys.
+     * Checks if filter exists.
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function hasFilter($key)
+    {
+        return isset($this->filters[$key]);
+    }
+
+    /**
+     * Gets the segments.
      *
      * @return array
      */
-    public function getSpecialRuleKeys()
+    public function getSegments()
     {
-        return $this->specialRuleKeys;
+        return $this->segments;
     }
 
     /**
-     * Sets the regex.
+     * Checks if the segment exists.
      *
-     * @param string $regex
+     * @param string $key
      *
-     * @return Route
+     * @return bool
      */
-    public function setRegex($regex)
+    public function hasSegment($key)
     {
-        $this->regex = $regex;
-
-        return $this;
+        return in_array($key, $this->segments);
     }
 
     /**
-     * Returns the compiled route regex.
+     * Checks if the path ends in slash.
+     *
+     * @return boolean
+     */
+    public function getEndsInSlash()
+    {
+        return $this->endsInSlash;
+    }
+
+    /**
+     * Gets the regex.
      *
      * @return string
      */
@@ -301,79 +255,18 @@ class BaseRoute extends Object
     }
 
     /**
-     * Sets whether the path ends slash.
-     *
-     * @param bool $endsInSlash
-     *
-     * @return Route
-     */
-    public function setEndsInSlash($endsInSlash)
-    {
-        $this->endsInSlash = (bool) $endsInSlash;
-
-        return $this;
-    }
-
-    /**
-     * Returns whether the path ends slash.
-     *
-     * @return boolean
-     */
-    public function getEndsInSlash()
-    {
-        return $this->endsInSlash;
-    }
-
-    /**
-     * Sets the segments.
-     *
-     * @param array $segments
-     *
-     * @return Route
-     */
-    public function setSegments($segments)
-    {
-        $this->segments = $segments;
-
-        return $this;
-    }
-
-    /**
-     * Returns the segments.
-     *
-     * @return array
-     */
-    public function getSegments()
-    {
-        return $this->segments;
-    }
-
-    /**
-     * Checks if the segment was defined in the path.
-     *
-     * @param string $key
-     *
-     * @return bool
-     */
-    public function hasSegment($key)
-    {
-        return in_array($key, $this->segments);
-    }
-
-    /**
      * Compiles the route.
      *
      * @return string
      */
     public function compile()
     {
-        $path = rtrim($this->getPath(), '/').'/';
+        $path = rtrim($this->path, '/').'/';
 
         preg_match_all('#\<(\w+)\>.?#', $path, $matches, PREG_SET_ORDER|PREG_OFFSET_CAPTURE);
 
         $lastPosition = 0;
         $segments     = array();
-        $segmentNames = array();
 
         foreach ($matches as $match) {
             $currPosition = $match[0][1] - 1;
@@ -388,7 +281,7 @@ class BaseRoute extends Object
             $name = $match[1][0];
             $rule = $this->getRule($name, '[^'.substr($match[0][0], -1).']+');
 
-            $segmentNames[] = $name;
+            $this->segments[] = $name;
             $segments[]     = array(
                 'type' => 'dynamic',
                 'name' => $name,
@@ -396,8 +289,6 @@ class BaseRoute extends Object
                 'text' => $path[$currPosition],
             );
         }
-
-        $this->segments = $segmentNames;
 
         $length = strlen($path) - 1;
         if ($length > $lastPosition) {

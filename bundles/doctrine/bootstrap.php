@@ -5,9 +5,9 @@ use Doctrine\ORM\Tools\Setup;
 use Rax\Data\Config;
 use Rax\Mvc\Cfs;
 use Rax\Mvc\ServerMode;
-use Rax\Mvc\ServiceContainer;
+use Rax\Mvc\Service;
 
-ServiceContainer::getShared()
+Service::getShared()
     ->set('em', function(ServerMode $serverMode, Cfs $cfs, Config $config) {
         $setup = Setup::createConfiguration($serverMode->isDev(), $config->get('doctrine.proxyDir'));
         $setup->setMetadataDriverImpl(new PhpDriver($cfs->findDirs('schema')));

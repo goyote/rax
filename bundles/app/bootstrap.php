@@ -1,7 +1,7 @@
 <?php
 
-use Rax\Mvc\ServiceContainer;
+use Rax\Mvc\Service;
 
-ServiceContainer::getShared()
-    // Set your services here
+Service::getShared()
+    // Define your services here
 ;

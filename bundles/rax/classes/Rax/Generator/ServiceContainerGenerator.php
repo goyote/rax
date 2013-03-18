@@ -5,7 +5,8 @@ namespace Rax\Generator;
 use Closure;
 use Exception;
 use Rax\Mvc\Cfs;
-use Rax\Mvc\ServiceContainer;
+use Rax\Mvc\Service;
+use ReflectionClass;
 
 class ServiceContainerGenerator
 {
@@ -20,15 +21,15 @@ class ServiceContainerGenerator
     protected $cfs;
 
     /**
-     * @var ServiceContainer
+     * @var Service
      */
     protected $service;
 
     /**
-     * @param Cfs     $cfs
-     * @param ServiceContainer $service
+     * @param Cfs              $cfs
+     * @param Service $service
      */
-    public function __construct(Cfs $cfs, ServiceContainer $service)
+    public function __construct(Cfs $cfs, Service $service)
     {
         $this->cfs     = $cfs;
         $this->service = $service;
@@ -67,9 +68,17 @@ class ServiceContainerGenerator
             mkdir(dirname($this->saveFile), 0777, true);
         }
 
-//        FileSystem::save();
-        // file_put_contents(FileSystem$this->saveFile, $this->getTemplate());
-        file_put_contents($this->saveFile, $this->getContent());
+        if (is_file($this->saveFile)) {
+            return;
+            $content  = file_get_contents($this->saveFile);
+            $reflect  = new ReflectionClass('Rax\Mvc\ServiceContainer');
+            $docblock = $reflect->getDocComment();
+            file_put_contents($this->saveFile, str_replace($docblock, $this->getClassDocblock($this->service->listClasses()), $content));
+        } else {
+            //        FileSystem::save();
+            // file_put_contents(FileSystem$this->saveFile, $this->getTemplate());
+            file_put_contents($this->saveFile, $this->getContent());
+        }
     }
 
     /**
@@ -102,7 +111,24 @@ class ServiceContainerGenerator
         $classes = $this->service->listClasses();
 
         return array(
-            '<useClasses>'   => $this->getClasses($classes),
+            '<useStatements>' => $this->getClasses($classes),
+            '<classDocblock>' => $this->getClassDocblock($classes),
+        );
+    }
+
+    public function getClassDocblock(array $classes)
+    {
+        return strtr(trim($this->getClassDocblockTemplate()), $this->getClassDocblockVars($classes));
+    }
+
+    public function getClassDocblockTemplate()
+    {
+        return file_get_contents($this->cfs->findFile('views', 'rax/generator/service-generator/class-docblock', 'tmpl'));
+    }
+
+    public function getClassDocblockVars(array $classes)
+    {
+        return array(
             '<propertyTags>' => $this->getProperties($classes),
             '<methodTags>'   => $this->getMethods($classes),
         );
@@ -115,6 +141,7 @@ class ServiceContainerGenerator
      */
     public function getClasses(array $classes)
     {
+        unset($classes[array_search('Rax\Mvc\ServiceContainer', $classes)]);
         $classes[] = 'Rax\Mvc\Base\BaseServiceContainer';
         asort($classes);
 
@@ -140,7 +167,7 @@ class ServiceContainerGenerator
         ksort($classes);
 
         $maxlen = 0;
-        $tmp = array();
+        $tmp    = array();
         foreach ($classes as $id => $class) {
             if (false !== strpos($class, '\\')) {
                 $class = substr($class, strrpos($class, '\\') + 1);
@@ -151,8 +178,8 @@ class ServiceContainerGenerator
             }
 
             $tmp[] = array(
-                '<class>'  => $class,
-                '<var>'    => $id,
+                '<class>' => $class,
+                '<var>'   => $id,
             );
         }
 
@@ -179,7 +206,7 @@ class ServiceContainerGenerator
         ksort($classes);
 
         $maxlen = 0;
-        $tmp = array();
+        $tmp    = array();
         foreach ($classes as $id => $class) {
             if (false !== strpos($class, '\\')) {
                 $class = substr($class, strrpos($class, '\\') + 1);

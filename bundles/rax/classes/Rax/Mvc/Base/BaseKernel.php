@@ -4,7 +4,7 @@ namespace Rax\Mvc\Base;
 
 use Rax\Mvc\Container;
 use Rax\Mvc\Exception;
-use Rax\Mvc\Router;
+use Rax\Routing\Router;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 use Rax\Mvc\Kernel;
@@ -14,7 +14,7 @@ use Rax\Http\Request;
 use Rax\Http\Response;
 use Rax\Mvc\Cfs;
 use Rax\Mvc\ServerMode;
-use Rax\Mvc\ServiceContainer;
+use Rax\Mvc\Service;
 use ReflectionClass;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
@@ -34,7 +34,7 @@ class BaseKernel
     const VERSION = '0.1.0';
 
     /**
-     * @var ServiceContainer
+     * @var Service
      */
     public $service;
 
@@ -167,7 +167,7 @@ class BaseKernel
         return $this->router;
     }
 
-    public function setService(ServiceContainer $service)
+    public function setService(Service $service)
     {
         $this->service = $service;
 
@@ -210,30 +210,38 @@ class BaseKernel
      */
     public function process()
     {
-        if (!$routeMatch = $this->router->match($this->request)) {
+        if (!$match = $this->router->match($this->request)) {
             // throw 404
             throw new Exception('todo throw 404');
         }
-        $this->request->setRouteMatch($routeMatch);
+        $this->request->setRouteMatch($match);
 
         $response = new Response();
 
-        $this->service->routeMatch = $routeMatch;
+        $this->service->routeMatch = $match;
         $this->service->response = $response;
 
-        $controller = $this->service->build($routeMatch->getControllerClassName());
+        $controller = $this->service->build($match->getControllerClassName());
+
+        $service = $this->service;
+
+        if (method_exists($controller, '__before')) {
+            $service->call($controller, '__before');
+        }
 
         if (method_exists($controller, 'before')) {
-            $this->service->callMethod($controller, 'before');
+            $service->call($controller, 'before');
         }
 
-        $this->service->callMethod($controller, $routeMatch->getActionMethodName(), $routeMatch->getParams());
+        $service->call($controller, $match->getActionMethodName(), $match->getParams());
 
         if (method_exists($controller, 'after')) {
-            $this->service->callMethod($controller, 'after');
+            $service->call($controller, 'after');
         }
 
-        $response->setContent($this->service->view->render());
+        if (method_exists($controller, '__after')) {
+            $service->call($controller, '__after');
+        }
 
         return $response;
     }

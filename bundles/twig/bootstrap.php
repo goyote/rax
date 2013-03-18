@@ -3,18 +3,18 @@
 use Rax\Data\Config;
 use Rax\Http\Request;
 use Rax\Mvc\Cfs;
-use Rax\Mvc\RouteMatch;
-use Rax\Mvc\ServiceContainer;
+use Rax\Mvc\MatchedRoute;
+use Rax\Mvc\Service;
 
-ServiceContainer::getShared()
-    ->set('twig', function(Cfs $cfs, Config $config, Request $request) {
-        $twigLoader      = new Twig_Loader_Filesystem($cfs->findDirs('views'));
-        $twigEnvironment = new Twig_Environment($twigLoader, $config->get('twig')->asArray());
-        $twigEnvironment->addGlobal('request', $request);
+Service::getShared()
+    ->set('twig', function (Cfs $cfs, Config $config, Request $request){
+        $loader = new Twig_Loader_Filesystem($cfs->findDirs('views'));
+        $env    = new Twig_Environment($loader, $config->get('twig')->asArray());
+        $env->addGlobal('request', $request);
 
-        return $twigEnvironment;
+        return $env;
     })
-    ->set('view', function(ServiceContainer $service, RouteMatch $routeMatch) {
-        return $service->build($routeMatch->getViewClassName());
+    ->set('view', function(Service $service, MatchedRoute $matchedRoute) {
+        return $service->build($matchedRoute->getViewClassName());
     })
 ;

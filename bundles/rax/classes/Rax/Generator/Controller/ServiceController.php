@@ -5,6 +5,9 @@ namespace Rax\Generator\Controller;
 use Rax\Generator\ServiceContainerGenerator;
 use Rax\Mvc\Controller;
 
+/**
+ * {@inheritDoc}
+ */
 class ServiceController extends Controller
 {
     /**
@@ -16,7 +19,5 @@ class ServiceController extends Controller
             ->setSaveFile(APP_DIR.'classes/Rax/Mvc/ServiceContainer.php')
             ->generate()
         ;
-
-        exit();
     }
 }

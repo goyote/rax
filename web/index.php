@@ -14,7 +14,7 @@ use Rax\Mvc\Autoload;
 use Rax\Mvc\Cfs;
 use Rax\Mvc\Debugger;
 use Rax\Mvc\ServerMode;
-use Rax\Mvc\ServiceContainer;
+use Rax\Mvc\Service;
 
 /**
  * "Popular" constants.
@@ -96,7 +96,7 @@ $autoload->register();
  *
  * @link todo
  */
-$service = ServiceContainer::getShared();
+$service = Service::getShared();
 $service->debugger = new Debugger($cfs);
 $service->set(compact('serverMode', 'cfs', 'autoload', 'service'));
 

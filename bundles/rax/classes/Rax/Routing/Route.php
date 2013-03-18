@@ -1,8 +1,8 @@
 <?php
 
-namespace Rax\Mvc;
+namespace Rax\Routing;
 
-use Rax\Mvc\Base\BaseRoute;
+use Rax\Routing\Base\BaseRoute;
 
 /**
  * {@inheritdoc}

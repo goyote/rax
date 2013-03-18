@@ -6,7 +6,7 @@ use Closure;
 use Rax\Helper\Arr;
 use Rax\Mvc\Exception;
 use Rax\Mvc\Kernel;
-use Rax\Mvc\ServiceContainer;
+use Rax\Mvc\Service;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
@@ -18,7 +18,7 @@ use ReflectionFunctionAbstract;
  * @copyright Copyright (c) Gregorio Ramirez <goyocode@gmail.com>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD
  */
-class BaseServiceContainer
+class BaseService
 {
     /**
      * @var string[]
@@ -36,18 +36,18 @@ class BaseServiceContainer
     protected $closures = array();
 
     /**
-     * @var ServiceContainer
+     * @var Service
      */
     protected static $shared;
 
     /**
      * Returns a shared instance.
      *
-     * @return ServiceContainer
+     * @return Service
      */
     public static function getShared()
     {
-        return static::$shared ?: static::$shared = new static();
+        return static::$shared ? : static::$shared = new static();
     }
 
     /**
@@ -58,7 +58,7 @@ class BaseServiceContainer
      * @param string|array   $id
      * @param object|Closure $service
      *
-     * @return ServiceContainer
+     * @return Service
      */
     public function set($id, $service = null)
     {
@@ -167,99 +167,86 @@ class BaseServiceContainer
     /**
      * Calls a function or method.
      *
-     * @throws Exception
-     *
-     * @param string|Closure|object $object
-     * @param string                $functionName
-     * @param array                 $defaults
+     * @param object|Closure $object
+     * @param string|array   $name
+     * @param array          $values
      *
      * @return mixed
      */
-    public function call($object, $functionName = null, array $defaults = array())
+    public function call($object, $name = null, $values = null)
     {
-        if ($object instanceof Closure || is_string($object)) {
-            return $this->callFunction($object, $defaults);
-        } elseif (is_object($object) && strlen($functionName)) {
-            return $this->callMethod($object, $functionName, $defaults);
+        if ($object instanceof Closure) {
+            return $this->callFunction($object, (array) $name);
         } else {
-            throw new Exception('Objec');
+            return $this->callMethod($object, $name, (array) $values);
         }
     }
 
     /**
      * Calls a method.
      *
-     * @param string|object $object
-     * @param string        $methodName
-     * @param array         $defaults
+     * @param object $object
+     * @param string $methodName
+     * @param array  $values
      *
      * @return mixed
      */
-    public function callMethod($object, $methodName, array $defaults = array())
+    public function callMethod($object, $methodName, array $values = array())
     {
-        $method       = new ReflectionMethod($object, $methodName);
-        $dependencies = $this->resolveDependencies($method, $defaults);
+        $reflect      = new ReflectionMethod($object, $methodName);
+        $dependencies = $this->resolveDependencies($reflect, $values);
 
         return call_user_func_array(array($object, $methodName), $dependencies);
     }
 
     /**
-     * @param string|Closure $function
-     * @param array          $defaults
+     * Calls a function.
+     *
+     * @param Closure $function
+     * @param array   $values
      *
      * @return mixed
      */
-    public function callFunction($function, array $defaults = array())
+    public function callFunction($function, array $values = array())
     {
-        $reflection   = new ReflectionFunction($function);
-        $dependencies = $this->resolveDependencies($reflection, $defaults);
+        $reflect      = new ReflectionFunction($function);
+        $dependencies = $this->resolveDependencies($reflect, $values);
 
         return call_user_func_array($function, $dependencies);
     }
 
     /**
-     * Resolves the dependencies.
+     * Resolves the function's dependencies.
      *
-     * @param ReflectionFunctionAbstract $method
-     * @param array                      $defaults
+     * @param ReflectionFunctionAbstract $function
+     * @param array                      $values
      *
      * @return array
      */
-    public function resolveDependencies($method, array $defaults = array())
+    public function resolveDependencies($function, array $values = array())
     {
-        $dependencies = array();
-        foreach ($method->getParameters() as $parameter) {
-            $dependency = $parameter->getClass();
+        $tmp = array();
 
-            if (is_null($dependency)) {
-                $dependencies[] = Arr::get($defaults, $parameter->getName()) ? : $this->resolveNonClass($parameter);
+        foreach ($function->getParameters() as $parameter) {
+            if ($parameter->getClass()) {
+                $tmp[] = $this->get($parameter->getName(), $parameter->getClass()->getName());
             } else {
-                $dependencies[] = $this->get($parameter->getName(), $dependency->getName());
+                $tmp[] = Arr::get($values, $parameter->getName(), $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null);
             }
         }
 
-        return $dependencies;
-    }
-
-    /**
-     * Resolve a non-class hinted dependency.
-     *
-     * @param ReflectionParameter $parameter
-     *
-     * @return mixed
-     */
-    protected function resolveNonClass(ReflectionParameter $parameter)
-    {
-        return $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
+        return $tmp;
     }
 
     /**
      * Sets a service through __call().
      *
+     * @throws Exception
+     *
      * @param string $method
      * @param mixed  $service
      *
-     * @return object|ServiceContainer
+     * @return object|Service
      */
     public function __call($method, $service)
     {
@@ -273,6 +260,8 @@ class BaseServiceContainer
                 return $this->get($id);
                 break;
         }
+
+        throw new Exception('Call to undefined method %s::%s()', array(get_class($this), $method));
     }
 
     /**

@@ -55,14 +55,6 @@ class BaseView
     }
 
     /**
-     * @return string
-     */
-    public function render()
-    {
-        return $this->twig->render($this->request->getRouteMatch()->getTwigTemplateName(), array('view' => $this));
-    }
-
-    /**
      * Returns a string of css classes for the body element.
      *
      * @param array|string $append
@@ -72,8 +64,8 @@ class BaseView
     public function getBodyCssClasses($append = array())
     {
         $classes   = array();
-        $classes[] = $this->request->getController();
-        $classes[] = $this->request->getAction();
+//        $classes[] = $this->request->getController();
+//        $classes[] = $this->request->getAction();
 
         return implode(' ', array_merge((array) $append, $classes));
     }

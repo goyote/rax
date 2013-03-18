@@ -6,7 +6,7 @@ use Rax\Mvc\Object;
 use Rax\Helper\Arr;
 use Rax\Http\Request;
 use Rax\Data\ArrObj;
-use Rax\Mvc\RouteMatch;
+use Rax\Mvc\MatchedRoute;
 use RuntimeException;
 
 /**
@@ -76,7 +76,7 @@ class BaseRequest
     protected $uri;
 
     /**
-     * @var RouteMatch
+     * @var MatchedRoute
      */
     protected $routeMatch;
 
@@ -508,9 +508,9 @@ class BaseRequest
     }
 
     /**
-     * @param RouteMatch $routeMatch
+     * @param MatchedRoute $routeMatch
      */
-    public function setRouteMatch(RouteMatch $routeMatch)
+    public function setRouteMatch(MatchedRoute $routeMatch)
     {
         $this->routeMatch = $routeMatch;
     }
@@ -520,7 +520,7 @@ class BaseRequest
      */
     public function getController()
     {
-        return $this->routeMatch->getController();
+        return $this->routeMatch->getControllerId();
     }
 
     /**
@@ -528,11 +528,11 @@ class BaseRequest
      */
     public function getAction()
     {
-        return $this->routeMatch->getAction();
+        return $this->routeMatch->getActionId();
     }
 
     /**
-     * @return \Rax\Mvc\RouteMatch
+     * @return \Rax\Mvc\MatchedRoute
      */
     public function getRouteMatch()
     {

@@ -113,7 +113,7 @@ class BaseServerMode
      */
     public function is($modes)
     {
-        foreach ($modes as $mode) {
+        foreach ((array) $modes as $mode) {
             if ($mode === $this->get()) {
                 return true;
             } elseif (is_string($mode)) {
