@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Rax\Http\ClientSniffer;
 use Rax\Mvc\MatchedRoute;
 use Rax\Twig\TwigController;
 
@@ -11,10 +12,14 @@ use Rax\Twig\TwigController;
 class HomeController extends TwigController
 {
     /**
-     * @param MatchedRoute $matchedRoute
+     * @param MatchedRoute  $matchedRoute
+     * @param ClientSniffer $sniffer
      */
     public function indexAction(MatchedRoute $matchedRoute)
     {
+//        throw new \Exception('lol'.(2));
+//        \Rax\Mvc\Debug::dump($sniffer->getDevicelol());
+
 //        \Rax\Mvc\Debug::dump($matchedRoute->getTemplateName());
 //        $view->form = $form;
         //        foreach ($em->getConnection()->getSchemaManager()->listTables() as $table) {

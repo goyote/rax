@@ -176,9 +176,9 @@ class BaseService
     public function call($object, $name = null, $values = null)
     {
         if ($object instanceof Closure) {
-            return $this->callFunction($object, (array) $name);
+            return $this->callFunction($object, $name);
         } else {
-            return $this->callMethod($object, $name, (array) $values);
+            return $this->callMethod($object, $name, $values);
         }
     }
 
@@ -186,17 +186,17 @@ class BaseService
      * Calls a method.
      *
      * @param object $object
-     * @param string $methodName
+     * @param string $name
      * @param array  $values
      *
      * @return mixed
      */
-    public function callMethod($object, $methodName, array $values = array())
+    public function callMethod($object, $name, array $values = array())
     {
-        $reflect      = new ReflectionMethod($object, $methodName);
+        $reflect      = new ReflectionMethod($object, $name);
         $dependencies = $this->resolveDependencies($reflect, $values);
 
-        return call_user_func_array(array($object, $methodName), $dependencies);
+        return call_user_func_array(array($object, $name), $dependencies);
     }
 
     /**

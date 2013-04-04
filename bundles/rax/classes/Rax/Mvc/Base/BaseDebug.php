@@ -18,15 +18,15 @@ class BaseDebug
      * @var array
      */
     protected static $topLevelDirs = array(
-        'ROOT_DIR',
-        'BUNDLES_DIR',
         'APP_DIR',
         'RAX_DIR',
-        'VENDOR_DIR',
-        'WEB_DIR',
-        'STORAGE_DIR',
+        'BUNDLES_DIR',
         'CACHE_DIR',
         'LOG_DIR',
+        'STORAGE_DIR',
+        'WEB_DIR',
+        'VENDOR_DIR',
+        'ROOT_DIR',
     );
 
     /**
@@ -78,11 +78,13 @@ class BaseDebug
      *
      * @return string
      */
-    public static function highlightSourceCode($file, $line, $padding = 5)
+    public static function highlightSourceCode($file, $line, $padding = 7)
     {
         if (!is_readable($file)) {
             return false;
         }
+
+        return htmlspecialchars(file_get_contents($file), ENT_NOQUOTES, 'UTF-8');
 
         $currentLine = 1;
         $startLine   = ($line > $padding) ? $line - $padding : 1;
@@ -91,11 +93,13 @@ class BaseDebug
         $resource = fopen($file, 'r');
 
         $sourceCode = '';
+        $code = array();
         while (false !== ($row = fgets($resource))) {
             if ($currentLine === $startLine && trim($row) === '') {
                 $sourceCode .= "&nbsp;\n";
             } elseif ($currentLine >= $startLine) {
                 $sourceCode .= htmlspecialchars($row, ENT_NOQUOTES, 'UTF-8');
+                $code[] = rtrim(htmlspecialchars($row, ENT_NOQUOTES, 'UTF-8'));
             }
 
             if ($currentLine++ >= $endLine) {
@@ -105,12 +109,16 @@ class BaseDebug
 
         fclose($resource);
 
+
+
+//        $code = array_pad($code, $padding * 2 + 1, "&nbsp;");
+
         return sprintf(
             '<pre class="brush: %s; first-line: %s; highlight: [%s];">%s</pre>',
             pathinfo($file, PATHINFO_EXTENSION),
             $startLine,
             $line,
-            $sourceCode
+            implode("\n", $code)
         );
     }
 
@@ -123,7 +131,9 @@ class BaseDebug
     public static function filePath($file, $callback = null)
     {
         foreach (static::$topLevelDirs as $dir) {
-            $absoluteDir = constant($dir);
+            /// todo change back
+
+            $absoluteDir = str_replace('/', DS, constant($dir));
 
             if (0 === strpos($file, $absoluteDir)) {
                 $file = DIRECTORY_SEPARATOR.substr($file, strlen($absoluteDir));
@@ -169,10 +179,13 @@ class BaseDebug
                 continue;
             }
 
-            $temp['source'] = Debug::highlightSourceCode($temp['file'], $temp['line'], Arr::get($options, 'sourceCodePadding', 3));
+            $temp['source'] = Debug::highlightSourceCode($temp['file'], $temp['line'], Arr::get($options, 'sourceCodePadding', 8));
+
 
             if ($temp['class']) {
-                $temp['call'] = $temp['class'].$temp['type'].$temp['function'];
+                $temp['call'] = '<span class="class">'.$temp['class'].'</span><span class="type">'.$temp['type'].'</span><span class="function">'.$temp['function'].'</span>';
+            } else {
+                $temp['call'] = '<span class="function">'.$temp['function'].'</span>';
             }
 
             if (static::isLanguageConstruct($temp['function'])) {
@@ -226,6 +239,98 @@ class BaseDebug
         return in_array($function, static::$languageConstructs);
     }
 
+//    public static function varName($var) {
+//        \Rax\Mvc\Debug::dump(get_defined_vars());
+//        $found = false;
+//        foreach($GLOBALS as $name => $value) {
+//            if ($value === $var) {
+//                $found = $name;
+//            }
+//        }
+//
+//        return $found;
+//    }
+
+    /**
+     * @param $var
+     */
+    public static function dumpMethodArgs(array $var = null)
+    {
+        echo '<table class="code-dump ace-monokai">';
+        foreach ($var as $name => $value) {
+            echo '<tr class="depth-1">';
+            echo '<td class="arg">$'.$name.'</td>';
+            echo '<td>';
+            static::__dump($value);
+            echo '</td>';
+            echo '</tr>';
+        }
+        echo '</table>';
+    }
+
+    /**
+     * @param $var
+     */
+    public static function __dump($var)
+    {
+        if (null === $var) {
+            echo '<span class="ace_constant ace_language">null</span>';
+        } elseif (true === $var) {
+            echo '<span class="ace_constant ace_language">true</span>';
+        } elseif (false === $var) {
+            echo '<span class="ace_constant ace_language">false</span>';
+        } elseif (is_string($var)) {
+            echo '<span class="ace_string">"'.$var.'"</span>';
+        } elseif (is_int($var) || is_float($var)) {
+            echo '<span class="ace_constant ace_numeric">'.$var.'</span>';
+        } elseif (is_array($var)) {
+            if (empty($var)) {
+                echo '<span class="ace_constant ace_keyword">array()</span>';
+            } else {
+                echo '<table class="code-dump ace-monokai">';
+                foreach ($var as $name => $value) {
+                    echo '<tr>';
+                    if (is_string($name)) {
+                        echo '<td>'.$name.'</td>';
+                    } else {
+                        echo '<td><span class="ace_constant ace_numeric">'.$name.'</span></td>';
+                    }
+                    echo '<td>';
+                    static::__dump($value);
+                    echo '</td>';
+                    echo '</tr>';
+                }
+                echo '</table>';
+            }
+        } elseif (is_object($var)) {
+            $class = get_class($var);
+            $var = (array) $var;
+            if (empty($var)) {
+                echo $class;
+            } else {
+                echo '<div class="header">';
+                echo $class;
+                echo '</div>';
+                echo '<table class="code-dump ace-monokai">';
+                foreach ($var as $name => $value) {
+                    echo '<tr>';
+                    if ($name[0] === "\x00") {
+                        $name = '<i class="icon-lock"></i> '.substr($name, strrpos($name, "\x00") + 1);
+                    } else {
+                        $name = '<i class="icon-unlock"></i> '.$name;
+                    }
+
+                    echo '<td class="field">'.$name.'</td>';
+                    echo '<td>';
+                    static::__dump($value);
+                    echo '</td>';
+                    echo '</tr>';
+                }
+                echo '</table>';
+            }
+        }
+    }
+
     /**
      * @param mixed    $rawValue
      * @param callable $callback
@@ -244,19 +349,19 @@ class BaseDebug
         } elseif (is_string($rawValue)) {
             $value = htmlspecialchars($rawValue, ENT_NOQUOTES, 'UTF-8');
 
-            if ($length > -1 && strlen($value) > $length) {
-                $value = substr($value, 0, $length).'<span class="hellip">&hellip;</span>';
-            };
+//            if ($length > -1 && strlen($value) > $length) {
+//                $value = substr($value, 0, $length).'<span class="hellip">&hellip;</span>';
+//            };
 
-            if (false !== strpos($rawValue, '\'')) {
-                if (false !== strpos($rawValue, '"')) {
-                    $value = '\''.str_replace('\'', '\'', $value).'\'';
-                } else {
-                    $value = '"'.$value.'"';
-                }
-            } else {
-                $value = '\''.$value.'\'';
-            }
+//            if (false !== strpos($rawValue, '\'')) {
+//                if (false !== strpos($rawValue, '"')) {
+//                    $value = '\''.str_replace('\'', '\'', $value).'\'';
+//                } else {
+//                    $value = '"'.$value.'"';
+//                }
+//            } else {
+//            }
+            $value = '"'.$value.'"';
 
             $type = 'string';
         } elseif (is_int($rawValue)) {

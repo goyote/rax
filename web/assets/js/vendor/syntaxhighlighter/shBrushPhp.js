@@ -1,23 +1,7 @@
-/**
- * SyntaxHighlighter
- * http://alexgorbatchev.com/SyntaxHighlighter
- *
- * SyntaxHighlighter is donationware. If you are using it, please donate.
- * http://alexgorbatchev.com/SyntaxHighlighter/donate.html
- *
- * @version
- * 3.0.83 (July 02 2010)
- *
- * @copyright
- * Copyright (C) 2004-2010 Alex Gorbatchev.
- *
- * @license
- * Dual licensed under the MIT and GPL licenses.
- */
 ;(function()
 {
 	// CommonJS
-	typeof(require) != 'undefined' ? SyntaxHighlighter = require('shCore').SyntaxHighlighter : null;
+	SyntaxHighlighter = SyntaxHighlighter || (typeof require !== 'undefined'? require('shCore').SyntaxHighlighter : null);
 
 	function Brush()
 	{
@@ -49,21 +33,19 @@
 						'is_executable is_file is_finite is_float is_infinite is_int is_integer is_link is_long '+
 						'is_nan is_null is_numeric is_object is_readable is_real is_resource is_scalar is_soap_fault '+
 						'is_string is_subclass_of is_uploaded_file is_writable is_writeable mkdir mktime nl2br '+
-						'parse_ini_file parse_str parse_url passthru pathinfo print sprintf readlink realpath rewind rewinddir rmdir '+
+						'parse_ini_file parse_str parse_url passthru pathinfo print readlink realpath rewind rewinddir rmdir '+
 						'round str_ireplace str_pad str_repeat str_replace str_rot13 str_shuffle str_split '+
 						'str_word_count strcasecmp strchr strcmp strcoll strcspn strftime strip_tags stripcslashes '+
 						'stripos stripslashes stristr strlen strnatcasecmp strnatcmp strncasecmp strncmp strpbrk '+
 						'strpos strptime strrchr strrev strripos strrpos strspn strstr strtok strtolower strtotime '+
-						'strtoupper strtr strval substr substr_compare ';
-
-        funcs += 'http_get_request_headers mb_internal_encoding ';
+						'strtoupper strtr strval substr substr_compare';
 
 		var keywords =	'abstract and array as break case catch cfunction class clone const continue declare default die do ' +
 						'else elseif enddeclare endfor endforeach endif endswitch endwhile extends final for foreach ' +
-						'function include include_once global goto if implements interface instanceof namespace new ' +
+						'function global goto if implements include include_once interface instanceof insteadof namespace new ' +
 						'old_function or private protected public return require require_once static switch ' +
-						'throw try use var while xor ';
-
+						'trait throw try use var while xor ';
+		
 		var constants	= '__FILE__ __LINE__ __METHOD__ __FUNCTION__ __CLASS__';
 
 		this.regexList = [

@@ -56,13 +56,19 @@ use Rax\Mvc\Debug;
         </style>
     </head>
     <body>
+
+    <header>
+        <h1>Rax <span>Full Stack PHP Framework</span></h1>
+    </header>
+
+
     <div class="container">
         <div class="header" id="header-top">
             <div class="introduction" style="float: left;">
                 <?php
                 $a = array();
                 if ($e instanceof ErrorException) {
-                    echo '<span class="highlight">'.Rax\Mvc\Exception\Debugger::$levels[$code].'</span> Uh-oh an error occurred:';
+                    echo '<span class="highlight">'.Rax\Mvc\Debugger::$levels[$code].'</span> Uh-oh an error occurred:';
                 } else {
                     echo '<span class="highlight">'.$reflection.'</span> Uh-oh an exception was thrown:';
                 }
@@ -153,8 +159,9 @@ if (Debug::isLanguageConstruct($step['function'])) {
     </div>
 
         <script src="/assets/js/vendor/jquery-1.8.0.js"></script>
-        <script src="/assets/js/vendor/syntaxhighlighter/shCore.js"></script>
-        <script src="/assets/js/vendor/syntaxhighlighter/shBrushPhp.js"></script>
+    <script src="/assets/js/vendor/syntaxhighlighter/XRegExp.js"></script>
+    <script src="/assets/js/vendor/syntaxhighlighter/shCore.js"></script>
+    <script src="/assets/js/vendor/syntaxhighlighter/shBrushPhp.js"></script>
         <script src="/assets/js/vendor/bootstrap/js/bootstrap.min.js"></script>
         <script>
             $(function() {

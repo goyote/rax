@@ -78,7 +78,7 @@ class BaseDebugger
     public function handleShutdown()
     {
         if ($error = error_get_last()) {
-            ob_get_level() and ob_end_clean();
+            ob_get_level() && ob_end_clean();
 
             $this->handleException(new ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line']));
         }
@@ -93,19 +93,32 @@ class BaseDebugger
      */
     public function handleException(Exception $e)
     {
+//        $test = 'lol';
+//        \Rax\Mvc\Debug::dump(Debug::varName($test));
         $class   = get_class($e);
         $code    = $e->getCode();
         $message = $e->getMessage();
         $file    = $e->getFile();
         $line    = $e->getLine();
-        $trace   = Debug::trace($e->getTrace());
+        $trace = Debug::trace($e->getTrace());
+
+//        \Rax\Mvc\Debug::dump($e->getTraceAsString());
+
+        array_unshift($trace, array(
+            'class' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'message' => $e->getMessage(),
+            'source' => Debug::highlightSourceCode($file, $line, 8),
+            'call' => (($e instanceof ErrorException) ? static::$levels[$code] : $class).'<i class="icon-bolt"></i>',
+        ));
+
+//        \Rax\Mvc\Debug::dump($trace);
 
         // todo change to to include into a variable?
         ob_start();
-        /** @noinspection PhpIncludeInspection */
         include $this->cfs->findFile('views', 'core/error2');
         echo ob_get_clean();
-
         exit(1);
     }
 }

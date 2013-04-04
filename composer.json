@@ -12,7 +12,8 @@
         "php":            ">=5.3.3",
         "twig/twig":      "*",
         "doctrine/orm":   "*",
-        "symfony/finder": "*@dev"
+        "symfony/finder": "*@dev",
+        "mobiledetect/mobiledetectlib": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "*"
