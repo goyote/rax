@@ -1,0 +1,17 @@
+*         text=auto
+
+*.php     text diff=php
+*.css     text
+*.js      text
+*.json    text
+*.xml     text diff=html
+*.twig    text diff=html
+.htaccess text
+
+*.jpg     binary
+*.png     binary
+*.otf     binary
+*.eot     binary
+*.ttf     binary
+*.woff    binary
+*.svg     binary
